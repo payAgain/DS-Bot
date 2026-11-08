@@ -9,7 +9,7 @@ const OUTCOMES = { allow: 'allowed-once', reject: 'rejected' }
 
 export function install(rt) {
   const { ctx } = rt
-  /** @type {Map<string, {id:string, sessionId:string, botId:string, roomId?:string, tool:string, reason:string, detail:{text?:string, code?:string}, at:number, answer?:(outcome:string)=>void}>} */
+  /** @type {Map<string, {id:string, sessionId:string, botId:string, roomId?:string, callId?:string, tool:string, reason:string, fullReason:string, reasonTruncated:boolean, detail:{text?:string, code?:string}, at:number, answer?:(outcome:string)=>void}>} */
   const pending = new Map()
   const approvalListeners = new Set()
   const onApproval = (listener) => {
@@ -33,9 +33,12 @@ export function install(rt) {
       id,
       sessionId,
       botId,
+      ...(request.callId ? { callId: request.callId } : {}),
       ...(owner ? { roomId: owner.roomId } : {}),
       tool: String(request.toolName ?? ''),
       reason: String(request.reason ?? '').slice(0, 500),
+      fullReason: String(request.reason ?? '').slice(0, 16000),
+      reasonTruncated: String(request.reason ?? '').length > 16000,
       detail: rt.callDetail?.(sessionId, request.callId) ?? {},
       at: Date.now(),
     }

@@ -1,4 +1,5 @@
 node_modules/
+/artifacts/
 *.tgz
 # The desktop app's window build (npm run build in app/), its packages (npm run pack, npm run dist)
 # and the next version that checks its update (see app/README.md). The Office runtime payload

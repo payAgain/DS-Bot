@@ -2,6 +2,10 @@
 
 # DS Bot
 
+> 个人 fork 的开发分支增加 Composio 应用账号、按 Bot 授权，以及自维护
+> 原生手机端的配套接口。源码实现和构建检查不代表已通过集成验收，
+> 详见[个人版开发说明](docs/personal-development.zh-CN.md)。
+
 [English](README.md) | 中文
 
 ![版本](https://img.shields.io/badge/版本-v0.3_预览-blue) ![DSH](https://img.shields.io/badge/DSH-0.2.2--rc.1-4D6BFE) ![许可](https://img.shields.io/badge/许可-Apache_2.0-green)

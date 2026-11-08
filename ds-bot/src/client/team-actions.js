@@ -153,6 +153,7 @@ export function teamActions({ call, after, partFor, roster, ui, live, cards, hel
     secretUpdate: (name, { scope, purpose } = {}) => after(call('secret-update', { name, scope, purpose })),
     secretDelete: name => after(call('secret-delete', { name })),
     connectorConnect: (id, payload = {}) => after(call('connector-connect', { id, ...payload })),
+    connectedApps: (endpoint, payload = {}) => call(`composio-${endpoint}`, payload),
     connectorDisconnect: id => after(call('connector-disconnect', { id })),
     connectorRetry: id => after(call('connector-retry', { id })),
     connectorSignInCode: (id, input) => after(call('connector-sign-in-code', { id, input })),

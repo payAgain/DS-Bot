@@ -108,6 +108,7 @@ export function install(rt) {
     learning: rt.learningView(),
     learningSettled: rt.learningSettledView(),
     connectors: rt.connectorsView(),
+    connectedApps: rt.composioView?.() ?? { configured: false, accounts: [], pending: [] },
     capabilityStatuses: rt.capabilityStatusesView(),
     imStatus: rt.imStatusView?.() ?? {},
     imVia: rt.imViaView?.() ?? {},
@@ -405,6 +406,7 @@ export function install(rt) {
         }
         case 'dismiss-question':
           await rt.load()
+          if (body.questionId !== undefined && state.questions[body.sessionId]?.id !== body.questionId) return fail('This question is no longer open', 'bot/stale')
           if (rt.own(state.questions, body.sessionId) !== undefined) {
             rt.closeCard(body.sessionId, state.questions[body.sessionId], 'dismissed')
             delete state.questions[body.sessionId]
@@ -650,6 +652,12 @@ export function install(rt) {
           await rt.diagnostics.clear()
           return ok(true)
         default:
+          if (endpoint.startsWith('mobile-')) {
+            return ok(await rt.mobileEndpoint(endpoint, body, signal))
+          }
+          if (endpoint.startsWith('composio-')) {
+            return ok(await rt.composioEndpoint(endpoint, body, signal))
+          }
           if (endpoint.startsWith('computer-')) {
             await rt.load()
             return ok(await rt.computerEndpoint(endpoint.slice('computer-'.length), body))

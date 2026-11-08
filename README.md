@@ -2,6 +2,11 @@
 
 # DS Bot
 
+> Personal fork: the development branch adds Composio app accounts, per-Bot
+> permissions and an API for our native mobile companion. Source implementation
+> and build checks are recorded separately from integration acceptance.
+> See [personal development notes](docs/personal-development.zh-CN.md).
+
 English | [中文](README.zh.md)
 
 ![version](https://img.shields.io/badge/version-v0.3_preview-blue) ![DSH](https://img.shields.io/badge/DSH-0.2.2--rc.1-4D6BFE) ![license](https://img.shields.io/badge/license-Apache_2.0-green)

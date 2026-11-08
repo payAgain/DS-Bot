@@ -4,6 +4,7 @@
 // a form, a code or a choice opens the app's own view, which reuses the rows in
 // connectors.js. Connected apps and the mailbox accounts have their own view.
 import { createElement as h, useEffect, useRef, useState } from 'react'
+import { ConnectedAppsPanel, CONNECTED_APPS_CSS } from './connected-apps.js'
 import { ConnectorMark, ConnectorRow, MailAccount, MailCatalogRow, MailPending, MailRules, AddMenu, openSignIn } from './connectors.js'
 import { reserveWindow } from './open-window.js'
 import { ChevronLeftIcon, ChevronRightIcon, CheckIcon, PlusIcon, SearchIcon } from './icons.js'
@@ -132,6 +133,9 @@ export function ConnectorsPage({ roster, actions }) {
   const back = () => setView(null)
   const banner = error ? h('div', { className: 'bt-connector-error bt-connector-banner', role: 'alert' }, hostText(error)) : null
 
+  if (view === 'apps') return h(Subview, { title: t('Connected apps'), onBack: back },
+    h(ConnectedAppsPanel, { actions, bots: roster?.bots ?? [] }))
+
   if (view?.app === 'mail') {
     return h(Subview, { title: t('Mailbox'), onBack: back }, banner,
       h('div', { className: 'bt-set-card bt-connectors-card' },
@@ -183,13 +187,14 @@ export function ConnectorsPage({ roster, actions }) {
         h(SearchIcon),
         h('input', { type: 'search', 'aria-label': t('Search connectors'), placeholder: t('Search connectors'), value: query, onChange: e => setQuery(e.target.value) })),
       h('button', { type: 'button', className: 'bt-app-pill', onClick: () => setView('custom') }, h(PlusIcon), t('Custom')),
+      h('button', { type: 'button', className: 'bt-app-pill', onClick: () => setView('apps') }, t('More apps')),
       h(ConnectedSummary, { apps: marks, count, onClick: () => setView('connected') })),
     h('div', { className: 'bt-app-chips', role: 'group', 'aria-label': t('Category') },
       [['', 'All'], ...CATEGORIES].map(([id, label]) => h('button', { key: id || 'all', type: 'button', 'aria-pressed': category === id, onClick: () => setCategory(id) }, t(label)))),
     body)
 }
 
-export const CONNECTORS_PAGE_CSS = `
+export const CONNECTORS_PAGE_CSS = CONNECTED_APPS_CSS + `
 .bt-apps{display:flex;flex-direction:column;gap:14px;container-type:inline-size}
 .bt-app-bar{display:flex;align-items:center;gap:8px}
 .bt-app-search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border:1px solid var(--bt-line);border-radius:999px;background:var(--bt-card);color:var(--bt-ink-3);cursor:text}
@@ -244,6 +249,7 @@ export const CONNECTORS_PAGE_CSS = `
 .bt-app-sub-head h3{margin:0;font-size:14px;line-height:20px;font-weight:600}
 .bt-app-about{margin:0 4px;font-size:13px;line-height:20px;color:var(--bt-ink-2)}
 .bt-connector-mark{--bt-mark-ink:var(--bt-ink)}
+@container(max-width:600px){.bt-app-bar{flex-wrap:wrap}.bt-app-search{flex-basis:100%}}
 [data-bt-motion=off] .bt-app,[data-bt-motion=off] .bt-app *,[data-bt-motion=off] .bt-app::after{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.bt-app[data-fresh]::after,.bt-app[data-fresh] .bt-app-icon,.bt-app[data-fresh] .bt-app-btn-done{animation:none}}
 `
