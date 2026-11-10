@@ -8,6 +8,7 @@ import { WidgetDock } from './widget-cell.js'
 import { LearningDock } from './learning-card.js'
 import { HandoffDock } from './handoff-card.js'
 import { AppAccessDock, ComputerHandoffDock } from './computer.js'
+import { ReviewLink } from './review-link.js'
 import { pendingReviewSources, reviewHome } from './review-inbox-model.js'
 
 const EMPTY = {}
@@ -36,8 +37,7 @@ export function ExecutionReview({ approval, actions }) {
       h('button', { type: 'button', className: 'bt-q-submit', disabled: busy || !approval.answerable || approval.reasonTruncated, onClick: () => answer('allow') }, t('Allow once'))))
 }
 
-// The old raised docks are replaced by the Main Bot's inbox. Inline transcript
-// cards remain mirrors of the same id and withdraw when the inbox resolves it.
+// The Main Bot inbox owns pending interactions; source docks only route to it.
 export const routeRequestDock = Component => function SourceRequestDock(props) {
   const home = props.useRoster(reviewHome)
   return home ? null : h(Component, props)
@@ -54,25 +54,45 @@ export function ReviewInboxDock(props) {
   const home = reviewHome(roster)
   if (!home) return null
   const sources = pendingReviewSources(roster, work, holds, computer)
-  if (!sources.length) return currentPart(home) === sessionId
-    ? h('div', { className: 'bt-q-dock bt-review-inbox-empty', role: 'status', style: { padding: '8px 12px', color: 'var(--bt-ink-2)', fontSize: 12 } }, t('Team approvals and confirmations'), ' · ', t('No pending requests in this inbox.'))
-    : null
+  if (!sources.length) return null
   if (currentPart(home) !== sessionId) {
     if (!sources.some(source => source.sessionId === sessionId)) return null
-    return h('div', { className: 'bt-q-dock' },
-      h('span', null, t('Review this request with {name}.', { name: home.name })), ' ',
-      h('button', { type: 'button', className: 'bt-soft bt-soft-sm', onClick: () => actions.openSession(home.id) }, t('Open {name}', { name: home.name })))
+    return h('div', { className: 'bt-q-dock bt-review-route' }, h(ReviewLink, { home, sessionId, actions }))
   }
-  return h('details', { className: 'bt-review-inbox', open: true, style: { width: '100%', maxWidth: 748, margin: '8px auto', border: '1px solid var(--bt-line)', borderRadius: 16, padding: 12 } },
-    h('summary', { style: { cursor: 'pointer', fontWeight: 600 } }, t('Team approvals and confirmations')),
-    h('p', { className: 'bt-set-hint' }, t('You decide here. Each Bot receives the result for its original request.')),
-    h('div', { style: { maxHeight: '60vh', overflowY: 'auto', overscrollBehavior: 'contain' } }, sources.map(source => {
-      // Own cards already visible inline stay there; other Bots are always raised here.
-      const cardProps = { ...props, sessionId: source.sessionId, useCards: source.bot.id === home.id ? props.useCards : noDrawnCards, reviewInbox: true }
-      return h('section', { key: source.bot.id, 'data-source-bot': source.bot.id, style: { marginTop: 14 } },
-        h('h3', { style: { fontSize: 14, margin: '8px 0' } }, t('From {name}', { name: source.bot.name })),
+  const count = sources.reduce((total, source) => total + source.count, 0)
+  return h('section', { className: 'bt-review-inbox', tabIndex: -1, 'aria-label': t('Pending approvals and confirmations') },
+    h('header', { className: 'bt-review-head' },
+      h('span', null, t('Waiting for your review')),
+      h('span', { className: 'bt-review-count' }, count)),
+    h('div', { className: 'bt-review-list' }, sources.map(source => {
+      const cardProps = { ...props, sessionId: source.sessionId, useCards: noDrawnCards, reviewInbox: true }
+      return h('section', { key: source.bot.id, 'data-source-bot': source.bot.id, className: 'bt-review-source' },
+        h('div', { className: 'bt-review-source-name' }, source.bot.name),
         source.approvals.map(approval => h(ExecutionReview, { key: approval.id, approval, actions })),
-        ...[QuestionDock, WidgetDock, SecretDock, ConnectorDock, MailDock, HandoffDock, ComputerHandoffDock, AppAccessDock, LearningDock]
-          .map((Component, index) => h(Component, { key: index, ...cardProps })))
+        ...[[QuestionDock, source.question], [WidgetDock, source.view], [SecretDock, source.secret.length], [ConnectorDock, source.connector.length], [MailDock, source.mail.length], [HandoffDock, source.browser], [ComputerHandoffDock, source.handoff], [AppAccessDock, source.apps.length], [LearningDock, source.learning.length]]
+          .filter(([, pending]) => pending).map(([Component], index) => h(Component, { key: Component.name || index, ...cardProps })))
     })))
 }
+
+export const REVIEW_INBOX_CSS = `
+.bt-review-inbox{box-sizing:border-box;width:100%;max-width:var(--dsh-chat-content-width,748px);min-width:0;margin:4px auto 8px;outline:none}
+.bt-review-head{display:flex;align-items:center;gap:8px;padding:4px 2px 8px;font-size:12px;line-height:16px;color:var(--bt-ink-2)}
+.bt-review-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:var(--bt-hover);font-variant-numeric:tabular-nums}
+.bt-review-list{max-height:min(44dvh,420px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;display:flex;flex-direction:column;gap:12px;padding:0 2px 2px}
+.bt-review-source{min-width:0;display:flex;flex-direction:column;gap:6px}
+.bt-review-source-name{font-size:12px;line-height:16px;font-weight:500;color:var(--bt-ink-2);overflow-wrap:anywhere}
+.bt-review-inbox .bt-q-dock,.bt-review-inbox .bt-learning-dock{width:100%;max-width:none;padding:0;margin:0;min-width:0}
+.bt-review-inbox .bt-q{width:100%;max-width:none;margin:0;box-shadow:none;border-radius:12px;overflow:hidden}
+.bt-review-inbox .bt-q-head{padding:12px}
+.bt-review-inbox .bt-q-title{font-size:13px;line-height:18px}
+.bt-review-inbox .bt-q-foot{padding:8px 12px 12px;gap:8px;flex-wrap:wrap;background:var(--bt-card)}
+.bt-review-inbox .bt-q-btn,.bt-review-inbox .bt-q-submit{min-height:32px;font-size:13px}
+.bt-review-inbox .bt-mw-card{padding:12px;box-sizing:border-box;overflow-wrap:anywhere}
+.bt-review-inbox .bt-mw-card p{margin:6px 0;font-size:13px;line-height:18px}
+.bt-review-inbox .bt-mw-code{max-height:160px;overflow:auto;font-size:12px}
+.bt-review-inbox .bt-mw-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:8px}
+.bt-review-link{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;line-height:16px;color:var(--bt-ink-2)}
+.bt-review-route{padding:4px 0}
+.bt-review-scope{padding:0 12px;font-size:12px;line-height:16px;color:var(--bt-ink-2)}
+@media(max-width:520px){.bt-review-list{max-height:40dvh}.bt-review-inbox .bt-q-foot{gap:6px}.bt-review-inbox .bt-q-btn,.bt-review-inbox .bt-q-submit{padding-inline:12px}}
+`

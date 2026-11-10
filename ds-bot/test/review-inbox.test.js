@@ -4,14 +4,14 @@ import { build } from 'esbuild'
 import { runInNewContext } from 'node:vm'
 import { fileURLToPath } from 'node:url'
 import { install } from '../src/host/approvals.js'
-import { pendingReviewSources, reviewHome } from '../src/client/review-inbox-model.js'
+import { pendingReviewSources, reviewHome, reviewForCall, waitingForReview } from '../src/client/review-inbox-model.js'
 
 const chief = { id: 'chief', sessionId: 'chief-part', name: 'Chief' }
 const writer = { id: 'writer', sessionId: 'writer-part', name: 'Writer' }
 const roster = { mainBotId: 'chief', bots: [chief, writer], byId: { chief, writer, 'chief-part': chief, 'writer-part': writer } }
 
 const compiled = await build({
-  stdin: { contents: "export { ExecutionReview, ReviewInboxDock, routeRequestDock } from './src/client/review-inbox.js'", resolveDir: fileURLToPath(new URL('..', import.meta.url)) },
+  stdin: { contents: "export { ExecutionReview, ReviewInboxDock, routeRequestDock } from './src/client/review-inbox.js'; export { AppAccessCall, PendingAppAccess } from './src/client/computer.js'", resolveDir: fileURLToPath(new URL('..', import.meta.url)) },
   bundle: true, format: 'cjs', platform: 'browser', write: false, logLevel: 'silent', external: ['react', 'react-dom', '@deepseek-ai/dsh-client-ui-primitives'],
 })
 function components() {
@@ -115,9 +115,83 @@ test('an expired public approval signal resolves as cancelled without a user dec
 })
 
 
-test('the Main Bot has an explicit empty-inbox status without claiming every host approval is covered', () => {
+test('an empty inbox adds no permanent banner or empty source section', () => {
   const { ReviewInboxDock } = components()
   const tree = ReviewInboxDock({ sessionId: 'chief-part', useRoster: fn => fn(roster), actions: {} })
-  assert.ok(JSON.stringify(tree).includes('No pending requests in this inbox.'))
+  assert.equal(tree, null)
   assert.equal(ReviewInboxDock({ sessionId: 'writer-part', useRoster: fn => fn(roster), actions: {} }), null)
+})
+
+
+const expand = node => {
+  if (Array.isArray(node)) return node.map(expand)
+  if (!node || typeof node !== 'object') return node
+  if (typeof node.type === 'function') return expand(node.type(node.props))
+  return { ...node, props: { ...node.props, children: expand(node.props.children) } }
+}
+const appAsk = (id, bot = chief, extra = {}) => ({ id, botId: bot.id, sessionId: bot.sessionId, callId: `call-${id}`, appName: 'Finder', ...extra })
+const inboxProps = (computer, extra = {}) => ({ sessionId: chief.sessionId, useRoster: fn => fn(roster), useComputer: fn => fn(computer), useCards: fn => fn({ [chief.sessionId]: { 'call-one': 1 } }), useHeldCards: fn => fn({}), actions: { computerAppAnswer() {} }, ...extra })
+
+test('one application request has one interaction even when its own transcript call is drawn', () => {
+  const { ReviewInboxDock, AppAccessCall } = components()
+  const computer = { asks: { one: appAsk('one') } }
+  const props = inboxProps(computer)
+  const inline = expand(AppAccessCall({ sessionId: chief.sessionId, callId: 'call-one', roster, actions: props.actions, hooks: { useComputer: props.useComputer } }))
+  const dock = expand(ReviewInboxDock(props))
+  assert.equal(all([inline, dock], node => node.props?.['data-request-id'] === 'one').length, 1)
+  assert.equal(all([inline, dock], node => node.type === 'button').length, 3)
+  assert.ok(JSON.stringify(dock).includes('Allow access to Finder?'))
+  assert.ok(JSON.stringify(dock).includes('This time: the requesting conversation part. Always: this Bot across conversations.'))
+})
+
+test('same-source and cross-source requests remain separate by original id, not app title', () => {
+  const { ReviewInboxDock } = components()
+  const computer = { asks: { one: appAsk('one'), alias: appAsk('one'), two: appAsk('two'), worker: appAsk('worker', writer) } }
+  const tree = expand(ReviewInboxDock(inboxProps(computer)))
+  assert.deepEqual(all(tree, node => node.props?.['data-request-id']).map(node => node.props['data-request-id']), ['one', 'two', 'worker'])
+  assert.equal(pendingReviewSources(roster, {}, {}, computer).reduce((sum, source) => sum + source.count, 0), 3)
+  assert.equal(all(tree, node => node.type === 'button').length, 9)
+  assert.equal(all(tree, node => node.props?.className === 'bt-review-source').length, 2)
+})
+
+test('settlement and cancellation withdraw only their own request and never revive historical cards', () => {
+  const { ReviewInboxDock, AppAccessCall } = components()
+  const computer = { asks: { old: appAsk('old', chief, { status: 'cancelled' }), done: appAsk('done', chief, { outcome: 'once' }), live: appAsk('live') } }
+  const props = inboxProps(computer)
+  const tree = expand(ReviewInboxDock(props))
+  assert.deepEqual(all(tree, node => node.props?.['data-request-id']).map(node => node.props['data-request-id']), ['live'])
+  assert.equal(reviewForCall(roster, chief.sessionId, 'call-old', {}, computer), undefined)
+  assert.equal(reviewForCall(roster, chief.sessionId, 'other-call', {}, computer), undefined)
+  const history = expand(AppAccessCall({ sessionId: chief.sessionId, callId: 'call-old', roster, actions: props.actions, hooks: { useComputer: props.useComputer } }))
+  assert.equal(all(history, node => node.type === 'button').length, 0)
+  delete computer.asks.live
+  assert.equal(ReviewInboxDock(props), null)
+})
+
+test('app-access answers keep original id and scope, suppress double clicks, and can retry a failure', async () => {
+  const { PendingAppAccess } = components()
+  for (const [label, choice] of [['Deny', 'deny'], ['This time', 'once'], ['Always', 'always']]) {
+    const seen = []
+    const tree = PendingAppAccess({ ask: appAsk('original'), actions: { computerAppAnswer: async (...args) => seen.push(args) }, inline: false, compact: true })
+    const button = all(tree, node => node.type === 'button').find(node => node.props.children.includes(label))
+    button.props.onClick(); button.props.onClick()
+    await new Promise(resolve => setImmediate(resolve))
+    assert.deepEqual(seen, [['original', choice]])
+  }
+  let attempts = 0
+  const tree = PendingAppAccess({ ask: appAsk('retry'), actions: { computerAppAnswer: async () => { attempts++; if (attempts === 1) throw Error('offline') } } })
+  const allow = all(tree, node => node.type === 'button').find(node => node.props.children.includes('This time'))
+  allow.props.onClick()
+  await new Promise(resolve => setImmediate(resolve))
+  allow.props.onClick()
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(attempts, 2)
+})
+
+test('waiting status follows live blocking requests, not other Bots or background suggestions', () => {
+  assert.equal(waitingForReview(roster, chief.sessionId, {}, {}, { asks: { a: appAsk('a') } }), true)
+  assert.equal(waitingForReview(roster, writer.sessionId, {}, {}, { asks: { a: appAsk('a') } }), false)
+  assert.equal(waitingForReview(roster, chief.sessionId, { approvals: [{ id: 'a', botId: chief.id }] }), true)
+  assert.equal(waitingForReview({ ...roster, learning: { chief: [{ id: 'background' }] } }, chief.sessionId), false)
+  assert.equal(waitingForReview(roster, chief.sessionId, {}, {}, { asks: { a: appAsk('a', chief, { status: 'expired' }) } }), false)
 })

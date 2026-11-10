@@ -31,7 +31,7 @@ import { SECRET_CSS, SecretDock } from './secret-card.js'
 import { ConnectorDock, MailDock, CONNECTOR_CSS } from './connectors.js'
 import { CONNECTORS_PAGE_CSS } from './connectors-page.js'
 import { LearningDock, LearningTurnTail, LEARNING_CSS } from './learning-card.js'
-import { ReviewInboxDock, routeRequestDock } from './review-inbox.js'
+import { ReviewInboxDock, routeRequestDock, REVIEW_INBOX_CSS } from './review-inbox.js'
 import { MODEL_CSS, ModelChoiceDock, DeepSeekSignIn } from './model-menu.js'
 import { BOT_SETTINGS_CSS } from './bot-settings.js'
 import { AVATAR_LIBRARY_CSS } from './avatar-library.js'
@@ -1116,6 +1116,7 @@ export function apply(ctx) {
   // The return button belongs to neither group: it renders only in Agent mode.
   ctx.effect(() => installCompiledStyles(RETURN_CSS, 'return'), 'ds-bot: return styles')
   ctx.effect(() => installCompiledStyles(COMPUTER_CSS, 'computer'), 'ds-bot: computer styles')
+  ctx.effect(() => installCompiledStyles(REVIEW_INBOX_CSS, 'review-inbox'), 'ds-bot: review inbox styles')
   shadow('sidebar.footer.action', { id: 'bot-return', order: -300, inject: face }, BotReturn)
 
   // The main view decides `plain`: a DSH Agent Session keeps the Bot shell but

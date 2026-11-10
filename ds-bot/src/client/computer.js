@@ -6,6 +6,7 @@ import { CellEmpty } from './cell-empty.js'
 import { lookOf } from './characters.js'
 import { t } from './i18n.js'
 import { toolArgs } from './text.js'
+import { pendingAppAsks, reviewHome } from './review-inbox-model.js'
 
 // -------------------------------------------------------------------------
 // Computer use: the switch page, a Bot's Control card, its Computer drawer page,
@@ -119,7 +120,7 @@ export function ComputerView({ bot, actions, hooks }) {
 }
 
 // ---- The app-access card: "Allow {bot} to use {app}?" ----
-export function PendingAppAccess({ ask, actions, inline }) {
+export function PendingAppAccess({ ask, actions, inline, compact = false }) {
   const [closed, setClosed] = useState(false)
   const busyRef = useRef(false)
   const titleId = useId()
@@ -129,10 +130,10 @@ export function PendingAppAccess({ ask, actions, inline }) {
     busyRef.current = true
     keep()
     setClosed(true)
-    void Promise.resolve(actions.computerAppAnswer(ask.id, choice)).catch((error) => {
+    void Promise.resolve().then(() => actions.computerAppAnswer(ask.id, choice)).catch((error) => {
       setClosed(false)
       actions.reportError?.(error, 'computer')
-    })
+    }).finally(() => { busyRef.current = false })
   }
   return h('div', {
     className: inline ? 'bt-q-inline' : 'bt-q-dock',
@@ -140,10 +141,11 @@ export function PendingAppAccess({ ask, actions, inline }) {
     onFocusCapture: keep,
     onPointerDownCapture: keep,
   },
-    h('section', { className: inline ? 'bt-q' : 'bt-q bt-q-raised', role: 'group', 'aria-labelledby': titleId },
+    h('section', { className: inline ? 'bt-q' : 'bt-q bt-q-raised', role: 'group', 'aria-labelledby': titleId, 'data-request-id': ask.id, 'data-review-kind': 'computer-app' },
       h('div', { className: 'bt-q-head' },
         h('div', { className: 'bt-q-text' },
-          h('p', { className: 'bt-q-title', id: titleId }, t('Allow {name} to use {app}?', { name: ask.botName ?? 'a Bot', app: ask.appName })))),
+          h('p', { className: 'bt-q-title', id: titleId }, compact ? t('Allow access to {app}?', { app: ask.appName }) : t('Allow {name} to use {app}?', { name: ask.botName ?? 'a Bot', app: ask.appName })))),
+      compact ? h('div', { className: 'bt-review-scope' }, t('This time: the requesting conversation part. Always: this Bot across conversations.')) : null,
       h('div', { className: 'bt-q-foot' },
         h('button', { type: 'button', className: 'bt-q-btn', onClick: () => answer('deny') }, t('Deny')),
         h('button', { type: 'button', className: 'bt-q-btn', onClick: () => answer('once') }, t('This time')),
@@ -185,21 +187,25 @@ export function ComputerCallRow({ sessionId, call, roster, actions, hooks }) {
 // The call the ask waits on: drawn at it in the chat, like the handoff card.
 export function AppAccessCall({ sessionId, callId, roster, actions, heldCards, hooks }) {
   const bot = roster.byId[sessionId]
-  const ask = hooks.useComputer?.(map => Object.values(map.asks ?? {}).find(item => item.callId === callId))
+  const computer = hooks.useComputer?.(map => map) ?? {}
+  const ask = bot && pendingAppAsks(computer, bot.id).find(item => item.callId === callId)
   if (!bot || ask === undefined || !actions.computerAppAnswer) return h(CellEmpty)
+  const home = reviewHome(roster)
+  if (home) return h(CellEmpty)
   if (heldCards?.[heldCardKey('computer-app', ask.id)] > 0) return h(CellEmpty)
   return h(PendingAppAccess, { key: ask.id, ask: { ...ask, botName: bot.name }, actions, inline: true })
 }
 
 // An app ask docked above the composer of the Bot's own chat: its call is a
 // hidden group Session's, or a turn the transcript does not draw.
-export function AppAccessDock({ sessionId, useRoster, useCards, useHeldCards, useComputer, actions }) {
+export function AppAccessDock({ sessionId, useRoster, useCards, useHeldCards, useComputer, actions, reviewInbox = false }) {
   const bot = useRoster(value => value.byId[sessionId])
-  const ask = useComputer?.(map => (bot ? Object.values(map.asks ?? {}).find(item => item.botId === bot.id) : undefined))
-  const drawn = useCards?.(state => ask?.callId !== undefined && state[sessionId]?.[ask.callId] > 0) === true
-  const held = useHeldCards?.(state => state[sessionId]?.[heldCardKey('computer-app', ask?.id)] > 0) === true
-  if (!bot || ask === undefined || !actions.computerAppAnswer || (drawn && !held)) return null
-  return h(PendingAppAccess, { key: ask.id, ask: { ...ask, botName: bot.name }, actions, inline: false })
+  const computer = useComputer?.(map => map) ?? {}
+  const drawn = useCards?.(state => state[sessionId]) ?? {}
+  const held = useHeldCards?.(state => state[sessionId]) ?? {}
+  if (!bot || !actions.computerAppAnswer) return null
+  const asks = pendingAppAsks(computer, bot.id).filter(ask => reviewInbox || !drawn[ask.callId] || held[heldCardKey('computer-app', ask.id)] > 0)
+  return asks.map(ask => h(PendingAppAccess, { key: ask.id, ask: { ...ask, botName: bot.name }, actions, inline: false, compact: reviewInbox }))
 }
 
 // ---- The handoff card's computer variant ----

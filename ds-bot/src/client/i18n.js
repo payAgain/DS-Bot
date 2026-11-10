@@ -5,6 +5,11 @@
 export const NAMESPACE = 'ds-bot'
 
 const ZH = {
+  'Waiting for your review': '等待你处理',
+  'Review with {name}': '前往 {name} 处理',
+  'Pending approvals and confirmations': '待处理的审批与确认',
+  'Allow access to {app}?': '允许访问{app}吗？',
+  'This time: the requesting conversation part. Always: this Bot across conversations.': '这一次：发起请求的对话段；一直允许：此 Bot 的所有对话。',
   "System prompt": "系统提示词",
   "Manage this Bot’s persona, voice and working strategy.": "管理这个 Bot 的完整人设、表达风格与工作策略。",
   "Prompt mode": "提示词模式",

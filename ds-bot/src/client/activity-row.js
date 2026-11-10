@@ -5,6 +5,7 @@ import { Elapsed, Shimmer, PHRASES } from './cells.js'
 import { noteClientError } from './diagnostics.js'
 import { reducedMotion } from './motion.js'
 import { t } from './i18n.js'
+import { waitingForReview } from './review-inbox-model.js'
 
 // -------------------------------------------------------------------------
 // The activity row: the Bot's mark and a shimmering phrase at the transcript
@@ -103,9 +104,19 @@ function useRowEntrances(replacing) {
   }, [])
 }
 
-export function ActivityIndicator({ sessionId, useRoster, useSessionStatus, useLive, useSession, useWork, actions }) {
+// The displayed clock measures the current execution stretch, never a user wait.
+export function executionClock(previous, { start, running, waiting, now }) {
+  if (!previous || previous.start !== start || !running) return { start, waiting, resumedAt: 0 }
+  return { start, waiting, resumedAt: !waiting && previous.waiting ? now : previous.resumedAt }
+}
+
+export function ActivityIndicator({ sessionId, useRoster, useSessionStatus, useLive, useSession, useWork, useComputer, useBrowserHolds, actions }) {
   const roster = useRoster(value => value)
   const running = useSessionStatus(map => map.get(sessionId)?.running === true)
+  const work = useWork?.(value => value) ?? {}
+  const computer = useComputer?.(value => value) ?? {}
+  const browserHolds = useBrowserHolds?.(value => value) ?? {}
+  const waiting = waitingForReview(roster, sessionId, work, browserHolds, computer)
   const turnAt = useWork?.(work => work.turns?.[sessionId])
   // Until the host reports the turn's start, the clock counts from when this window
   // saw the run begin.
@@ -129,15 +140,18 @@ export function ActivityIndicator({ sessionId, useRoster, useSessionStatus, useL
   const tools = entries.filter(entry => !entry.text).sort((a, b) => a.at - b.at)
   // Group chats show who is typing on their own while members speak.
   const relaying = tools.some(entry => entry.relay)
-  const visible = moveAt !== 0 || rowVisible({ running, streaming, tools, relaying, bot, room })
+  const visible = waiting || moveAt !== 0 || rowVisible({ running, streaming, tools, relaying, bot, room })
   const tool = tools.at(-1)
   const inputRef = useRef(0)
   // A steer keeps the run going, so nothing else resets the row: fresh input is
   // the newest activity, and the phrase and the clock restart from the send.
   const inputAt = Math.max(inputRef.current, pendingInput)
   inputRef.current = inputAt
+  const clock = useRef(null)
+  clock.current = executionClock(clock.current, { start: Math.max(turnAt ?? runAt.current, inputAt), running, waiting, now: Date.now() })
   const want = !visible ? null
-    : moveAt !== 0 ? { key: 'move', label: t('Switching working folder'), state: 'thinking' }
+    : waiting ? { key: 'waiting-for-review', label: t('Waiting for your review'), state: 'waiting' }
+      : moveAt !== 0 ? { key: 'move', label: t('Switching working folder'), state: 'thinking' }
       : inputAt > (tool?.at ?? 0)
         ? { key: `input:${inputAt}`, pool: PHRASES.thinking, state: 'thinking' }
         : tool ? { key: tool.label ? `tool:${tool.label}` : 'working', label: tool.label, pool: PHRASES.working, state: tool.state ?? 'working' }
@@ -149,7 +163,7 @@ export function ActivityIndicator({ sessionId, useRoster, useSessionStatus, useL
   useEffect(() => {
     if (wantKey === null || shown?.key === wantKey) return undefined
     const make = () => setShown({ key: wantKey, text: want.label ?? drawPhrase(want.pool), at: Date.now() })
-    const wait = shown ? shown.at + PHRASE_HOLD_MS - Date.now() : 0
+    const wait = want.state === 'waiting' || shown?.key === 'waiting-for-review' ? 0 : shown ? shown.at + PHRASE_HOLD_MS - Date.now() : 0
     if (wait <= 0) { make(); return undefined }
     const timer = setTimeout(make, wait)
     return () => clearTimeout(timer)
@@ -185,11 +199,11 @@ export function ActivityIndicator({ sessionId, useRoster, useSessionStatus, useL
   useEffect(() => { if (!running) actions.clearLive(sessionId) }, [running, sessionId])
   // Only rows that take the activity row's place grow out of it.
   useRowEntrances(() => leaving.current || Date.now() - endedAt.current < 300)
-  const host = useRunningHost(running || moveAt !== 0)
+  const host = useRunningHost(running || waiting || moveAt !== 0)
   if (!host || phase === null || !shown) return null
-  return createPortal(h('div', { className: 'bt-typing', 'data-exiting': phase === 'out' ? '' : undefined, 'aria-hidden': true },
+  return createPortal(h('div', { className: 'bt-typing', 'data-exiting': phase === 'out' ? '' : undefined, 'data-waiting': waiting || undefined, 'aria-hidden': true },
     bot ? h(BotMark, { bot, size: 28, state: markState.current, live: true, pokeable: true }) : h(RoomAvatar, { room, roster, size: 28 }),
     h('span', { className: 'bt-typing-text' },
-      h('span', { key: `${shown.key}:${shown.at}`, className: 'bt-typing-label' }, h(Shimmer, null, `${shown.text}…`)),
-      h(Elapsed, { at: moveAt !== 0 ? moveAt : Math.max(turnAt ?? runAt.current, inputAt), className: 'bt-typing-time' }))), host)
+      h('span', { key: `${shown.key}:${shown.at}`, className: 'bt-typing-label' }, waiting ? t('Waiting for your review') : h(Shimmer, null, `${shown.text}…`)),
+      waiting ? null : h(Elapsed, { at: moveAt !== 0 ? moveAt : clock.current.resumedAt || clock.current.start, className: 'bt-typing-time' }))), host)
 }

@@ -13,8 +13,9 @@ import { AnsweredReply, ClosedView, WidgetCell } from './widget-cell.js'
 import { SecretToolCell } from './secret-card.js'
 import { ConnectorToolCell, MailToolCell } from './connectors.js'
 import { HandoffCall } from './handoff-card.js'
-import { AppAccessCall, ComputerCallRow, ComputerHandoffCall } from './computer.js'
+import { AppAccessCall, ComputerHandoffCall } from './computer.js'
 import { t } from './i18n.js'
+import { reviewHome, reviewForCall } from './review-inbox-model.js'
 import { call } from './api.js'
 import { failureLabel } from './diagnostics.js'
 import { turnReasoning, thinkingStep, opensReply, stepActivity } from './turn-reasoning.js'
@@ -1062,11 +1063,12 @@ function useShownCards(actions, sessionId, callIds) {
   }, [sessionId, key])
 }
 
-function renderCall(call, { sessionId, roster, actions, useUi, useWork, findBot, heldCards, hooks }) {
+function renderCall(call, { sessionId, roster, actions, useUi, useWork, findBot, heldCards, hooks, browserHolds, computer }) {
   const tool = toolName(call)
   const done = call.kind === 'tool-result'
   const { text: arg, value: argValue } = toolArgs(call)
   const self = roster.byId[sessionId]
+  if (reviewHome(roster) && reviewForCall(roster, sessionId, call.callId, browserHolds, computer)) return h(CellEmpty)
   switch (tool) {
     case 'message_bot': {
       const target = findBot(arg('to')) ?? { name: arg('to') ?? '…', color: 'gray' }
@@ -1152,9 +1154,7 @@ function renderCall(call, { sessionId, roster, actions, useUi, useWork, findBot,
       return done ? h(MemoryEvent, { sessionId, scope: arg('scope'), tool, result: contentText(call.content), failed: call.isError === true, code: call.error?.code, roster, actions, findBot }) : h(CellEmpty)
     default:
       if (isComputerCall(tool)) {
-        return h(Fragment, null,
-          h(ComputerCallRow, { sessionId, call, roster, actions, hooks }),
-          h(AppAccessCall, { sessionId, callId: call.callId, roster, actions, heldCards, hooks }))
+        return h(AppAccessCall, { sessionId, callId: call.callId, roster, actions, heldCards, hooks })
       }
       return h(CellEmpty)
   }
@@ -1163,6 +1163,8 @@ function renderCall(call, { sessionId, roster, actions, useUi, useWork, findBot,
 export function ToolCell({ node, sessionId, useRoster, useUi, useWork, useHeldCards, useBrowserHolds, useBrowserTabs, useBrowserPages, useComputer, actions }) {
   const roster = useRoster(value => value)
   const heldCards = useHeldCards?.(state => state[sessionId])
+  const browserHolds = useBrowserHolds?.(map => map) ?? {}
+  const computer = useComputer?.(map => map) ?? {}
   const root = node.data.root
   const turn = node.location?.turn?.turn ?? root.turn
   const hidden = isHiddenTurn(roster, sessionId, turn)
@@ -1176,6 +1178,6 @@ export function ToolCell({ node, sessionId, useRoster, useUi, useWork, useHeldCa
   useLiveNote(actions, sessionId, `tool:${root.callId ?? node.key}`, note)
   useShownCards(actions, sessionId, drawn.filter(call => (CARDS.has(toolName(call)) || isComputerCall(toolName(call))) && call.callId).map(call => call.callId))
   if (drawn.length === 0) return h(CellEmpty)
-  const env = { sessionId, roster, actions, useUi, useWork, findBot, heldCards, hooks: { useBrowserHolds, useBrowserTabs, useBrowserPages, useComputer } }
+  const env = { sessionId, roster, actions, useUi, useWork, findBot, heldCards, browserHolds, computer, hooks: { useBrowserHolds, useBrowserTabs, useBrowserPages, useComputer } }
   return h(Fragment, null, drawn.map((call, index) => h(Fragment, { key: call.callId ?? index }, renderCall(call, env))))
 }

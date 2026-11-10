@@ -218,10 +218,11 @@ test('a group post drawn from its trigger shows the time it came in', () => {
   effects = []
 })
 
-const props = (root, { sessionId = chief.id, roster = team(), actions = {}, turn = 1, held = {} } = {}) => ({
+const props = (root, { sessionId = chief.id, roster = team(), actions = {}, turn = 1, held = {}, computer = {} } = {}) => ({
   node: { key: 'node', data: { root }, location: { turn: { turn } } }, sessionId,
   useRoster: select => select(roster), useUi: select => select({ reactions: {}, visits: {} }), actions,
   useHeldCards: select => select(held),
+  useComputer: select => select(computer),
 })
 const show = (root, options) => {
   const out = expand(ToolCell(props(root, options)))
@@ -1076,4 +1077,18 @@ test('a folded code block leaves no copy of only its shown part', async () => {
   assert.ok(markdownTexts.some(given => given.includes('```js')))
   assert.equal(copyOf(short).length, 0)
   effects = []
+})
+
+
+test('ordinary computer calls no longer expose Cua rows or screenshots in the transcript', () => {
+  const out = show(call('cua', 'computer-call', { args: { method: 'getState' } }))
+  assert.equal(text(out), '')
+  assert.equal(findAll(out, node => node.props?.className === 'bt-cstep').length, 0)
+})
+
+test('centralized pending questions leave only their inbox interaction, while settled history remains', () => {
+  const data = team({ mainBotId: chief.id, questions: { chief: question('ask') } })
+  const out = show(call('ask_user', 'ask', { running: true }), { roster: data })
+  assert.equal(findAll(out, node => node.type === 'button').length, 0)
+  assert.equal(text(out), '')
 })
