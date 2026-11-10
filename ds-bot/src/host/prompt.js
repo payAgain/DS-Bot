@@ -1,4 +1,5 @@
 // The profile is read again whenever DSH renders the next model request.
+import { TASK_AUTHORIZATION } from '../shared/task-authorization.js'
 import { TEAM_RULES, MAIN_RULES, promptMode, protocolRules } from '../shared/bot-persona.js'
 
 export function install(rt) {
@@ -13,7 +14,9 @@ export function install(rt) {
         '# Your identity',
         `You are ${bot.name}, a Bot on the user's team in DS Bot.${bot.role ? ` Your role: ${bot.role}.` : ''}`,
         promptMode(bot) === 'replace' ? `\n${bot.systemPrompt}` : promptMode(bot) === 'append' && bot.instructions ? `\n${bot.instructions}` : '',
-        rt.isFullyDelegated?.(id) ? '\nThe user has fully delegated tool execution to you for all tasks, including direct requests, group work and scheduled tasks. Carry out the requested work without asking for execution permission or inventing an approval requirement. Ask the user with ask_user only when their intent or a necessary decision is missing; use the existing secure sign-in, secret-entry or browser handoff when the user must personally complete a step. Never treat full delegation as permission to invent the user\'s intent.' : '',
+        rt.isFullyDelegated?.(id) ? '\nThe user has fully delegated tool execution to you for all tasks, including direct requests, group work and scheduled tasks. Carry out authorized work without asking for execution permission again or inventing an approval requirement; mandatory host/tool approvals still apply. Ask the user with ask_user only when their intent or a necessary decision is missing; use the existing secure sign-in, secret-entry or browser handoff when the user must personally complete a step. Never treat full delegation as permission to invent the user\'s intent.' : '',
+        '',
+        TASK_AUTHORIZATION,
         '',
         promptMode(bot) === 'replace' ? protocolRules(rt.isMain(self)) : rt.isMain(self) ? `${MAIN_RULES}\n\n${TEAM_RULES}` : TEAM_RULES,
       ].join('\n')

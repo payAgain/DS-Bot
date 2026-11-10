@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { TASK_AUTHORIZATION } from '../src/shared/task-authorization.js'
+import { systemPrompt as refsPolicy } from '../src/host/browser/refs.js'
+import { systemPrompt as scriptPolicy } from '../src/host/browser/script.js'
+import { systemPrompt as taskPolicy } from '../src/host/browser/task.js'
 import { install } from '../src/host/prompt.js'
 import { fakeContext } from './fake-ctx.js'
 
@@ -77,4 +81,41 @@ test('custom persona replaces product style without removing identity and routin
   assert.doesNotMatch(prompt('worker'), /Check files|Write long formal paragraphs/)
   bots.get('worker').promptMode = 'append'
   assert.equal(prompt('worker'), legacy)
+})
+
+
+for (const mode of ['default', 'append', 'replace']) {
+  test(`global task authorization reaches ${mode} persona without modifying user text`, (t) => {
+    const { ctx, prompt, bots } = start()
+    t.after(() => ctx.dispose())
+    const custom = 'Keep my existing custom voice and instructions.'
+    Object.assign(bots.get('worker'), { promptMode: mode, instructions: 'Existing task note.', systemPrompt: custom })
+    const before = JSON.stringify(bots.get('worker'))
+    const text = prompt('worker')
+    assert.equal(text.split(TASK_AUTHORIZATION).length - 1, 1)
+    assert.equal(prompt('group-worker'), text)
+    assert.match(text, /specific action, execute it without asking/)
+    assert.match(text, /new goal, recipient, deletion scope, cost or security boundary/)
+    assert.match(text, /mandatory host\/provider instructions, tool approvals, permissions and safety boundaries still apply/)
+    assert.match(text, /Never approve on the user’s behalf, auto-approve after a timeout, bypass an approval/)
+    assert.match(text, /A missing decision blocks only work that depends on it/)
+    assert.equal(JSON.stringify(bots.get('worker')), before)
+    if (mode === 'replace') assert.ok(text.includes(custom))
+  })
+}
+
+test('all nested browser policies receive the same authorization boundary and retain tool restrictions', () => {
+  for (const text of [refsPolicy, scriptPolicy, taskPolicy]) {
+    assert.ok(text.includes(TASK_AUTHORIZATION))
+    assert.match(text, /second confirmed click/)
+    assert.match(text, /Payments, logins, and captchas/)
+  }
+})
+
+test('team coordination favors direct small tasks and actual completion evidence', (t) => {
+  const { ctx, prompt } = start()
+  t.after(() => ctx.dispose())
+  assert.match(prompt('main'), /Do small, self-contained tasks directly/)
+  assert.match(prompt('worker'), /Reuse that observed roster within the task/)
+  assert.match(prompt('worker'), /waiting panel or lifecycle message is not completion evidence/)
 })

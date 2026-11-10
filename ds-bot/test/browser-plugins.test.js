@@ -431,7 +431,9 @@ test('refs exposes the ARIA snapshot tool contract', () => {
   assert.equal(refsTools.find(tool => tool.name === 'browser_type').parameters.submit.required, undefined)
   assert.equal(refsTools.find(tool => tool.name === 'browser_tabs').parameters.index.required, undefined)
   assert.equal(refsTools.find(tool => tool.name === 'browser_handoff').parameters.note.required, undefined)
-  assert.ok(refsPrompt.includes('Posting, uploading, downloading, or deleting may need approval;'))
+  assert.ok(refsPrompt.includes('Posting, uploading, downloading, or deleting may trigger tool-enforced approval;'))
+  assert.ok(refsPrompt.includes('do not ask the user to repeat an already authorized decision'))
+  assert.ok(refsPrompt.includes('deleting needs a second confirmed click'))
 })
 
 test('browserExecutablePath must be a string when configured', () => {
