@@ -322,6 +322,8 @@ export function install(rt) {
       name: { type: 'string', required: true, description: 'Short display name, e.g. "Researcher" or "Editor"' },
       role: { type: 'string', required: true, description: 'Two-to-four character role label shown under the name' },
       instructions: { type: 'string', required: true, description: 'What this Bot is responsible for and how it should work' },
+      promptMode: { type: 'string', description: 'Product persona mode: default, append (legacy instructions), or replace. Does not change host instructions or tool permissions.' },
+      systemPrompt: { type: 'string', description: 'Complete custom product persona for replace mode; non-empty, at most 50,000 characters. Saved separately from legacy instructions.' },
       brief: { type: 'string', description: 'Why the user wants it, passed to the new Bot as its first context' },
       model: { type: 'string', description: 'Model the Bot runs on, as provider/model or a model id. Only when the user names one; otherwise the team default model from DS Bot settings, or the model you run on.' },
       effort: { type: 'string', description: 'Thinking level for the model, as list_bot_models shows it. Only when the user names one.' },
@@ -359,7 +361,10 @@ export function install(rt) {
       bot: { type: 'string', description: 'Current name of the Bot to change; leave out to change yourself' },
       name: { type: 'string', description: 'New name' },
       role: { type: 'string', description: 'New role label' },
-      instructions: { type: 'string', description: 'Replacement instructions' },
+      instructions: { type: 'string', description: 'Additional instructions used in append mode' },
+      promptMode: { type: 'string', description: 'Product persona mode: default, append (legacy instructions), or replace. Does not change host instructions or tool permissions.' },
+      systemPrompt: { type: 'string', description: 'Complete custom product persona for replace mode; non-empty, at most 50,000 characters. Saved separately from legacy instructions.' },
+
       color: { type: 'string', description: `One of ${[...COLORS, ...EXTRA_COLORS].join(', ')}` },
       avatar: { ...AVATAR_PARAM, description: `${AVATAR_PARAM.description} An empty string removes the photo and shows the Bot's character again.` },
       model: { type: 'string', description: 'Move the Bot to another model, as provider/model or a model id' },
@@ -376,7 +381,7 @@ export function install(rt) {
       if (bot === undefined) return `No Bot named ${args.bot}.`
       if (bot.id !== caller.id && !rt.isMain(self)) return 'Only a Main Bot can change another Bot. Leave out bot to change yourself, or ask a Main Bot with message_bot.'
       try {
-        const { name: newName, role, instructions, color, model, effort } = args
+        const { name: newName, role, instructions, promptMode, systemPrompt, color, model, effort } = args
         let image
         if (args.avatar !== undefined) {
           const input = typeof args.avatar === 'string' ? args.avatar.trim() : args.avatar
@@ -389,7 +394,7 @@ export function install(rt) {
         // does: setting one keeps a custom character, and clearing removes only the image.
         // They are read here, after the waits above, so a change made meanwhile stays.
         const avatar = image === undefined ? undefined : { ...rt.botOf(bot.id)?.avatar, image }
-        const next = await rt.updateBot(bot.id, { name: newName, role, instructions, color, ...(avatar !== undefined ? { avatar } : {}), ...(model ? { model } : {}), ...(effort === undefined ? {} : { effort }), ...(moving ? { workDir: workDir ?? '' } : {}) }, self, exec.agent?.id)
+        const next = await rt.updateBot(bot.id, { name: newName, role, instructions, promptMode, systemPrompt, color, ...(avatar !== undefined ? { avatar } : {}), ...(model ? { model } : {}), ...(effort === undefined ? {} : { effort }), ...(moving ? { workDir: workDir ?? '' } : {}) }, self, exec.agent?.id)
         if (!moving) return `Updated ${next.name}.`
         const folder = workDir ?? 'the team workspace'
         return bot.id === caller.id ? `Updated ${next.name}. From your next step on, you work in ${folder}.` : `Updated ${next.name}. It now works in ${folder}.`

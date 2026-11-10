@@ -5,6 +5,23 @@
 export const NAMESPACE = 'ds-bot'
 
 const ZH = {
+  "System prompt": "系统提示词",
+  "Manage this Bot’s persona, voice and working strategy.": "管理这个 Bot 的完整人设、表达风格与工作策略。",
+  "Prompt mode": "提示词模式",
+  "Product default": "产品默认",
+  "Default + additional instructions": "默认 + 追加说明",
+  "Custom system prompt": "自定义系统提示词",
+  "Additional instructions": "追加说明",
+  "Describe the complete persona, voice and working strategy…": "填写完整的人设、表达风格与工作策略…",
+  "A custom prompt cannot be empty. Choose Product default to restore defaults.": "自定义提示词不能为空。如需恢复，请选择“产品默认”。",
+  "Custom mode replaces the product’s default persona and style. Team routing, tools, memory, host and provider instructions, and permissions remain in effect.": "自定义模式替换产品默认人设与风格。团队消息协议、工具、记忆、宿主及供应商指令和权限仍然有效。",
+  "Saved changes apply when the next model request is assembled, including group chats. An in-flight response keeps its current prompt; previous conversation history remains.": "保存后从下一次模型请求组装时生效，也适用于群聊。已发出的请求不变，已有对话历史保留。",
+  "Restore product default": "恢复产品默认",
+  "Start from default template": "从默认模板开始",
+  "Preview editable layer": "预览可编辑层",
+  "Draft preview: only the editable product layer, not the full model prompt.": "草稿预览：仅展示可编辑的产品层，不是发送给模型的全部提示词。",
+  "Unsaved draft kept while switching settings. Save to apply, or Cancel to discard.": "切换设置时会保留未保存草稿。点击保存生效，或取消放弃修改。",
+  "This Bot’s prompt changed elsewhere. Cancel to load the saved version before editing again.": "这个 Bot 的提示词已在其他位置修改。请取消并载入最新版本后再编辑。",
   'App connections': '应用连接',
   'Composio app connections': 'Composio 应用连接',
   'Composio connection settings': 'Composio 连接服务设置',

@@ -282,7 +282,7 @@ export function install(rt) {
         }
         case 'create-bot': {
           await rt.bootstrap()
-          const bot = await rt.createBot({ name: body.name, role: body.role, color: body.color, instructions: body.instructions, brief: body.brief, avatar: body.avatar, model: body.model, effort: body.effort, workDir: body.workDir })
+          const bot = await rt.createBot({ name: body.name, role: body.role, color: body.color, instructions: body.instructions, promptMode: body.promptMode, systemPrompt: body.systemPrompt, brief: body.brief, avatar: body.avatar, model: body.model, effort: body.effort, workDir: body.workDir })
           return ok(bot)
         }
         case 'update-bot':

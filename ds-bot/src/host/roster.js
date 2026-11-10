@@ -1,5 +1,6 @@
 // Roster: creating, changing, and deleting Bots and group chats, the Main Bot role, and
 // the first Main Bot of a new team.
+import { promptPatch, promptMode } from '../shared/bot-persona.js'
 import { mkdir } from 'node:fs/promises'
 import { MAX_AVATAR_IMAGE, ROOM_MAX_MEMBERS, ROOM_MODES, ROOM_NAME_MAX, ROOM_NOTICE_MAX } from './constants.js'
 import { currentColor, isColor, normalize, splitRef, unquote } from './text.js'
@@ -145,7 +146,8 @@ export function install(rt) {
     return holdName('bot', cleanName, () => buildBot(cleanName, options))
   }
 
-  async function buildBot(cleanName, { role = '', instructions = '', color, brief = '', createdBy, main = false, avatar, model, effort, workDir, copyOf, pickModel = false }) {
+  async function buildBot(cleanName, { role = '', instructions = '', promptMode, systemPrompt, color, brief = '', createdBy, main = false, avatar, model, effort, workDir, copyOf, pickModel = false }) {
+    const persona = promptPatch({ instructions }, { promptMode, systemPrompt })
     const cleanAvatarValue = cleanAvatar(avatar)
     // The model is fixed at creation, so a later change of the DSH default leaves it alone.
     const modelRef = model ? await rt.resolveModel(model) : pickModel ? undefined : await rt.defaultBotModel()
@@ -173,6 +175,7 @@ export function install(rt) {
         ...(effortId ? { effort: effortId } : {}),
         ...(dir ? { workDir: dir } : {}),
         instructions: String(instructions).trim(),
+        ...persona,
         createdAt: Date.now(),
         createdBy: createdBy ?? null,
         capabilities: [...(rt.learningTeamSkills?.() ?? [])],
@@ -303,6 +306,8 @@ export function install(rt) {
       name: freshName(`${bot.name} copy`),
       role: bot.role,
       instructions: bot.instructions,
+      promptMode: bot.promptMode,
+      systemPrompt: bot.systemPrompt,
       color: bot.color,
       avatar: bot.avatar,
       model: served ? bot.model : undefined,
@@ -317,6 +322,12 @@ export function install(rt) {
   async function updateBot(id, patch, actorId, fromSessionId) {
     const bot = rt.botOf(id)
     if (bot === undefined) throw new Error('Unknown Bot')
+    if (actorId !== undefined && actorId !== id && !rt.isMain(actorId)) throw new Error('Only a Main Bot can change another Bot')
+    const checkPromptVersion = () => {
+      if (patch.promptExpected !== undefined && patch.promptExpected !== JSON.stringify({ promptMode: promptMode(bot), instructions: bot.instructions ?? '', systemPrompt: bot.systemPrompt ?? '' })) throw new Error('This Bot’s prompt changed elsewhere. Reload the saved version before saving.')
+    }
+    checkPromptVersion()
+    const persona = promptPatch(bot, patch)
     if (patch.browserGrants !== undefined && actorId !== undefined) {
       throw new Error(`Only the user can set what ${bot.name} may do in the browser`)
     }
@@ -344,6 +355,7 @@ export function install(rt) {
         effortId = await rt.resolveEffort(effortRef, patch.effort)
       }
     }
+    checkPromptVersion()
     if (patch.name !== undefined) {
       const next = String(patch.name).trim().slice(0, 40)
       const clash = rt.findBot(next)
@@ -359,8 +371,10 @@ export function install(rt) {
     }
     const roleBefore = bot.role
     const instructionsBefore = bot.instructions
+    const personaBefore = JSON.stringify([bot.promptMode, bot.systemPrompt])
     if (patch.role !== undefined) bot.role = String(patch.role).trim().slice(0, 24)
     if (patch.instructions !== undefined) bot.instructions = String(patch.instructions).trim()
+    Object.assign(bot, persona)
     let modelChanged = false
     if (patch.color !== undefined) {
       if (patch.color === null) delete bot.color
@@ -401,8 +415,9 @@ export function install(rt) {
     // several rounds behind it follows the old kickoff's pull until a message
     // lands; notify the Bot's chat so the next turn honors the new profile.
     const notes = []
+    if (personaBefore !== JSON.stringify([bot.promptMode, bot.systemPrompt])) notes.push('Your product persona settings changed. Follow the current system prompt from the next model request; earlier persona text in conversation history is no longer the current configuration.')
     if (bot.role !== roleBefore) notes.push(`Your role is now "${bot.role || '(none)'}"`)
-    if (bot.instructions !== instructionsBefore) notes.push(`Your instructions now read:\n${bot.instructions || '(none)'}`)
+    if (bot.instructions !== instructionsBefore && (bot.promptMode === undefined || promptMode(bot) === 'append')) notes.push(`Your instructions now read:\n${bot.instructions || '(none)'}`)
     // A held greeting means the model pick is still open: the kickoff it later sends
     // already reads the new profile, and a notice would start a turn before that.
     // A Bot editing itself in its own chat just got the tool result in the turn

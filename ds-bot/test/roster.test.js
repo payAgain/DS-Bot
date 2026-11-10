@@ -1380,3 +1380,50 @@ test('a model-less create-bot starts the Bot on the saved team default model', a
   const plain = (await call('create-bot', { name: 'Plain' })).value
   assert.equal(plain.model, 'deepseek/deepseek-v4-flash')
 })
+
+
+test('persona modes persist, copy, restore and reject invalid or stale updates atomically', async (t) => {
+  const { call, stop, home } = start()
+  t.after(stop)
+  await call('state', {})
+  const made = await call('create-bot', { name: 'Persona', instructions: 'Legacy task', promptMode: 'replace', systemPrompt: 'Speak in long formal paragraphs.' })
+  assert.equal(made.ok, true)
+  const id = made.value.id
+  const saved = () => JSON.parse(readFileSync(join(home, 'state.json'), 'utf8'))
+  assert.equal(saved().bots[id].systemPrompt, 'Speak in long formal paragraphs.')
+  const copy = await call('duplicate-bot', { id })
+  assert.equal(copy.value.promptMode, 'replace')
+  assert.equal(copy.value.systemPrompt, made.value.systemPrompt)
+  for (const patch of [{ systemPrompt: '  ' }, { promptMode: 'unknown' }, { systemPrompt: null }, { systemPrompt: 'x'.repeat(50001) }]) {
+    const before = JSON.stringify(rt.botOf(id))
+    assert.equal((await call('update-bot', { id, role: 'Should not change', ...patch })).ok, false)
+    assert.equal(JSON.stringify(rt.botOf(id)), before)
+  }
+  assert.equal((await call('update-bot', { id, promptMode: 'default' })).ok, true)
+  assert.equal(saved().bots[id].instructions, 'Legacy task')
+  assert.equal(saved().bots[id].systemPrompt, made.value.systemPrompt)
+  assert.equal((await call('update-bot', { id, promptMode: 'append' })).ok, true)
+  const stale = JSON.stringify({ promptMode: 'default', instructions: 'Legacy task', systemPrompt: made.value.systemPrompt })
+  assert.equal((await call('update-bot', { id, promptMode: 'replace', promptExpected: stale })).ok, false)
+  const disk = saved()
+  const second = start(disk)
+  t.after(second.stop)
+  const loaded = (await second.call('state', {})).value.bots.find(bot => bot.id === id)
+  assert.equal(loaded.promptMode, 'append')
+  assert.equal(loaded.systemPrompt, made.value.systemPrompt)
+})
+
+test('persona tools preserve Main Bot versus worker permissions', async (t) => {
+  const { call, stop } = start()
+  t.after(stop)
+  const chief = (await call('state', {})).value.mainBotId
+  const worker = (await call('create-bot', { name: 'Worker' })).value
+  const tool = rt.teamTools.find(entry => entry.name === 'update_bot')
+  const patch = { promptMode: 'replace', systemPrompt: 'Write detailed explanations.' }
+  assert.match(await tool.execute({ bot: 'Chief', ...patch }, { agent: { id: worker.id } }), /Only a Main Bot/)
+  await assert.rejects(rt.updateBot(chief, patch, worker.id), /Only a Main Bot/)
+  assert.match(await tool.execute(patch, { agent: { id: worker.id } }), /Updated/)
+  assert.equal(rt.botOf(worker.id).promptMode, 'replace')
+  assert.match(await tool.execute({ bot: 'Worker', promptMode: 'default' }, { agent: { id: chief } }), /Updated/)
+  assert.equal(rt.botOf(worker.id).promptMode, 'default')
+})

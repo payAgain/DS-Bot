@@ -18,7 +18,7 @@ function start(delegated = false) {
     isFullyDelegated: id => delegated && ['main', 'worker', 'group-worker'].includes(id),
   })
   const prompt = id => ctx.sections.get('bot-identity').text({ agent: { id } })
-  return { ctx, prompt }
+  return { ctx, prompt, bots }
 }
 
 test('Bots get a scoped progress rule without changing the private/group prompt prefix', (t) => {
@@ -55,4 +55,26 @@ test('full delegation covers every task while questions remain about user intent
     assert.match(prompt(id), /ask_user only when their intent or a necessary decision is missing/)
   }
   assert.doesNotMatch(prompt('room'), /fully delegated/)
+})
+
+
+test('custom persona replaces product style without removing identity and routing', async (t) => {
+  const { ctx, prompt, bots } = start()
+  t.after(() => ctx.dispose())
+  const legacy = prompt('worker')
+  bots.get('worker').promptMode = 'append'
+  assert.equal(prompt('worker'), legacy)
+  Object.assign(bots.get('worker'), { promptMode: 'replace', systemPrompt: 'Write long formal paragraphs with headings.' })
+  assert.match(prompt('worker'), /Write long formal paragraphs/)
+  assert.doesNotMatch(prompt('worker'), /Check files|Chat like a teammate|Only for a direct user request|Offer choices/)
+  assert.match(prompt('worker'), /You are Dev/)
+  assert.match(prompt('worker'), /Only a Main Bot can change other Bots/)
+  assert.equal(prompt('worker'), prompt('group-worker'))
+  Object.assign(bots.get('main'), { promptMode: 'replace', systemPrompt: 'Do the work yourself unless asked to delegate.' })
+  assert.doesNotMatch(prompt('main'), /Route work to the right Bot|When the user wants something that deserves/)
+  bots.get('worker').promptMode = 'default'
+  assert.match(prompt('worker'), /Chat like a teammate/)
+  assert.doesNotMatch(prompt('worker'), /Check files|Write long formal paragraphs/)
+  bots.get('worker').promptMode = 'append'
+  assert.equal(prompt('worker'), legacy)
 })

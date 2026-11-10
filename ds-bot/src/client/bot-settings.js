@@ -12,6 +12,7 @@ import { BotComputerCard } from './computer.js'
 import { AvatarLibraryPanel, avatarImage } from './avatar-library.js'
 import { useMemoryCount } from './memory-panel.js'
 import { SPRING_SHAPE, SPRING_TAP, spring, useGlide, useLinger } from './motion.js'
+import { BotPersonaCard, BOT_PERSONA_CSS } from './bot-persona.js'
 import { t } from './i18n.js'
 
 const capitalize = word => word[0].toUpperCase() + word.slice(1)
@@ -226,9 +227,7 @@ export function BotSettingsForm({ bot, roster, actions, run }) {
         disabled: bot.private !== true && (isMainBot || inGroup || !bot.workDir),
         onChange: value => save({ private: value }),
       })),
-    h(Card, { title: t('Instructions') },
-      h(Row, { label: t('What this Bot does'), hint: t('Its job on the team. Part of the Bot\'s system prompt.'), stack: true },
-        h(InlineText, { label: t('Instructions'), value: bot.instructions, multiline: true, placeholder: t('What this Bot is responsible for…'), onSave: instructions => save({ instructions }) }))),
+    h(BotPersonaCard, { key: bot.id, bot, main: isMainBot, actions, Card }),
     h(BotCapabilitiesCard, { bot, roster, actions, run, Card, SwitchRow }),
     h(BotComputerCard, { bot, roster, actions, run, Card, Row }),
     roster.memory === false ? null : h(MemoryCard, { bot, actions }),
@@ -262,7 +261,7 @@ export function BotSettingsForm({ bot, roster, actions, run }) {
         h('span', { className: 'bt-chevron' }, h(ChevronRightIcon)))))
 }
 
-export const BOT_SETTINGS_CSS = `
+export const BOT_SETTINGS_CSS = BOT_PERSONA_CSS + `
 .bt-bs{display:flex;flex-direction:column;gap:18px}
 .bt-bs-hero{display:flex;align-items:center;gap:14px;padding:2px 4px}
 .bt-bs-who{display:flex;flex-direction:column;min-width:0;gap:2px}
