@@ -135,3 +135,101 @@ test('a refused send is permanent, and the auth header carries the token', async
     error => error.permanent === true && /window/.test(error.message))
   assert.equal(fake.calls[0].auth, 'Bearer wx-tok')
 })
+
+
+for (const suffix of ['', '/', '///']) {
+  test(`iLink normalizes API and QR bases with ${JSON.stringify(suffix)} trailing slashes`, async (t) => {
+    const fake = await fakeIlink()
+    t.after(() => fake.close())
+    const address = fake.base.replace(/\/+$/, '') + suffix
+    const environment = env(fake)
+    environment.config = { api: address, qr: address }
+    fake.replies.statuses = [{ status: 'confirmed', bot_token: 'wx-tok', baseurl: address, ilink_bot_id: 'fixture' }]
+    const { loginId } = await weixin.loginStart(environment)
+    const login = await weixin.loginWait(loginId, environment)
+    assert.equal(login.status, 'done')
+    const fields = { ...login.connection.settings, ...login.connection.secrets }
+    // A QR response's baseUrl wins over the configured fallback.
+    environment.config.api = 'http://127.0.0.1:1/'
+    await weixin.check(fields, environment)
+    environment.config.api = address
+    await weixin.check(FIELDS, environment)
+    // The QR API also falls back to config.api when no QR override is set.
+    delete environment.config.qr
+    fake.replies.statuses = ['expired']
+    const fallback = await weixin.loginStart(environment)
+    assert.equal((await weixin.loginWait(fallback.loginId, environment)).status, 'expired')
+    fake.replies['/ilink/bot/getconfig'] = { ret: 0, typing_ticket: 'synthetic-ticket' }
+    const statuses = []
+    const handle = weixin.connect(fields, environment, { onMessage: () => {}, onAction: () => {}, onStatus: value => statuses.push(value.state) })
+    t.after(() => handle.stop())
+    assert.ok(await until(() => statuses.includes('ready')), 'poll reaches ready')
+    await handle.send({ key: 'synthetic-user' }, { text: 'synthetic local test' })
+    await handle.typing({ key: 'synthetic-user' })
+    handle.stop()
+    for (const endpoint of ['get_bot_qrcode', 'get_qrcode_status', 'getupdates', 'sendmessage', 'getconfig', 'sendtyping']) {
+      assert.ok(fake.calls.some(call => call.path.split('?')[0] === `/ilink/bot/${endpoint}`), endpoint)
+    }
+    assert.ok(fake.calls.every(call => call.path.startsWith('/ilink/bot/')))
+  })
+}
+
+
+test('getupdates accepts a valid envelope without status codes and preserves explicit success', async () => {
+  for (const answer of [
+    { msgs: [], sync_buf: '', get_updates_buf: 'next' },
+    { ret: 0, msgs: [] },
+    { errcode: 0, msgs: [], get_updates_buf: 'next' },
+    { ret: '0', errcode: '0', errmsg: '', msgs: [], get_updates_buf: '' },
+  ]) {
+    const environment = { config: {}, fetch: async () => new Response(JSON.stringify(answer), { status: 200 }) }
+    assert.equal((await weixin.check(FIELDS, environment)).account.name, 'WeChat')
+  }
+})
+
+test('getupdates never treats explicit errors or malformed HTTP 200 bodies as success', async () => {
+  const valid = { msgs: [], get_updates_buf: 'next' }
+  for (const answer of [
+    { ...valid, ret: 500 }, { ...valid, errcode: -1 }, { ...valid, ret: 0, errcode: 500 },
+    { ...valid, ret: 500, errcode: 0 }, { ...valid, errmsg: 'denied' },
+    {}, null, [], 'not an envelope', { msgs: [] }, { get_updates_buf: 'next' },
+    { msgs: {}, get_updates_buf: 'next' }, { msgs: [null], get_updates_buf: 'next' },
+    { msgs: [], get_updates_buf: 1 }, { ...valid, ret: null }, { ...valid, ret: '' },
+    { ...valid, ret: false }, { ...valid, ret: 'bad' }, { ...valid, errmsg: {} },
+  ]) {
+    const environment = { config: {}, fetch: async () => new Response(JSON.stringify(answer), { status: 200 }) }
+    await assert.rejects(weixin.check(FIELDS, environment), /WeChat/)
+  }
+  await assert.rejects(weixin.check(FIELDS, { config: {}, fetch: async () => new Response('not JSON') }), /invalid updates/)
+  for (const code of [401, 403]) {
+    await assert.rejects(weixin.check(FIELDS, { config: {}, fetch: async () => new Response(JSON.stringify({ ...valid, errcode: code })) }), error => error.permanent === true)
+  }
+  await assert.rejects(weixin.check(FIELDS, { config: {}, fetch: async () => new Response(JSON.stringify({ ...valid, errcode: 429 }), { headers: { 'retry-after': '5' } }) }), error => error.retryAfter === 5)
+})
+
+test('ret-less live polling reaches ready, advances cursor and delivers messages', async (t) => {
+  const fake = await fakeIlink()
+  const runtime = {}
+  const statuses = []
+  const messages = []
+  fake.replies.updates = params => ({
+    msgs: params.get_updates_buf ? [] : [{ from_user_id: 'fixture-user', client_id: 'fixture-message', item_list: [{ type: 1, text_item: { text: 'fixture text' } }] }],
+    sync_buf: '', get_updates_buf: 'next-cursor',
+  })
+  const handle = weixin.connect(FIELDS, env(fake, runtime), { onMessage: msg => messages.push(msg), onStatus: state => statuses.push(state.state) })
+  t.after(() => { handle.stop(); fake.close() })
+  assert.ok(await until(() => messages.length === 1))
+  assert.ok(statuses.includes('ready'))
+  assert.equal(runtime.cursor, 'next-cursor')
+  assert.equal(messages[0].text, 'fixture text')
+})
+
+test('polling rejects explicit errcode authentication errors instead of announcing ready', async (t) => {
+  const fake = await fakeIlink()
+  const statuses = []
+  fake.replies.updates = { errcode: 401, msgs: [], get_updates_buf: '' }
+  const handle = weixin.connect(FIELDS, env(fake), { onMessage: () => assert.fail('error must not deliver messages'), onStatus: state => statuses.push(state.state) })
+  t.after(() => { handle.stop(); fake.close() })
+  assert.ok(await until(() => statuses.includes('error')))
+  assert.ok(!statuses.includes('ready'))
+})

@@ -15,8 +15,8 @@ const BOT_TYPE = '3'
 const TEXT_LIMIT = 1800
 const POLL_TIMEOUT_MS = 35_000
 
-const qrBase = env => String(env.config?.qr ?? env.config?.api ?? QR_BASE).replace(/\/+$/, '/')
-const base = (env, fields) => String(fields.baseUrl || env.config?.api || QR_BASE).replace(/\/+$/, '/')
+const qrBase = env => String(env.config?.qr ?? env.config?.api ?? QR_BASE).replace(/\/+$/, '') + '/'
+const base = (env, fields) => String(fields.baseUrl || env.config?.api || QR_BASE).replace(/\/+$/, '') + '/'
 const baseInfo = () => ({ channel_version: 'ds-bot' })
 
 const logins = new Map() // loginId → { qrcode, baseUrl, expiresAt, result }
@@ -66,10 +66,9 @@ export default {
     }
   },
 
-  // The token is proven by a short getupdates poll: ret 0 is a valid bot.
+  // The token is proven by a short, structurally valid getupdates poll.
   async check(fields, env) {
-    const answer = await request(env, base(env, fields), fields.token, 'getupdates', { get_updates_buf: '', timeout_ms: 0 }, 8_000)
-    if (Number(answer.ret) !== 0) throw fail(`WeChat answered ${answer.ret}`, { permanent: true })
+    await request(env, base(env, fields), fields.token, 'getupdates', { get_updates_buf: '', timeout_ms: 0 }, 8_000)
     return { account: { id: String(fields.ilinkBotId ?? ''), name: 'WeChat' } }
   },
 
@@ -128,15 +127,6 @@ export default {
             env.log?.warn?.('ds-bot im: weixin poll failed: %s', error?.message ?? error)
             handlers.onStatus({ state: error.permanent ? 'error' : 'connecting', ...(error.permanent ? { error: error.message } : {}) })
             if (error.permanent) return
-            await sleep(3000)
-            continue
-          }
-          if (Number(answer.ret) !== 0) {
-            env.log?.warn?.('ds-bot im: weixin getupdates answered %s', answer.ret)
-            if (Number(answer.ret) === 401 || Number(answer.ret) === 403) {
-              handlers.onStatus({ state: 'error', error: `WeChat answered ${answer.ret}` })
-              return
-            }
             await sleep(3000)
             continue
           }
@@ -213,6 +203,25 @@ const chunk = (text, limit) => {
   return chunks
 }
 
+// iLink can omit both status codes on a successful long poll. In that case
+// require the observed updates envelope, rather than treating any HTTP 200 as OK.
+function validateUpdates(answer) {
+  const invalid = () => fail('WeChat returned an invalid updates response')
+  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) throw invalid()
+  let hasCode = false
+  for (const key of ['ret', 'errcode']) {
+    if (!Object.hasOwn(answer, key)) continue
+    hasCode = true
+    const value = answer[key]
+    if ((typeof value !== 'number' && !(typeof value === 'string' && /^-?\d+$/.test(value))) || !Number.isFinite(Number(value))) throw invalid()
+    const code = Number(value)
+    if (code !== 0) throw fail(`WeChat answered ${code}`, { permanent: code === 401 || code === 403 })
+  }
+  if (answer.errmsg !== undefined && (typeof answer.errmsg !== 'string' || answer.errmsg.trim() !== '')) throw fail('WeChat returned an error in its updates response')
+  if (!Array.isArray(answer.msgs) || answer.msgs.some(msg => !msg || typeof msg !== 'object' || Array.isArray(msg))) throw invalid()
+  if ((!hasCode || answer.get_updates_buf !== undefined) && typeof answer.get_updates_buf !== 'string') throw invalid()
+}
+
 async function request(env, baseUrl, token, endpoint, body, timeoutMs = POLL_TIMEOUT_MS) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(new Error('timeout')), timeoutMs)
@@ -235,9 +244,10 @@ async function request(env, baseUrl, token, endpoint, body, timeoutMs = POLL_TIM
     clearTimeout(timer)
   }
   const json = await response.json().catch(() => ({}))
-  if (response.status === 429 || json.ret === 429) throw fail('WeChat rate limited the request', { retryAfter: Number(response.headers.get('retry-after')) })
+  if (response.status === 429 || Number(json?.ret) === 429 || Number(json?.errcode) === 429) throw fail('WeChat rate limited the request', { retryAfter: Number(response.headers.get('retry-after')) })
   if (response.status === 401 || response.status === 403) throw fail('WeChat refused the token', { permanent: true })
   if (!response.ok) throw fail(`WeChat answered ${response.status}`)
+  if (endpoint === 'getupdates') validateUpdates(json)
   return json
 }
 
