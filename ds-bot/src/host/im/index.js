@@ -150,7 +150,13 @@ export function install(rt) {
   /** @type {Map<string, {handle:any, queues:Map<string, {jobs:any[], retry?:any}>, statuses:Map}>} */
   const runners = new Map()
   const statuses = new Map()
+  const deliveryFailures = new Map()
   const setStatus = (id, next) => {
+    const pending = deliveryFailures.get(id)
+    if (next.state === 'ready' && pending?.size) {
+      const failure = [...pending.values()].at(-1)
+      next = { ...next, state: 'error', error: failure.error, receiving: true, delivery: { state: 'failed', at: failure.at } }
+    }
     // Adapter errors can echo platform responses that quote the token; keep them out of the UI and logs.
     if (typeof next.error === 'string' && next.error !== '') return statuses.set(id, { ...next, error: rt.redactSecrets(next.error), at: Date.now() })
     return statuses.set(id, { ...next, at: Date.now() })
@@ -194,10 +200,18 @@ export function install(rt) {
       const job = queue.jobs[0]
       try {
         const sent = await runner.handle.send(job.chat, job)
+        const failures = deliveryFailures.get(conn.id)
+        if (failures?.delete(chatKey) && failures.size === 0) {
+          deliveryFailures.delete(conn.id)
+          setStatus(conn.id, { state: 'ready' })
+        }
         job.after?.(sent)
         queue.jobs.shift()
       } catch (error) {
         const how = failClass(error)
+        // Log only platform, handling class and numeric code: no chat keys,
+        // message text, raw platform response or context credentials.
+        rt.warn('ds-bot im: %s delivery failed (%s, code %s)', conn.platform, how, typeof error?.code === 'number' ? error.code : 'unavailable')
         if (how === 'retry') {
           const wait = Number(error?.retryAfter) > 0 ? error.retryAfter * 1000 : RETRY_MS
           queue.retry = setTimeout(() => { void drain(conn, chatKey) }, wait)
@@ -205,7 +219,11 @@ export function install(rt) {
           return
         }
         queue.jobs.shift()
-        if (how === 'permanent') setStatus(conn.id, { state: 'error', error: String(error?.message ?? error).slice(0, 300) })
+        const failure = { error: rt.redactSecrets(String(error?.message ?? error).slice(0, 300)), at: Date.now() }
+        let failures = deliveryFailures.get(conn.id)
+        if (!failures) deliveryFailures.set(conn.id, failures = new Map())
+        failures.set(chatKey, failure)
+        setStatus(conn.id, { state: 'error', error: failure.error, delivery: { state: 'failed', at: failure.at } })
       }
     }
   }
@@ -937,7 +955,7 @@ export function install(rt) {
   }, 'ds-bot: im')
 
   const imView = () => ({ connections: Object.values(connections()).map(viewOf), platforms: IM_PLATFORMS.filter(platform => adaptersFor().includes(platform.id)).map(platform => platform.id) })
-  const imStatusView = () => Object.fromEntries([...statuses.entries()].map(([id, status]) => [id, { state: status.state, ...(status.error !== undefined ? { error: status.error } : {}), at: status.at }]))
+  const imStatusView = () => Object.fromEntries([...statuses.entries()].map(([id, status]) => [id, { state: status.state, ...(status.error !== undefined ? { error: status.error } : {}), ...(status.delivery ? { delivery: status.delivery } : {}), ...(status.receiving === true ? { receiving: true } : {}), at: status.at }]))
 
   Object.assign(rt, { imView, imStatusView, imViaView, imEndpoint })
 }

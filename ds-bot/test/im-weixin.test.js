@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { test } from 'node:test'
 import weixin from '../src/host/im/platforms/weixin.js'
+import manifest from '../package.json' with { type: 'json' }
 
 // A fake iLink: the QR endpoints drive the login states the test wants, the
 // getupdates long poll answers from a queued script, and sends are recorded.
@@ -14,7 +15,7 @@ async function fakeIlink() {
     req.on('data', chunk => { body += chunk })
     req.on('end', () => {
       const params = JSON.parse(body || '{}')
-      calls.push({ method: req.method, path: req.url, params, auth: req.headers.authorization })
+      calls.push({ method: req.method, path: req.url, params, auth: req.headers.authorization, headers: req.headers })
       if (req.url.startsWith('/ilink/bot/get_bot_qrcode')) {
         const answer = replies.qrcode ?? { qrcode: 'qr-tok-1', qrcode_img_content: 'weixin://qr/abc' }
         res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(answer))
@@ -31,7 +32,7 @@ async function fakeIlink() {
         res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(answer))
         return
       }
-      const answer = replies[req.url] ?? { ret: 0 }
+      const answer = Object.hasOwn(replies, req.url) ? replies[req.url] : { ret: 0 }
       res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(answer))
     })
   })
@@ -132,7 +133,7 @@ test('a refused send is permanent, and the auth header carries the token', async
   await until(() => fake.calls.some(call => call.path === '/ilink/bot/getupdates'))
   fake.replies['/ilink/bot/sendmessage'] = { ret: -2, errmsg: 'msg out of window' }
   await assert.rejects(() => handle.send({ key: 'u1', kind: 'direct' }, { text: 'late' }),
-    error => error.permanent === true && /window/.test(error.message))
+    error => error.permanent === true && error.code === -2 && !/window/.test(error.message))
   assert.equal(fake.calls[0].auth, 'Bearer wx-tok')
 })
 
@@ -232,4 +233,112 @@ test('polling rejects explicit errcode authentication errors instead of announci
   t.after(() => { handle.stop(); fake.close() })
   assert.ok(await until(() => statuses.includes('error')))
   assert.ok(!statuses.includes('ready'))
+})
+
+
+test('send rejects errcode and malformed responses without exposing platform context', async (t) => {
+  const fake = await fakeIlink()
+  const runtime = { contextTokens: { u1: 'synthetic-context' } }
+  const handle = weixin.connect(FIELDS, env(fake, runtime), { onMessage() {}, onStatus() {} })
+  t.after(() => { handle.stop(); fake.close() })
+  for (const answer of [{ errcode: -2, errmsg: 'PRIVATE_CONTEXT_MARKER' }, { ret: 0, errcode: -2 }, { ret: '', errmsg: '' }, { errmsg: 'PRIVATE_CONTEXT_MARKER' }, {}, null, []]) {
+    fake.replies['/ilink/bot/sendmessage'] = answer
+    await assert.rejects(handle.send({ key: 'u1' }, { text: 'fixture' }), error => error.permanent && error.contextTokenPresent && !error.message.includes('PRIVATE_CONTEXT_MARKER'))
+  }
+})
+
+test('each send uses the latest inbound context without inventing an expiry duration', async (t) => {
+  const fake = await fakeIlink()
+  const runtime = { contextTokens: { u1: 'old-context' } }
+  let received = false
+  fake.replies.updates = params => ({ ret: 0, msgs: params.get_updates_buf ? [] : [{ from_user_id: 'u1', context_token: 'new-context', item_list: [{ type: 1, text_item: { text: 'fixture' } }] }], get_updates_buf: 'next' })
+  const handle = weixin.connect(FIELDS, env(fake, runtime), { onMessage() { received = true }, onStatus() {} })
+  t.after(() => { handle.stop(); fake.close() })
+  assert.ok(await until(() => received))
+  await handle.send({ key: 'u1' }, { text: 'fixture' })
+  assert.equal(fake.calls.find(call => call.path === '/ilink/bot/sendmessage').params.msg.context_token, 'new-context')
+})
+
+
+test('iLink compatibility metadata uses protocol version plus real host version and official public headers', async (t) => {
+  const fake = await fakeIlink()
+  t.after(() => fake.close())
+  await weixin.loginStart(env(fake))
+  await weixin.check(FIELDS, env(fake))
+  await weixin.check(FIELDS, env(fake))
+  const qr = fake.calls.find(call => call.path.includes('get_bot_qrcode'))
+  assert.equal(qr.headers['ilink-app-id'], 'bot')
+  assert.equal(qr.headers['ilink-app-clientversion'], '196609')
+  const authenticated = fake.calls.filter(call => call.path === '/ilink/bot/getupdates')
+  const uins = []
+  for (const call of authenticated) {
+    assert.equal(call.params.base_info.channel_version, `3.0.1/ds-bot-${manifest.version}`)
+    assert.equal(call.params.base_info.bot_agent, 'DSBot')
+    assert.equal(call.headers['ilink-app-id'], 'bot')
+    assert.equal(call.headers['ilink-app-clientversion'], String((3 << 16) | (0 << 8) | 1))
+    assert.equal(call.headers.authorizationtype, 'ilink_bot_token')
+    assert.equal(call.auth, 'Bearer wx-tok')
+    const encoded = call.headers['x-wechat-uin']
+    const decimal = Buffer.from(encoded, 'base64').toString('utf8')
+    assert.match(decimal, /^\d+$/)
+    assert.ok(Number(decimal) >= 0 && Number(decimal) <= 0xffffffff)
+    assert.equal(Buffer.from(decimal).toString('base64'), encoded)
+    uins.push(encoded)
+  }
+  assert.notEqual(uins[0], uins[1], 'each request creates a fresh random UIN')
+})
+
+test('send success requires explicit zero or a valid official message_id acknowledgement', async (t) => {
+  const fake = await fakeIlink()
+  const handle = weixin.connect(FIELDS, env(fake), { onMessage() {}, onStatus() {} })
+  t.after(() => { handle.stop(); fake.close() })
+  for (const answer of [{ ret: 0, errmsg: '' }, { errcode: 0 }, { ret: '0', errcode: 0, errmsg: '' }, { message_id: '1234567890' }, { message_id: '18446744073709551615' }, { message_id: 12345 }]) {
+    fake.replies['/ilink/bot/sendmessage'] = answer
+    assert.ok((await handle.send({ key: 'fixture-user' }, { text: 'local only' })).messageId)
+  }
+  for (const answer of [{}, { errmsg: '' }, { ret: 0, errcode: -2 }, { errcode: 0, ret: -2 }, { message_id: '' }, { message_id: '0' }, { message_id: 'not-an-id' }, { message_id: '18446744073709551616' }, { message_id: '123', ret: -2 }, { message_id: '123', errcode: -2 }, { message_id: '123', errmsg: 'denied' }]) {
+    fake.replies['/ilink/bot/sendmessage'] = answer
+    await assert.rejects(handle.send({ key: 'fixture-user' }, { text: 'local only' }), error => error.permanent === true)
+  }
+})
+
+
+test('failed send diagnostics expose only allowlisted schema, lengths and HTTP status', async (t) => {
+  const fake = await fakeIlink()
+  const logs = []
+  const environment = env(fake)
+  environment.log = { warn: (...args) => logs.push(args) }
+  const handle = weixin.connect(FIELDS, environment, { onMessage() {}, onStatus() {} })
+  t.after(() => { handle.stop(); fake.close() })
+  fake.replies['/ilink/bot/sendmessage'] = { message_id: 'SENSITIVE_ACK_ID', errmsg: '', PRIVATE_DYNAMIC_KEY: 'PRIVATE_BODY_VALUE' }
+  await assert.rejects(handle.send({ key: 'PRIVATE_RECIPIENT' }, { text: 'PRIVATE_MESSAGE' }), /invalid send/)
+  const row = logs.find(args => args[0].includes('send validation failed'))
+  assert.ok(row)
+  const schema = JSON.parse(row[1])
+  assert.equal(schema.httpStatus, 200)
+  assert.ok(schema.responseBytes > 0)
+  assert.deepEqual(schema.fields, ['errmsg', 'message_id'])
+  assert.equal(schema.retPresent, false)
+  assert.equal(schema.errcodePresent, false)
+  assert.equal(schema.errmsgLength, 0)
+  assert.equal(schema.messageIdLength, 16)
+  assert.equal(schema.unknownFieldCount, 1)
+  const diagnostic = JSON.stringify(row)
+  for (const value of ['SENSITIVE_ACK_ID', 'PRIVATE_DYNAMIC_KEY', 'PRIVATE_BODY_VALUE', 'PRIVATE_RECIPIENT', 'PRIVATE_MESSAGE']) assert.ok(!diagnostic.includes(value))
+  fake.replies['/ilink/bot/sendmessage'] = {}
+  await assert.rejects(handle.send({ key: 'PRIVATE_RECIPIENT' }, { text: 'PRIVATE_MESSAGE' }), /invalid send/)
+  assert.deepEqual(JSON.parse(logs.at(-1)[1]).fields, [])
+})
+
+
+test('numeric uint64 message acknowledgements are parsed without precision loss', async (t) => {
+  const fake = await fakeIlink()
+  const environment = env(fake)
+  const baseFetch = environment.fetch
+  environment.fetch = async (url, options) => String(url).endsWith('/sendmessage')
+    ? new Response('{"message_id":18446744073709551615}', { status: 200 })
+    : baseFetch(url, options)
+  const handle = weixin.connect(FIELDS, environment, { onMessage() {}, onStatus() {} })
+  t.after(() => { handle.stop(); fake.close() })
+  assert.ok((await handle.send({ key: 'fixture-user' }, { text: 'local only' })).messageId)
 })

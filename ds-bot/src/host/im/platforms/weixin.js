@@ -9,6 +9,7 @@
 // from the CDN and decrypt with their AES key. A refused send is permanent
 // with the platform's reason. Protocol ported from dsh-im (MIT, see NOTICE).
 import { createDecipheriv, randomBytes } from 'node:crypto'
+import manifest from '../../../../package.json' with { type: 'json' }
 
 const QR_BASE = 'https://ilinkai.weixin.qq.com/'
 const BOT_TYPE = '3'
@@ -17,7 +18,18 @@ const POLL_TIMEOUT_MS = 35_000
 
 const qrBase = env => String(env.config?.qr ?? env.config?.api ?? QR_BASE).replace(/\/+$/, '') + '/'
 const base = (env, fields) => String(fields.baseUrl || env.config?.api || QR_BASE).replace(/\/+$/, '') + '/'
-const baseInfo = () => ({ channel_version: 'ds-bot' })
+// iLink requires the supported protocol generation before the host suffix.
+const COMPAT_VERSION = '3.0.1'
+const CLIENT_VERSION = (3 << 16) | 1
+const commonHeaders = () => ({
+  'iLink-App-Id': 'bot',
+  'iLink-App-ClientVersion': String(CLIENT_VERSION),
+})
+const requestHeaders = () => ({
+  ...commonHeaders(),
+  'X-WECHAT-UIN': Buffer.from(String(randomBytes(4).readUInt32BE(0)), 'utf8').toString('base64'),
+})
+const baseInfo = () => ({ channel_version: `${COMPAT_VERSION}/ds-bot-${manifest.version}`, bot_agent: 'DSBot' })
 
 const logins = new Map() // loginId → { qrcode, baseUrl, expiresAt, result }
 
@@ -30,7 +42,7 @@ export default {
   async loginStart(env) {
     const response = await env.fetch(`${qrBase(env)}ilink/bot/get_bot_qrcode?bot_type=${BOT_TYPE}`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...commonHeaders() },
       body: JSON.stringify({ local_token_list: [] }),
     })
     const body = await response.json().catch(() => ({}))
@@ -47,6 +59,7 @@ export default {
     if (held === undefined) return { status: 'expired' }
     if (held.expiresAt < Date.now()) { logins.delete(String(loginId)); return { status: 'expired' } }
     const response = await env.fetch(`${qrBase(env)}ilink/bot/get_qrcode_status?qrcode=${encodeURIComponent(held.qrcode)}`, {
+      headers: commonHeaders(),
       signal: AbortSignal.timeout?.(POLL_TIMEOUT_MS) ?? undefined,
     }).catch(() => undefined)
     const body = await response?.json().catch(() => ({})) ?? {}
@@ -153,7 +166,8 @@ export default {
         let messageId
         for (const chunkText of chunks) {
           const clientId = `ds-bot-${randomBytes(8).toString('hex')}`
-          const answer = await request(env, base(env, fields), fields.token, 'sendmessage', {
+          try {
+            await request(env, base(env, fields), fields.token, 'sendmessage', {
             msg: {
               from_user_id: '', to_user_id: chat.key, client_id: clientId,
               message_type: 2, message_state: 2,
@@ -161,8 +175,11 @@ export default {
               ...(contextToken ? { context_token: contextToken } : {}),
             },
           })
-          if (Number(answer.ret) !== 0 && answer.ret !== undefined) {
-            throw fail(`WeChat refused the reply (${answer.errmsg ?? answer.ret})`, { permanent: true })
+          } catch (error) {
+            // A transport failure may follow server acceptance. Never replay an
+            // entire message (including earlier chunks) on an unknown outcome.
+            if (!error.permanent && error.retryAfter === undefined) error.unknown = true
+            throw error
           }
           messageId = clientId
         }
@@ -222,6 +239,27 @@ function validateUpdates(answer) {
   if ((!hasCode || answer.get_updates_buf !== undefined) && typeof answer.get_updates_buf !== 'string') throw invalid()
 }
 
+function validateSend(answer, contextTokenPresent) {
+  const refused = code => fail(code === undefined ? 'WeChat returned an invalid send response' : `WeChat refused the reply (code ${code})`, {
+    permanent: true, operation: 'sendmessage', ...(code === undefined ? {} : { code }), contextTokenPresent,
+  })
+  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) throw refused()
+  let explicitSuccess = false
+  for (const key of ['ret', 'errcode']) {
+    if (!Object.hasOwn(answer, key)) continue
+    const value = answer[key]
+    if ((typeof value !== 'number' && !(typeof value === 'string' && /^-?\d+$/.test(value))) || !Number.isFinite(Number(value))) throw refused()
+    if (Number(value) !== 0) throw refused(Number(value))
+    explicitSuccess = true
+  }
+  const id = answer.message_id
+  const decimalId = typeof id === 'string' ? id : Number.isSafeInteger(id) && id > 0 ? String(id) : ''
+  const acknowledged = /^[1-9]\d{0,19}$/.test(decimalId) && BigInt(decimalId) <= 18446744073709551615n
+  if (!explicitSuccess && !acknowledged) throw refused()
+  // Raw platform text may contain recipient or context data; never forward it.
+  if (answer.errmsg !== undefined && (typeof answer.errmsg !== 'string' || answer.errmsg.trim() !== '')) throw refused()
+}
+
 async function request(env, baseUrl, token, endpoint, body, timeoutMs = POLL_TIMEOUT_MS) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(new Error('timeout')), timeoutMs)
@@ -232,6 +270,7 @@ async function request(env, baseUrl, token, endpoint, body, timeoutMs = POLL_TIM
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        ...requestHeaders(),
         ...(token ? { authorization: `Bearer ${token}`, AuthorizationType: 'ilink_bot_token' } : {}),
       },
       body: JSON.stringify({ ...body, base_info: baseInfo() }),
@@ -243,11 +282,36 @@ async function request(env, baseUrl, token, endpoint, body, timeoutMs = POLL_TIM
   } finally {
     clearTimeout(timer)
   }
-  const json = await response.json().catch(() => ({}))
+  let json, responseBytes
+  if (endpoint === 'sendmessage') {
+    const raw = await response.text()
+    responseBytes = Buffer.byteLength(raw, 'utf8')
+    try {
+      json = JSON.parse(raw, (key, value, context) => key === 'message_id' && typeof value === 'number' && context?.source ? context.source : value)
+    } catch { json = null }
+  } else json = await response.json().catch(() => null)
   if (response.status === 429 || Number(json?.ret) === 429 || Number(json?.errcode) === 429) throw fail('WeChat rate limited the request', { retryAfter: Number(response.headers.get('retry-after')) })
   if (response.status === 401 || response.status === 403) throw fail('WeChat refused the token', { permanent: true })
   if (!response.ok) throw fail(`WeChat answered ${response.status}`)
   if (endpoint === 'getupdates') validateUpdates(json)
+  if (endpoint === 'sendmessage') {
+    try { validateSend(json, Boolean(body.msg?.context_token)) } catch (error) {
+      const object = json !== null && typeof json === 'object' && !Array.isArray(json)
+      const known = ['ret', 'errcode', 'errmsg', 'message_id']
+      const fields = object ? known.filter(key => Object.hasOwn(json, key)) : []
+      const schema = {
+        httpStatus: response.status, responseBytes,
+        kind: json === null ? 'null-or-invalid-json' : Array.isArray(json) ? 'array' : typeof json,
+        fields, unknownFieldCount: object ? Object.keys(json).filter(key => !known.includes(key)).length : 0,
+        retPresent: fields.includes('ret'), errcodePresent: fields.includes('errcode'),
+        errmsgLength: typeof json?.errmsg === 'string' ? json.errmsg.length : null,
+        messageIdLength: typeof json?.message_id === 'string' ? json.message_id.length : null,
+      }
+      // Field names are allowlisted: an arbitrary JSON key may itself be secret.
+      env.log?.warn?.('ds-bot im: weixin send validation failed schema=%s', JSON.stringify(schema))
+      throw error
+    }
+  }
   return json
 }
 
