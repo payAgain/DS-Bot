@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 /artifacts/
 *.tgz
 # The desktop app's window build (npm run build in app/), its packages (npm run pack, npm run dist)
@@ -37,3 +37,27 @@ node_modules/
 
 # Bytecode from the record-browser-gif encoder's local media tests.
 __pycache__/
+
+# Local credentials, signing material, logs and generated delivery artifacts.
+.env
+.env.*
+!.env.example
+!.env.sample
+*.log
+*.ipa
+*.apk
+*.aab
+*.xcarchive/
+*.xcresult/
+DerivedData/
+*.p8
+*.p12
+*.pfx
+*.pem
+*.key
+*.cer
+*.mobileprovision
+.DS_Store
+/deployment/
+/backups/
+/ds-bot/dev/.persona-smoke.mjs
