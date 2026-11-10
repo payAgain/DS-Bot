@@ -33,6 +33,8 @@ export const CATALOG = [
   { id: 'stripe', name: 'Stripe', category: 'commerce', about: 'Payments, invoices, and customers', ...oauth('https://mcp.stripe.com') },
   { id: 'paypal', name: 'PayPal', category: 'commerce', about: 'Orders, payments, and invoices', ...oauth('https://mcp.paypal.com/mcp') },
   { id: 'square', name: 'Square', category: 'commerce', about: 'Payments, orders, and catalog', ...oauth('https://mcp.squareup.com/mcp') },
+  { id: 'whop', name: 'Whop', category: 'commerce', about: 'Memberships, products, and checkout', ...oauth('https://mcp.whop.com/mcp') },
+  { id: 'agentcard', name: 'Agentcard', category: 'commerce', about: 'Virtual cards and purchase approvals', ...oauth('https://mcp.agentcard.sh/mcp') },
   { id: 'cloudflare', name: 'Cloudflare', category: 'dev', about: 'Workers, DNS, and account resources', ...oauth('https://bindings.mcp.cloudflare.com/mcp') },
   { id: 'vercel', name: 'Vercel', category: 'dev', about: 'Projects, deployments, and logs', ...oauth('https://mcp.vercel.com') },
   { id: 'supabase', name: 'Supabase', category: 'data', about: 'Databases, tables, and project settings', ...oauth('https://mcp.supabase.com/mcp') },

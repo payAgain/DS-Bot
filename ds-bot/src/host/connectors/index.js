@@ -64,6 +64,10 @@ export function install(rt) {
     return list
   }
   const entryFor = (id) => {
+    if (String(id).startsWith('app:')) {
+      const extended = rt.extendedConnectorRows?.().find(entry => entry.id === id)
+      return extended ? { ...extended, auth: { kind: 'managed' } } : undefined
+    }
     const catalog = entryOf(id)
     // rt.config.github keeps its url/api overrides from the old single connector.
     if (catalog !== undefined && id === 'github' && options?.url !== undefined) {
@@ -100,6 +104,7 @@ export function install(rt) {
   const hasCredential = (id) => {
     const entry = entryFor(id)
     if (entry === undefined) return false
+    if (entry.provider === 'apps') return entry.connected
     if (entry.custom !== undefined) return true
     if (entry.auth.kind === 'none') return state.connectors?.[id] !== undefined
     return credentialOf(id) !== undefined
@@ -478,10 +483,13 @@ export function install(rt) {
     for (const [botId, list] of Object.entries(state.connectorRequests ?? {})) {
       for (const request of list) {
         if (request.status !== 'pending' || request.connectorId !== id) continue
+        if (id.startsWith('app:') && !rt.extendedConnectorUsable?.(botId, id.slice(4))) continue
         request.status = 'connected'
         request.settledAt = Date.now()
         const entry = entryFor(id)
-        notes.push([botId, `The user connected ${entry?.name ?? id}. Its tools are available as mcp__${id}__* now. Carry on with what you needed it for.`])
+        notes.push([botId, entry?.provider === 'apps'
+          ? `The user enabled ${entry.name} for you. Use connected_apps to select the account, search_app_tools to discover an action, and execute_app_tool to run it.`
+          : `The user connected ${entry?.name ?? id}. Its tools are available as mcp__${id}__* now. Carry on with what you needed it for.`])
       }
     }
     if (notes.length === 0) return
@@ -501,11 +509,11 @@ export function install(rt) {
       const self = rt.selfOf(exec.agent?.id)
       const bot = rt.botOf(self)
       if (!bot) return 'Only Bots on the team can use list_connectors.'
-      const rows = entries().filter(entry => entry.id !== 'mail' || mailHasAccounts())
+      const rows = [...entries().filter(entry => entry.id !== 'mail' || mailHasAccounts()), ...(rt.extendedConnectorRows?.() ?? []).slice(0, 100)]
       if (rows.length === 0) return 'No connectors are set up.'
       const lines = rows.map((entry) => {
-        const connected = entry.id === 'mail' ? mailHasAccounts() : (statuses.get(entry.id)?.state === undefined && mounts.has(entry.id)) || hasCredential(entry.id)
-        const usable = !offFor(entry.id).includes(bot.id)
+        const connected = entry.provider === 'apps' ? entry.connected : entry.id === 'mail' ? mailHasAccounts() : (statuses.get(entry.id)?.state === undefined && mounts.has(entry.id)) || hasCredential(entry.id)
+        const usable = entry.provider === 'apps' ? rt.extendedConnectorUsable?.(bot.id, entry.id.slice(4)) : !offFor(entry.id).includes(bot.id)
         return `- ${entry.name} (${entry.id}) — ${entry.about} — ${connected ? 'connected' : 'not connected'}${usable ? '' : '; turned off for you'}`
       })
       return ['Connectors:', ...lines].join('\n')
@@ -530,7 +538,10 @@ export function install(rt) {
       if (bot === undefined) return 'Only Bots on the team can use request_connector.'
       const connected = id === 'mail' ? mailHasAccounts() : hasCredential(id)
       const signIn = statuses.get(id)?.state === 'needs-sign-in'
-      if (connected && !signIn && !offFor(id).includes(bot.id)) return `${entry.name} is already connected; use its tools (mcp__${id}__*).`
+      if (connected && entry.provider === 'apps' && rt.extendedConnectorUsable?.(bot.id, id.slice(4))) {
+        return `${entry.name} is connected. Use connected_apps, search_app_tools and execute_app_tool with an enabled account.`
+      }
+      if (connected && entry.provider !== 'apps' && !signIn && !offFor(id).includes(bot.id)) return `${entry.name} is already connected; use its tools (mcp__${id}__*).`
       if (offFor(id).includes(bot.id)) return `${entry.name} is turned off for you. The user can turn it on in your details.`
       if (rt.groupOwners.has(agentId)) return 'Connector cards only work in your own chat. Tell the group you will ask the user in your own chat, and call request_connector there.'
       if (!rt.chatOwners.has(agentId)) return 'Connector cards only work in your current own chat.'

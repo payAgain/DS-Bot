@@ -10,6 +10,7 @@ import { fakeContext } from './fake-ctx.js'
 // tools.js keeps the DSH names a Bot Session never serves in one place; the
 // assemble must add none of them.
 const HIDDEN = ['ask_user_question', 'subagent', 'list_subagent_models', 'send_message']
+const CONNECTED_APP_TOOLS = ['connected_apps', 'search_app_tools', 'execute_app_tool']
 
 // A Bot-owned Session gets its Agent before ds-bot records the owner, so the
 // scoped show_view and the hidden-tool restrict used to wait for a later
@@ -184,7 +185,7 @@ test('a Bot Session gets every team tool in its own scope', async (t) => {
   t.after(host.stop)
   await host.call('state', {})
   await host.agentCreated('a')
-  assert.deepEqual(scopedNames(host, 'a').sort(), [...TEAM_TOOLS].filter(name => name !== 'read_browser').sort())
+  assert.deepEqual(scopedNames(host, 'a').sort(), [...TEAM_TOOLS, ...CONNECTED_APP_TOOLS].filter(name => name !== 'read_browser').sort())
 })
 
 test('a Bot moved onto a local agent route gets the approval bridge, and loses it moving off', async (t) => {
@@ -388,7 +389,7 @@ test("a Bot's own Session the creation path missed gets the whole scope at the a
   await host.call('state', {})
   const agent = host.agentOf('a')
   const assembled = await assemble(host, agent, { tools: [{ name: 'read' }], sections: [] })
-  const expected = [...TEAM_TOOLS].filter(name => name !== 'read_browser').sort()
+  const expected = [...TEAM_TOOLS, ...CONNECTED_APP_TOOLS].filter(name => name !== 'read_browser').sort()
   assert.deepEqual(scopedNames(host, 'a').sort(), expected)
   assert.deepEqual(assembled.tools.map(tool => tool.name).sort(), ['read', ...expected].sort())
   // The hidden DSH tools are masked and filtered as on the creation path: none

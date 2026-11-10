@@ -11,6 +11,8 @@ export function install(rt) {
   const { ctx } = rt
   /** @type {Map<string, {id:string, sessionId:string, botId:string, roomId?:string, callId?:string, tool:string, reason:string, fullReason:string, reasonTruncated:boolean, detail:{text?:string, code?:string}, at:number, answer?:(outcome:string)=>void}>} */
   const pending = new Map()
+  const userDecisions = new WeakSet()
+  const approvalAgents = new WeakMap()
   const approvalListeners = new Set()
   const onApproval = (listener) => {
     approvalListeners.add(listener)
@@ -28,6 +30,10 @@ export function install(rt) {
     const owner = sessionId === undefined ? undefined : rt.groupOwners.get(sessionId)
     const botId = owner?.botId ?? (sessionId === undefined ? undefined : rt.chatOwners.get(sessionId))
     if (botId === undefined) return next()
+    const requiresUserDecision = userDecisions.has(request)
+    if (!requiresUserDecision && rt.isFullyDelegated?.(sessionId, request.agent)) {
+      return request.signal?.aborted ? 'cancelled' : 'allowed-once'
+    }
     const id = randomUUID()
     const entry = {
       id,
@@ -41,7 +47,9 @@ export function install(rt) {
       reasonTruncated: String(request.reason ?? '').length > 16000,
       detail: rt.callDetail?.(sessionId, request.callId) ?? {},
       at: Date.now(),
+      ...(requiresUserDecision ? { requiresUserDecision: true } : {}),
     }
+    approvalAgents.set(entry, request.agent)
     pending.set(id, entry)
     rt.noteApproval?.(sessionId, { tool: entry.tool, reason: entry.reason.slice(0, 200) })
     emit('open', { ...entry, answerable: true })
@@ -115,5 +123,21 @@ export function install(rt) {
     }
   }
 
-  Object.assign(rt, { approvalsView, waitsForApproval, answerApproval, cancelApprovals, onApproval })
+  const settleDelegatedApprovals = (sessionId) => {
+    if (!rt.isFullyDelegated?.(sessionId)) return
+    for (const entry of pending.values()) {
+      if (entry.sessionId === sessionId && !entry.requiresUserDecision
+        && rt.isFullyDelegated(sessionId, approvalAgents.get(entry))) entry.answer?.('allowed-once')
+    }
+  }
+
+  // Intent confirmations use the same audited transport, but are never treated
+  // as execution permission. The request object is borrowed by DSH's public seam.
+  async function requestUserDecision(request) {
+    userDecisions.add(request)
+    try { return await ctx.get('approval').request(request) }
+    finally { userDecisions.delete(request) }
+  }
+
+  Object.assign(rt, { approvalsView, waitsForApproval, answerApproval, cancelApprovals, onApproval, settleDelegatedApprovals, requestUserDecision })
 }

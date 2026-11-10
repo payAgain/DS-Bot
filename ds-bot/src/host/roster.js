@@ -175,7 +175,8 @@ export function install(rt) {
         instructions: String(instructions).trim(),
         createdAt: Date.now(),
         createdBy: createdBy ?? null,
-        capabilities: [],
+        capabilities: [...(rt.learningTeamSkills?.() ?? [])],
+        ...(rt.permissionCatalog?.()?.defaultPreset === 'danger-full-access' ? { permission: 'danger-full-access' } : {}),
       }
       if (main) state.mainBotIds.push(id)
       const creator = rt.botOf(createdBy)

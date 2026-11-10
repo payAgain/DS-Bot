@@ -271,3 +271,28 @@ test('show_view measures the bytes the model sent, before unwrapping the provide
   assert.equal(over.text, `The view is ${viewBytes('Meter', wrapped)} bytes; the limit is ${VIEW_BYTE_LIMIT}.`)
   assert.equal(over.concluded, false)
 })
+
+
+test('a stale inbox dismissal cannot cancel a newer view or question', async t => {
+  const { show, call, team, stop } = await start()
+  t.after(stop)
+  await show('writer-now', { title: 'First', view: CHOICES })
+  const first = (await team()).views['writer-now'].id
+  await show('writer-now', { title: 'Second', view: CHOICES })
+  const second = (await team()).views['writer-now'].id
+  assert.notEqual(first, second)
+  const stale = await call('dismiss-view', { sessionId: 'writer-now', viewId: first })
+  assert.equal(stale.error.code, 'bot/stale')
+  assert.equal((await team()).views['writer-now'].id, second)
+  const done = await call('dismiss-view', { sessionId: 'writer-now', viewId: second })
+  assert.equal(done.ok, true)
+  assert.equal((await team()).views['writer-now'], undefined)
+  const ask = async text => rt.teamTools.find(d => d.name === 'ask_user').execute({ question: text, options: [{ label: 'Yes' }] }, { agent: { id: 'writer-now' } })
+  await ask('First question')
+  const oldQuestion = (await team()).questions['writer-now'].id
+  await ask('New question')
+  const newQuestion = (await team()).questions['writer-now'].id
+  const oldDismissal = await call('dismiss-question', { sessionId: 'writer-now', questionId: oldQuestion })
+  assert.equal(oldDismissal.error.code, 'bot/stale')
+  assert.equal((await team()).questions['writer-now'].id, newQuestion)
+})

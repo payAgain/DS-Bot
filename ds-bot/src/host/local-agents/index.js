@@ -82,7 +82,7 @@ export function install(rt) {
     presetFor: (sessionId) => {
       const bot = rt.botOf(rt.selfOf(sessionId))
       const room = rt.roomOf(rt.groupOwners.get(sessionId)?.roomId)
-      return room?.permission ?? bot?.permission ?? 'workspace-write'
+      return rt.botPermission?.(bot, room) ?? room?.permission ?? bot?.permission ?? 'workspace-write'
     },
     cwdFor: async (sessionId) => {
       try {

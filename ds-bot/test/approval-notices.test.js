@@ -62,3 +62,17 @@ test('no notification for the conversation on screen, for approvals older than t
   denied.work.set({ bots: {}, approvals: [{ id: 'x1', botId: 'b', roomId: 'r1', tool: 'pwsh', at: 200 }] })
   assert.equal(denied.shown.length, 0)
 })
+
+
+test('team approval notifications open the Main Bot and do not interrupt its visible inbox', () => {
+  const page = windowWith()
+  page.roster.getSnapshot = () => ({ mainBotId: 'main', bots: [{ id: 'main', sessionId: 'main-part', name: 'Chief' }], byId: { main: { id: 'main', sessionId: 'main-part', name: 'Chief' }, b: { id: 'b', name: 'Writer' } }, roomsById: {} })
+  let shown = 'another-part'
+  page.noticeApprovals({ work: page.work, roster: page.roster, shownSession: () => shown, openSession: page.openSession, since: 100 })
+  page.work.set({ approvals: [{ id: 'one', botId: 'b', sessionId: 'b', tool: 'bash', at: 200 }] })
+  page.shown[0].onclick()
+  assert.deepEqual(page.opened, ['main'])
+  shown = 'main-part'
+  page.work.set({ approvals: [{ id: 'two', botId: 'b', sessionId: 'b', tool: 'bash', at: 300 }] })
+  assert.equal(page.shown.length, 1)
+})

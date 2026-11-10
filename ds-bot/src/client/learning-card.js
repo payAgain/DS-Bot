@@ -2,6 +2,7 @@ import { createElement as h, useId, useMemo, useRef, useState } from 'react'
 import { useTurnFacts } from './btw.js'
 import { editLines, lineDiff, proposalPlacement } from './learning-card-model.js'
 import { currentPart } from './text.js'
+import { reviewHome } from './review-inbox-model.js'
 import { t } from './i18n.js'
 import { CheckIcon, MemoryIcon, PencilIcon } from './icons.js'
 import { spring, SPRING_TAP } from './motion.js'
@@ -10,7 +11,7 @@ const failedAnswers = new Map()
 
 // `proposal.outcome` set: an answered card, read-only and folded to one row (what
 // it was, how it ended, its name); the row opens the change.
-function ProposalCard({ proposal, initialError = '', onFailure, onResolved, actions }) {
+function ProposalCard({ proposal, sourceNames = '', initialError = '', onFailure, onResolved, actions }) {
   const outcome = proposal.outcome
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(initialError)
@@ -55,7 +56,7 @@ function ProposalCard({ proposal, initialError = '', onFailure, onResolved, acti
       h('button', { type: 'button', className: 'bt-learning-fold', 'aria-expanded': open, onClick: () => setOpen(!open) },
         h('span', { className: 'bt-learning-icon', 'aria-hidden': true }, h(agents ? PencilIcon : MemoryIcon)),
         h('span', { className: 'bt-learning-kind' }, kind),
-        h('span', { className: 'bt-learning-sum' }, `${t(outcome === 'approved' ? 'Approved' : 'Declined')} · ${what}`)),
+        h('span', { className: 'bt-learning-sum' }, `${t(outcome === 'approved' ? 'Approved' : outcome === 'reused' ? 'Already approved for the team' : 'Declined')} · ${what}`)),
       open ? change : null)
   }
   const oldDetail = update && typeof proposal.previous?.description === 'string' && proposal.previous.description !== proposal.description ? proposal.previous.description : undefined
@@ -63,6 +64,7 @@ function ProposalCard({ proposal, initialError = '', onFailure, onResolved, acti
     agents
       ? h(ProposalHead, { titleId, icon: PencilIcon, title: kind })
       : h(ProposalHead, { titleId, title: proposal.name, kind, detail: proposal.description, oldDetail }),
+    sourceNames ? h('p', { className: 'bt-set-hint' }, t('Requested by {names}', { names: sourceNames })) : null,
     change,
     error ? h('div', { className: 'bt-learning-error', role: 'alert' }, error) : null,
     h(ProposalFoot, { busy, answer }))
@@ -117,7 +119,7 @@ function FileBox({ name, path, state, blocks }) {
         t(open ? 'Show less' : 'Show all {count} lines', { count: all.length }))) : null)
 }
 
-function LearningProposals({ turn, dock, sessionId, useRoster, actions }) {
+function LearningProposals({ turn, dock, sessionId, useRoster, actions, reviewInbox = false }) {
   const roster = useRoster(value => value)
   const facts = useTurnFacts(sessionId, actions)
   const [failed, setFailed] = useState({})
@@ -136,6 +138,8 @@ function LearningProposals({ turn, dock, sessionId, useRoster, actions }) {
   }
   visible.sort((a, b) => (a.at ?? 0) - (b.at ?? 0))
   const cards = visible.filter(proposal => {
+    if (reviewInbox) return !proposal.outcome
+    if (!proposal.outcome && reviewHome(roster)) return false
     const placement = proposalPlacement(proposal, facts?.turns)
     return dock ? placement.kind === 'dock' : placement.kind === 'turn' && placement.turn === turn?.turn
   })
@@ -154,6 +158,7 @@ function LearningProposals({ turn, dock, sessionId, useRoster, actions }) {
   return h('div', { className: dock ? 'bt-learning-stack bt-learning-dock' : 'bt-learning-stack' }, cards.map(proposal => h('div', { className: 'bt-q-inline', key: proposal.id },
     h(ProposalCard, {
       proposal,
+      sourceNames: [proposal.botId, ...(proposal.contributors ?? []).map(source => source.botId)].map(id => roster.byId[id]?.name).filter(Boolean).join(', '),
       initialError: failed[proposal.id]?.error ?? failedAnswers.get(proposal.id)?.error,
       onFailure,
       onResolved,

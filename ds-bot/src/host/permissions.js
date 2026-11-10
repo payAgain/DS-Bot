@@ -4,6 +4,7 @@
 // set one working folder.
 // DSH offers Auto review for the current Session only, so neither a Bot nor a group keeps it.
 const SESSION_ONLY = 'auto'
+const FULL_ACCESS = 'danger-full-access'
 
 export function install(rt) {
   const { ctx } = rt
@@ -15,17 +16,39 @@ export function install(rt) {
     const service = presets()
     if (service === undefined) return undefined
     const { options, defaultPreset } = service.catalog()
-    return { options: options.filter(option => option.value !== SESSION_ONLY), defaultPreset }
+    return {
+      options: options.filter(option => option.value !== SESSION_ONLY),
+      defaultPreset: options.some(option => option.value === FULL_ACCESS) ? FULL_ACCESS : defaultPreset,
+    }
   }
 
   const roomOfSession = sessionId => rt.roomOf(rt.groupOwners.get(sessionId)?.roomId)
+  const botPermission = (bot, room) => room?.permission ?? bot?.permission ?? permissionCatalog()?.defaultPreset
+  const isFullyDelegated = (sessionId, agent) => {
+    const owner = rt.groupOwners.get(sessionId)
+    const bot = rt.botOf(owner?.botId ?? rt.chatOwners?.get(sessionId))
+    return bot !== undefined && botPermission(bot, roomOfSession(sessionId)) === FULL_ACCESS
+      && (agent === undefined || ctx.get?.('sandboxPolicy')?.resolve({ session: agent.session }).mode === FULL_ACCESS)
+  }
 
   // `name` may be a function: it is read once the agent resolves, so a change asked
   // for while the resolve ran wins over the one still being applied.
   async function setPreset(sessionId, name) {
     const agent = await rt.resolveAgent(sessionId)
     const wanted = typeof name === 'function' ? name() : name
-    if (wanted) presets().set(agent.session, wanted)
+    if (wanted) {
+      const approval = ctx.get?.('approval')
+      const alreadyAutomatic = wanted === FULL_ACCESS
+        && ctx.get?.('sandboxPolicy')?.resolve({ session: agent.session }).mode === FULL_ACCESS
+        && approval?.overrideOf?.(agent.session) === 'ask'
+      if (!alreadyAutomatic) presets().set(agent.session, wanted)
+      // DSH's `never` policy rejects requests; full delegation answers them through
+      // our scoped answerer, preserving audit events and explicit user decisions.
+      if (wanted === FULL_ACCESS && approval?.setPolicy && approval.overrideOf?.(agent.session) !== 'ask') {
+        approval.setPolicy(agent, 'ask')
+      }
+      rt.settleDelegatedApprovals?.(sessionId)
+    }
     return wanted
   }
 
@@ -33,7 +56,7 @@ export function install(rt) {
   // without one keeps DSH's default. `room` is for a group Session not indexed yet.
   // Returns the preset it set, or undefined when it set none.
   async function applyPermission(bot, sessionId, room = roomOfSession(sessionId)) {
-    const name = () => room?.permission ?? bot.permission
+    const name = () => botPermission(bot, room)
     if (presets() === undefined || !name()) return
     return setPreset(sessionId, name)
   }
@@ -64,7 +87,7 @@ export function install(rt) {
     // newer request exists, so a superseded request writes no more Sessions — every
     // Session the Bot has ends at the value the newest request actually applied.
     const applyTo = (sessionId, room = roomOfSession(sessionId)) =>
-      setPreset(sessionId, () => (request.seq === mine ? room?.permission ?? bot.permission : undefined))
+      setPreset(sessionId, () => (request.seq === mine ? botPermission(bot, room) : undefined))
     const groups = async (warnFail) => {
       for (const sessionId of rt.groupSessionsOf(bot.id)) {
         if (request.seq !== mine) break
@@ -107,11 +130,22 @@ export function install(rt) {
       const bot = rt.botOf(botId)
       if (bot === undefined) continue
       // A member without a preset of its own goes back to the default its Session started on.
-      await setPreset(sessionId, () => room.permission ?? bot.permission ?? service.catalog().defaultPreset)
+      await setPreset(sessionId, () => botPermission(bot, room))
         .catch(error => rt.warn('ds-bot: permission for %s in %s not applied: %s', bot.name, room.name, error))
     }
     return true
   }
 
-  Object.assign(rt, { permissionCatalog, applyPermission, setPermission, cleanRoomPermission, setRoomPermission })
+  // Reconcile before every model step, including restored chats, scheduled turns
+  // and parts whose DSH permission was changed through a session-only control.
+  ctx.on?.('agent/pre-step', async ({ agent }, next) => {
+    if (presets() === undefined) return next()
+    await rt.load?.()
+    if (!rt.isBotSession?.(agent.id) || rt.readOnly?.()) return next()
+    const bot = rt.botOf(rt.selfOf(agent.id))
+    if (bot !== undefined) await applyPermission(bot, agent.id)
+    return next()
+  })
+
+  Object.assign(rt, { permissionCatalog, botPermission, isFullyDelegated, applyPermission, setPermission, cleanRoomPermission, setRoomPermission })
 }

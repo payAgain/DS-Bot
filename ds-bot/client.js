@@ -42,7 +42,57 @@ module.exports = __toCommonJS(index_exports);
 // src/client/i18n.js
 var NAMESPACE = "ds-bot";
 var ZH = {
+  "App connections": "应用连接",
+  "Composio app connections": "Composio 应用连接",
+  "Composio connection settings": "Composio 连接服务设置",
+  "App library, accounts and Bot access": "应用目录、账号与 Bot 访问管理",
+  "{count} connected accounts": "已连接 {count} 个账号",
+  "Search {query} in the app library": "在应用目录中搜索「{query}」",
+  "Browse apps, connect accounts and choose which Bots can use them.": "浏览应用、连接账号，并管理允许使用账号的 Bot。",
+  "Composio API tools": "Composio API 工具",
+  "Platform tools, separate from connection settings": "平台工具集，与连接服务设置不同",
+  "No Bot access": "尚未授权 Bot",
+  "Unsaved changes": "未保存更改",
+  "Account ID": "账号 ID",
+  "Team approvals and confirmations": "团队审批与确认",
+  "No pending requests in this inbox.": "当前汇总入口暂无待处理请求",
+  "Approval required": "需要你的批准",
+  "Open {name}": "打开 {name}",
+  "You decide here. Each Bot receives the result for its original request.": "由你在这里决定，各 Bot 收到原请求的处理结果。",
+  "From {name}": "来源：{name}",
+  "Review this request with {name}.": "请到 {name} 的对话统一处理这项请求。",
+  "Requested by {names}": "提案来源：{names}",
+  "Already approved for the team": "团队已批准，直接复用",
+  "This decision applies to this request only.": "此次决定仅用于当前这项请求，不授予永久或其他操作权限。",
+  "The request is incomplete. Reject it or review the full operation before allowing it.": "请求内容被截断。可在这里拒绝；批准前需先核对完整操作。",
+  "Connection settings": "连接服务设置",
+  "A project key is saved on this gateway.": "项目密钥已成功保存在当前网关。",
+  "No project key is saved on this gateway. Click Save project after entering the key.": "当前网关尚未保存项目密钥。输入后请点击「保存项目」。",
+  "Verifying and saving…": "正在验证并保存…",
+  "Could not verify the project key with Composio. The project configuration was not saved.": "无法通过 Composio 验证项目密钥，项目配置未保存。请检查网关到 Composio 的连接，稍后重试。",
+  "Could not finish saving the project configuration on this gateway.": "无法在当前网关完成项目配置保存，请检查网关的密钥存储和写入权限。",
+  "Could not reach the connection service. Check the network connection and try again.": "无法访问连接服务，请检查网络连接后重试。",
+  "Use your own connection project": "使用自己的连接服务项目",
+  "More connectors": "更多连接器",
+  "Showing the built-in app catalog. Sign-in is unavailable until the connection service responds.": "当前显示内置应用目录。连接服务恢复后才能登录授权。",
+  "The connection service returned an incomplete app catalog.": "连接服务返回的应用目录不完整，部分应用可能未列出。",
+  "Memberships, products, and checkout": "会员、商品与结账",
+  "Virtual cards and purchase approvals": "虚拟卡与购买审批",
+  "Extended connectors are unavailable. Your existing connectors remain available.": "扩展连接器暂时不可用，已有连接器仍可使用。",
+  "The connection service must use HTTPS without credentials or query parameters.": "连接服务地址必须使用 HTTPS，且不能包含凭据或查询参数。",
+  "The saved connection belongs to a different connection service.": "已保存的安装凭据属于另一个连接服务。",
+  "The connection service returned an invalid installation.": "连接服务返回了无效的安装信息。",
+  "The connection service returned an invalid app catalog.": "连接服务返回了无效的应用目录。",
+  "The connection service returned an invalid connected-app inventory.": "连接服务返回了无效的已连接应用列表。",
+  "The connection service returned too much data.": "连接服务返回的数据过大。",
+  "The connection service returned an unsupported tool result.": "连接服务返回了不支持的工具结果。",
+  "The connected app could not complete the tool request.": "已连接应用未能完成工具请求。",
+  "Search this connected app before executing its tool.": "请先搜索此应用的工具，再执行操作。",
+  "This service requires one active account per app for tool execution.": "当前连接服务执行工具时，每个应用只能有一个有效账号。",
+  "Disconnect this account before authorizing a replacement.": "请先断开此账号，再授权替代账号。",
   "Connected apps": "已连接应用",
+  "Permission": "权限",
+  "Choose valid Bots.": "请选择有效的 Bot。",
   "More apps": "更多应用",
   "Enable app": "启用应用",
   "Composio refused access. Check your project key and account authorization.": "Composio 拒绝访问，请检查项目密钥和账号授权。",
@@ -64,6 +114,9 @@ var ZH = {
   "Last checked: {time}": "上次检查：{time}",
   "Waiting for {app} authorization": "等待 {app} 授权",
   "Open sign-in": "打开授权页面",
+  "Copy link": "复制链接",
+  "Opening sign-in…": "正在打开授权页面…",
+  "The sign-in page could not open automatically. Use the sign-in link below.": "无法自动打开授权页面，请使用下方授权链接继续。",
   "No connected accounts. Choose an app below to sign in.": "还没有连接账号，请从下方选择应用并登录。",
   "App library": "应用目录",
   "Search app library": "搜索应用目录",
@@ -1504,6 +1557,8 @@ var ZH = {
   "Failed": "失败"
 };
 var HOST_ERRORS = [
+  [/^Composio project-key verification failed \(HTTP (\d+)\)\. The project configuration was not saved\.$/, "Composio 项目密钥验证失败（HTTP $1），项目配置未保存。请检查是否为 Project API Key，以及密钥权限。"],
+  [/^The connection service refused the request \(HTTP (\d+)\)\.$/, "连接服务拒绝了请求（HTTP $1）。"],
   [/^Could not reach the mail server at (.+)\. Check the server address\.$/, "连不上邮件服务器 $1，请检查服务器地址。"],
   [/^Model (.+) is not available\. Available: (.*)$/, "模型 $1 不可用。可用的：$2"],
   [/^The API key for (.+) is set outside DS Bot and cannot be changed here$/, "$1 的 API key 是在 DS Bot 之外设置的，这里改不了"],
@@ -1910,8 +1965,8 @@ function bodyOf(def, paint, flat = false) {
     return "";
   }
 }
-var eyeMarkup = ([cx, cy, w, h60, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><rect class="bt-eye" x="${-w / 2}" y="${-h60 / 2}" width="${w}" height="${h60}" rx="${w / 2}"/></g>`;
-var happyEyeMarkup = ([cx, cy, w, h60, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><path class="bt-eye-happy" opacity="0" d="M${-w * 0.62} ${h60 * 0.14}Q0 ${-h60 * 0.42} ${w * 0.62} ${h60 * 0.14}" fill="none" stroke="#000" stroke-width="${w * 0.5}" stroke-linecap="round"/></g>`;
+var eyeMarkup = ([cx, cy, w, h61, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><rect class="bt-eye" x="${-w / 2}" y="${-h61 / 2}" width="${w}" height="${h61}" rx="${w / 2}"/></g>`;
+var happyEyeMarkup = ([cx, cy, w, h61, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><path class="bt-eye-happy" opacity="0" d="M${-w * 0.62} ${h61 * 0.14}Q0 ${-h61 * 0.42} ${w * 0.62} ${h61 * 0.14}" fill="none" stroke="#000" stroke-width="${w * 0.5}" stroke-linecap="round"/></g>`;
 var maskBox = (size) => `maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}"`;
 var holes = (def, eyes) => `<rect x="${-def.size}" y="${-def.size}" width="${def.size * 3}" height="${def.size * 3}" fill="#fff"/>${eyes}`;
 var MASK_ID = "%MASK%";
@@ -2138,9 +2193,9 @@ function teamActions({ call: call2, after, partFor, roster, ui: ui2, live, cards
     updateRoom: (id, patch) => after(call2("update-room", { id, ...patch })),
     send: (sessionId, text) => after(call2("send", { sessionId: partFor(sessionId), text })),
     answerQuestion: (sessionId, questionId, answer) => after(call2("answer-question", { sessionId: partFor(sessionId), questionId, answer })),
-    dismissQuestion: (sessionId) => after(call2("dismiss-question", { sessionId })),
+    dismissQuestion: (sessionId, questionId) => after(call2("dismiss-question", { sessionId, ...questionId === void 0 ? {} : { questionId } })),
     answerView: (sessionId, viewId, action, values) => after(call2("view-reply", { sessionId: partFor(sessionId), viewId, action, values })),
-    dismissView: (sessionId) => after(call2("dismiss-view", { sessionId: partFor(sessionId) })),
+    dismissView: (sessionId, viewId) => after(call2("dismiss-view", { sessionId: partFor(sessionId), ...viewId === void 0 ? {} : { viewId } })),
     deleteBtw: (sessionId, cardId) => after(call2("btw-delete", { sessionId, cardId })),
     answerApproval: (id, choice) => after(call2("approval-answer", { id, choice })),
     computerSetEnabled: (enabled) => after(call2("computer-set-enabled", { enabled })),
@@ -2174,7 +2229,7 @@ function teamActions({ call: call2, after, partFor, roster, ui: ui2, live, cards
     secretUpdate: (name, { scope, purpose } = {}) => after(call2("secret-update", { name, scope, purpose })),
     secretDelete: (name) => after(call2("secret-delete", { name })),
     connectorConnect: (id, payload = {}) => after(call2("connector-connect", { id, ...payload })),
-    connectedApps: (endpoint, payload = {}) => call2(`composio-${endpoint}`, payload),
+    connectedApps: (endpoint, payload = {}) => ["status", "catalog"].includes(endpoint) ? call2(`composio-${endpoint}`, payload) : after(call2(`composio-${endpoint}`, payload)),
     connectorDisconnect: (id) => after(call2("connector-disconnect", { id })),
     connectorRetry: (id) => after(call2("connector-retry", { id })),
     connectorSignInCode: (id, input) => after(call2("connector-sign-in-code", { id, input })),
@@ -2722,12 +2777,12 @@ function liveSprings(apply2) {
     const dt = Math.min(0.5, Math.max(1e-3, (now - last) / 1e3));
     last = now;
     const steps = Math.ceil(dt * 240);
-    const h60 = dt / steps;
+    const h61 = dt / steps;
     let moving = false;
     for (const [key, value] of values) {
       for (let index = 0; index < steps; index += 1) {
-        value.v += (-value.k * (value.x - value.to) - value.c * value.v) * h60;
-        value.x += value.v * h60;
+        value.v += (-value.k * (value.x - value.to) - value.c * value.v) * h61;
+        value.x += value.v * h61;
       }
       if (Math.abs(value.x - value.to) < 0.05 && Math.abs(value.v) < 1) {
         value.x = value.to;
@@ -5538,7 +5593,7 @@ function PendingQuestion({ sessionId, question, actions, inline, enterToSend = t
     });
   };
   const onAnswer = (answer) => run2(() => actions.answerQuestion(sessionId, question.id, { selected: answer.selected ?? [], custom: answer.custom ?? "" }));
-  const onDismiss = () => run2(() => actions.dismissQuestion(sessionId));
+  const onDismiss = () => run2(() => actions.dismissQuestion(sessionId, question.id));
   return (0, import_react9.createElement)(
     "div",
     { className: inline ? "bt-q-inline" : "bt-q-dock" },
@@ -6147,7 +6202,7 @@ var COMPUTER_CSS = `
 .bt-cstep-shot-open img{max-height:280px;max-width:480px}
 `;
 
-// node_modules/deep-view/src/react/ui.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/react/ui.js
 var import_react12 = require("react");
 var FallbackMarkdown = ({ text }) => (0, import_react12.createElement)("span", null, String(text ?? ""));
 var ViewUi = (0, import_react12.createContext)({ t: (key) => key, Markdown: FallbackMarkdown });
@@ -6214,7 +6269,7 @@ function useOptionKeys2(count, onPick, ownRef) {
   return count > 0 && listening <= 1;
 }
 
-// node_modules/deep-view/src/core/formula.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/core/formula.js
 var FUNCTIONS = {
   min: { args: [1, Infinity], run: (...values) => Math.min(...values.map(num)) },
   max: { args: [1, Infinity], run: (...values) => Math.max(...values.map(num)) },
@@ -6495,7 +6550,7 @@ function evaluate(tree, lookup) {
   }
 }
 
-// node_modules/deep-view/src/core/views.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/core/views.js
 var LAYOUT = ["stack", "row"];
 var DISPLAY = ["text", "metric", "table", "chart", "progress", "callout", "sources", "html"];
 var INPUT_TYPES = ["slider", "choice", "toggle", "number"];
@@ -7127,7 +7182,7 @@ function validateForm(node, values) {
   return { fields };
 }
 
-// node_modules/deep-view/src/react/chart.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/react/chart.js
 var import_react13 = require("react");
 var PALETTE = ["var(--dv-accent)", "var(--dv-ink-tangerine)", "var(--dv-ink-green)", "var(--dv-ink-violet)", "var(--dv-ink-sky)", "var(--dv-ink-rose)", "var(--dv-ink-yellow)", "var(--dv-ink-cyan)", "var(--dv-ink-magenta)"];
 var colorAt = (index) => PALETTE[index % PALETTE.length];
@@ -7566,7 +7621,7 @@ var CHART_CSS = `
 @media (prefers-reduced-motion:reduce){.dv-chart-mark,.dv-chart-dot{transition:none}.dv-chart-tip{animation:none}}
 `;
 
-// node_modules/deep-view/src/react/frame.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/react/frame.js
 var import_react14 = require("react");
 var THEME_VARS = [
   ["--view-ink", "--bt-ink", "--dv-ink"],
@@ -7648,7 +7703,7 @@ var HTML_CSS = `
 .dv-view-frame-stopped{margin:0;font-size:13px;line-height:18px;color:var(--dv-ink-2)}
 `;
 
-// node_modules/deep-view/src/react/card.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/react/card.js
 var import_react15 = require("react");
 var mdLabels = (ui2) => ({ code: { copyLabel: ui2.t("Copy"), copiedLabel: ui2.t("Copied") }, footnotes: ui2.t("Footnotes") });
 var TONES2 = ["good", "warn", "bad"];
@@ -8390,7 +8445,7 @@ ${CHART_CSS}
 ${HTML_CSS}
 `;
 
-// node_modules/deep-view/src/react/styles.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/react/styles.js
 var THEME_CSS = `
 body{
 --dv-ink:var(--dsw-alias-label-primary);
@@ -8488,10 +8543,10 @@ button.dv-q-opt:active{background:var(--dv-active)}
 @media (prefers-reduced-motion:reduce){.dv-q,.dv-view-bare,.dv-q-submit,.dv-menu,.dv-q-check{animation:none}}
 `;
 
-// node_modules/deep-view/src/react/index.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/react/index.js
 var DEEP_VIEW_CSS = THEME_CSS + QUESTION_CSS + WIDGET_CSS;
 
-// node_modules/deep-view/src/core/reply.js
+// ../../DS-Bot/ds-bot/node_modules/deep-view/src/core/reply.js
 var REPLY_KIND = "user-question-reply";
 var REPLY_SOURCE_KIND = "deep-view-reply";
 function viewCardText(args) {
@@ -8635,7 +8690,7 @@ function PendingView({ sessionId, view, actions, inline }) {
     });
   };
   const onSubmit = (action, values) => run2(() => actions.answerView(sessionId, view.id, action, values));
-  const onDismiss = () => run2(() => actions.dismissView(sessionId));
+  const onDismiss = () => run2(() => actions.dismissView(sessionId, view.id));
   return (0, import_react16.createElement)(
     "div",
     { className: inline ? "bt-q-inline" : "bt-q-dock", style: flying ? { display: "none" } : void 0, onFocusCapture: hold, onPointerDownCapture: hold },
@@ -11526,14 +11581,25 @@ function reserveWindow() {
   } };
   const reserved = window.open("", "_blank");
   if (reserved !== null) reserved.opener = null;
+  let used = false;
   return {
     go: (url) => {
-      if (reserved === null) return false;
-      reserved.location.href = url;
+      if (used || reserved === null) return false;
+      used = true;
+      try {
+        reserved.location.href = url;
+      } catch {
+        return false;
+      }
       return true;
     },
     close: () => {
-      reserved?.close();
+      if (!used) {
+        try {
+          reserved?.close();
+        } catch {
+        }
+      }
     }
   };
 }
@@ -19694,80 +19760,104 @@ button.bt-us-row:hover{background:var(--bt-hover)}
 
 // src/client/connected-apps.js
 var import_react47 = require("react");
-function Account({ account, bots, busy, save, reconnect, disconnect }) {
-  const [mode, setMode] = (0, import_react47.useState)(account.mode);
+function ConnectedAppAccount({ account, bots, busy, save, reconnect, disconnect, managed }) {
+  const [expanded, setExpanded] = (0, import_react47.useState)(false);
+  const controlsId = (0, import_react47.useId)();
   const [selected, setSelected] = (0, import_react47.useState)(account.bots ?? []);
   const [enabled, setEnabled] = (0, import_react47.useState)(account.enabled);
   const [confirm, setConfirm] = (0, import_react47.useState)(false);
   (0, import_react47.useEffect)(() => {
-    setMode(account.mode);
     setSelected(account.bots ?? []);
     setEnabled(account.enabled);
   }, [account.id, account.revision]);
   const toggle = (id) => setSelected((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
-  const dirty = mode !== account.mode || enabled !== account.enabled || JSON.stringify([...selected].sort()) !== JSON.stringify([...account.bots ?? []].sort());
+  const dirty = enabled !== account.enabled || JSON.stringify([...selected].sort()) !== JSON.stringify([...account.bots ?? []].sort());
   const active = account.status === "ACTIVE" && !account.disabled && !account.replacedBy;
+  const access = bots.filter((bot) => (account.bots ?? []).includes(bot.id)).map((bot) => bot.name).join(", ");
+  const status = account.replacedBy ? t("Replaced by a new connection") : active ? t("Connected") : t("Sign in again");
   return (0, import_react47.createElement)(
     "section",
     { className: "bt-ca-account" },
     (0, import_react47.createElement)(
       "div",
-      { className: "bt-ca-heading" },
-      (0, import_react47.createElement)("div", null, (0, import_react47.createElement)("strong", null, account.label), (0, import_react47.createElement)(
-        "p",
-        null,
-        account.toolkit,
-        " · ",
-        account.replacedBy ? t("Replaced by a new connection") : active ? t("Connected") : t("Sign in again")
-      )),
+      { className: "bt-app bt-ca-account-row", "data-state": active ? "ready" : "needs-sign-in" },
+      (0, import_react47.createElement)(
+        "button",
+        { type: "button", className: "bt-app-main", "aria-expanded": expanded, "aria-controls": controlsId, onClick: () => setExpanded(!expanded) },
+        (0, import_react47.createElement)("span", { className: "bt-app-icon", style: { width: 36, height: 36 } }, (0, import_react47.createElement)(ConnectorMark, { connector: { id: account.toolkit, name: account.toolkit } })),
+        (0, import_react47.createElement)(
+          "span",
+          { className: "bt-app-text" },
+          (0, import_react47.createElement)("span", { className: "bt-app-name" }, account.label),
+          (0, import_react47.createElement)("span", { className: "bt-app-status" }, status, " · ", account.enabled === false ? t("Disabled") : access || t("No Bot access"), dirty ? ` · ${t("Unsaved changes")}` : "")
+        )
+      ),
+      (0, import_react47.createElement)("button", { type: "button", className: "bt-app-btn", "aria-expanded": expanded, "aria-controls": controlsId, onClick: () => setExpanded(!expanded) }, t(expanded ? "Close details" : "Manage"))
+    ),
+    expanded ? (0, import_react47.createElement)(
+      "div",
+      { id: controlsId, className: "bt-ca-account-details" },
+      (0, import_react47.createElement)(
+        "div",
+        { className: "bt-ca-policy" },
+        (0, import_react47.createElement)("label", null, (0, import_react47.createElement)("input", { type: "checkbox", checked: enabled, disabled: busy || Boolean(account.replacedBy), onChange: (e) => setEnabled(e.target.checked) }), t("Enable account"))
+      ),
+      (0, import_react47.createElement)(
+        "fieldset",
+        { className: "bt-ca-bots", disabled: busy || Boolean(account.replacedBy) },
+        (0, import_react47.createElement)("legend", null, t("Bots allowed to use this account")),
+        bots.length ? bots.map((bot) => (0, import_react47.createElement)(
+          "label",
+          { key: bot.id },
+          (0, import_react47.createElement)("input", { type: "checkbox", checked: selected.includes(bot.id), onChange: () => toggle(bot.id) }),
+          bot.name
+        )) : (0, import_react47.createElement)("span", { className: "bt-set-hint" }, t("Create a Bot before granting access."))
+      ),
+      selected.length === 0 ? (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("No Bot has access until you select one and save.")) : null,
+      dirty ? (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => save({ id: account.id, bots: selected, enabled }) }, t("Save access")) : null,
       (0, import_react47.createElement)(
         "div",
         { className: "bt-ca-buttons" },
-        !account.public ? (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => reconnect(account) }, t("Reconnect")) : null,
+        !account.public && (!managed || !active) ? (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => reconnect(account) }, t("Reconnect")) : null,
         (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => setConfirm(!confirm) }, t("Disconnect"))
-      )
-    ),
-    (0, import_react47.createElement)("code", { className: "bt-ca-id" }, account.id),
-    confirm ? (0, import_react47.createElement)(
-      "div",
-      { className: "bt-ca-confirm" },
-      (0, import_react47.createElement)("span", null, t("Disconnect this account and remove its Bot access?")),
-      (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => disconnect(account.id) }, t("Confirm disconnect")),
-      (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: () => setConfirm(false) }, t("Cancel"))
-    ) : null,
-    (0, import_react47.createElement)(
-      "div",
-      { className: "bt-ca-policy" },
-      (0, import_react47.createElement)("label", null, (0, import_react47.createElement)("input", { type: "checkbox", checked: enabled, disabled: busy || Boolean(account.replacedBy), onChange: (e) => setEnabled(e.target.checked) }), t("Enable account")),
-      (0, import_react47.createElement)("label", null, t("Permission"), (0, import_react47.createElement)(
-        "select",
-        { className: "bt-input", value: mode, disabled: busy, onChange: (e) => setMode(e.target.value) },
-        (0, import_react47.createElement)("option", { value: "read" }, t("Read only")),
-        (0, import_react47.createElement)("option", { value: "ask" }, t("Ask before changes"))
-      ))
-    ),
-    (0, import_react47.createElement)(
-      "fieldset",
-      { className: "bt-ca-bots", disabled: busy || Boolean(account.replacedBy) },
-      (0, import_react47.createElement)("legend", null, t("Bots allowed to use this account")),
-      bots.length ? bots.map((bot) => (0, import_react47.createElement)(
-        "label",
-        { key: bot.id },
-        (0, import_react47.createElement)("input", { type: "checkbox", checked: selected.includes(bot.id), onChange: () => toggle(bot.id) }),
-        bot.name
-      )) : (0, import_react47.createElement)("span", { className: "bt-set-hint" }, t("Create a Bot before granting access."))
-    ),
-    selected.length === 0 ? (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("No Bot has access until you select one and save.")) : null,
-    dirty ? (0, import_react47.createElement)("button", { type: "button", className: "bt-soft", disabled: busy, onClick: () => save({ id: account.id, mode, bots: selected, enabled }) }, t("Save access")) : null
+      ),
+      confirm ? (0, import_react47.createElement)(
+        "div",
+        { className: "bt-ca-confirm" },
+        (0, import_react47.createElement)("span", null, t("Disconnect this account and remove its Bot access?")),
+        (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => disconnect(account.id) }, t("Confirm disconnect")),
+        (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: () => setConfirm(false) }, t("Cancel"))
+      ) : null,
+      (0, import_react47.createElement)("div", { className: "bt-ca-id" }, t("Account ID"), ": ", (0, import_react47.createElement)("code", null, account.id))
+    ) : null
   );
 }
-function ConnectedAppsPanel({ actions, bots = [] }) {
+function PendingAttempt({ attempt, busy, cancel }) {
+  const [copied, setCopied] = (0, import_react47.useState)(false);
+  const copy2 = () => {
+    const done = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    };
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(attempt.url).then(done, () => {
+    });
+  };
+  return (0, import_react47.createElement)(
+    "div",
+    { className: "bt-ca-pending", role: "status" },
+    (0, import_react47.createElement)("span", null, t("Waiting for {app} authorization", { app: attempt.toolkit })),
+    (0, import_react47.createElement)("a", { className: "bt-soft bt-soft-sm", href: attempt.url, target: "_blank", rel: "noopener noreferrer" }, t("Open sign-in")),
+    (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: copy2 }, t(copied ? "Copied" : "Copy link")),
+    (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => cancel(attempt.id) }, t("Dismiss"))
+  );
+}
+function ConnectedAppsPanel({ actions, bots = [], embedded = false, configuration = false, accountsOnly = false, searchQuery = "", initialQuery = "", exclude = [] }) {
   const [data, setData] = (0, import_react47.useState)(null), [error, setError] = (0, import_react47.useState)(""), [busy, setBusy] = (0, import_react47.useState)(false);
   const [apiKey, setApiKey] = (0, import_react47.useState)(""), [userId, setUserId] = (0, import_react47.useState)("");
   const [confirmProject, setConfirmProject] = (0, import_react47.useState)(false), [removeProject, setRemoveProject] = (0, import_react47.useState)(false);
-  const [query, setQuery] = (0, import_react47.useState)(""), [catalog, setCatalog] = (0, import_react47.useState)({ items: [], cursor: null }), [loading, setLoading] = (0, import_react47.useState)(false);
+  const [query, setQuery] = (0, import_react47.useState)(initialQuery), [catalog, setCatalog] = (0, import_react47.useState)({ items: [], cursor: null }), [loading, setLoading] = (0, import_react47.useState)(true);
   const [selectedApp, setSelectedApp] = (0, import_react47.useState)(null), [label, setLabel] = (0, import_react47.useState)(""), [authConfigId, setAuthConfigId] = (0, import_react47.useState)("");
-  const mounted = (0, import_react47.useRef)(true), searchEpoch = (0, import_react47.useRef)(0), actionEpoch = (0, import_react47.useRef)(0), operation = (0, import_react47.useRef)(false);
+  const mounted = (0, import_react47.useRef)(true), searchEpoch = (0, import_react47.useRef)(0), actionEpoch = (0, import_react47.useRef)(0), operation = (0, import_react47.useRef)(false), pendingWindow = (0, import_react47.useRef)(null);
   const call2 = (endpoint, body) => actions.connectedApps(endpoint, body);
   const update = (value) => {
     if (!mounted.current) return;
@@ -19793,6 +19883,8 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
     return () => {
       mounted.current = false;
       searchEpoch.current++;
+      pendingWindow.current?.close();
+      pendingWindow.current = null;
     };
   }, []);
   const refresh = () => {
@@ -19816,13 +19908,20 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
     }, data.pending?.length ? 5e3 : 6e4);
     return () => clearInterval(timer);
   }, [data?.configured, data?.pending?.length]);
+  const searchText = embedded ? searchQuery : query;
   const search = (cursor) => {
     const epoch = ++searchEpoch.current;
     setLoading(true);
-    void call2("catalog", { query, ...cursor ? { cursor } : {} }).then((page) => {
+    setError("");
+    void call2("catalog", { query: searchText, ...cursor ? { cursor } : {} }).then(async (page) => {
       if (!mounted.current || epoch !== searchEpoch.current) return;
-      setCatalog((previous) => ({ items: cursor ? [...previous.items, ...page.items.filter((item) => !previous.items.some((old) => old.slug === item.slug))] : page.items, cursor: page.cursor }));
-    }, (failure) => {
+      setCatalog((previous) => ({ ...page, items: cursor ? [...previous.items, ...page.items.filter((item) => !previous.items.some((old) => old.slug === item.slug))] : page.items }));
+      setError(page.warning ?? "");
+      if (!data?.configured) {
+        const status = await call2("status");
+        if (mounted.current && epoch === searchEpoch.current) update(status);
+      }
+    }).catch((failure) => {
       if (mounted.current && epoch === searchEpoch.current) message(failure);
     }).finally(() => {
       if (mounted.current && epoch === searchEpoch.current) setLoading(false);
@@ -19830,16 +19929,14 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
   };
   (0, import_react47.useEffect)(() => {
     searchEpoch.current++;
-    if (!data?.configured) {
-      setCatalog({ items: [], cursor: null });
-      return;
-    }
+    if (!data || configuration || accountsOnly) return;
+    setLoading(true);
     const timer = setTimeout(() => search(), 300);
     return () => {
       clearTimeout(timer);
       searchEpoch.current++;
     };
-  }, [query, data?.configured, data?.identity]);
+  }, [searchText, data?.identity, configuration, accountsOnly]);
   const run2 = async (endpoint, payload, done) => {
     if (operation.current) return;
     actionEpoch.current++;
@@ -19853,6 +19950,12 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
       return result;
     } catch (failure) {
       message(failure);
+      if (endpoint === "configure") {
+        try {
+          update(await call2("status"));
+        } catch {
+        }
+      }
     } finally {
       operation.current = false;
       if (mounted.current) setBusy(false);
@@ -19861,29 +19964,46 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
   const connect = (app, replaces) => {
     if (operation.current) return;
     const browser = reserveWindow();
+    pendingWindow.current = browser;
     void run2("connect", {
       toolkit: app.slug ?? app.toolkit,
       label: replaces ? app.label : label,
       ...replaces ? { replaces: app.id } : {},
       ...authConfigId && !replaces ? { authConfigId } : {}
-    }, (result) => {
-      browser.go(result.authorization.url);
+    }, () => {
       setSelectedApp(null);
       setLabel("");
       setAuthConfigId("");
     }).then((result) => {
-      if (!result) browser.close();
+      const url = result?.authorization?.url;
+      if (url && browser.go(url)) return;
+      browser.close();
+      if (mounted.current && result && !url) setError(t("The sign-in page could not open automatically. Use the sign-in link below."));
+    }).finally(() => {
+      pendingWindow.current = null;
     });
   };
+  const chooseApp = (app) => {
+    if (app.noAuth) {
+      void run2("enable-public", { toolkit: app.slug });
+      return;
+    }
+    setSelectedApp(app);
+    setLabel("");
+    setAuthConfigId("");
+  };
+  const setupError = !data?.configured && data?.lastSetup?.state === "failed" ? data.lastSetup.message : "";
+  const shownError = setupError || error;
   return (0, import_react47.createElement)(
     "div",
     { className: "bt-ca" },
-    error ? (0, import_react47.createElement)("div", { className: "bt-connector-error", role: "alert" }, hostText(error)) : null,
+    shownError ? (0, import_react47.createElement)("div", { className: "bt-connector-error", role: "alert" }, hostText(shownError)) : null,
     !data ? (0, import_react47.createElement)("p", { role: "status" }, t("Loading connected apps…")) : null,
-    (0, import_react47.createElement)(
+    configuration ? (0, import_react47.createElement)(
       "details",
-      { className: "bt-ca-project", open: !data?.configured || void 0 },
-      (0, import_react47.createElement)("summary", null, t("Composio project"), data?.configured ? ` · ${t("Configured")}` : ""),
+      { className: "bt-ca-project", open: true },
+      (0, import_react47.createElement)("summary", null, t("Use your own connection project"), data?.mode === "project" ? ` · ${t("Configured")}` : ""),
+      (0, import_react47.createElement)("p", { className: "bt-set-hint", role: "status" }, t(data?.mode === "project" && data?.configured ? "A project key is saved on this gateway." : "No project key is saved on this gateway. Click Save project after entering the key.")),
       (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("Use your own Composio project to connect app accounts. Your key stays on this computer.")),
       (0, import_react47.createElement)(
         "label",
@@ -19915,7 +20035,7 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
             setUserId(value.userId);
             setConfirmProject(false);
           })
-        }, t("Save project")),
+        }, t(busy ? "Verifying and saving…" : "Save project")),
         data?.configured ? (0, import_react47.createElement)("button", { type: "button", className: "bt-soft", disabled: busy, onClick: () => setRemoveProject(!removeProject) }, t("Remove project")) : null
       ),
       removeProject ? (0, import_react47.createElement)(
@@ -19928,8 +20048,19 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
           setUserId("");
         }) }, t("Confirm removal"))
       ) : null
-    ),
-    data?.configured ? (0, import_react47.createElement)(
+    ) : null,
+    !configuration && error ? (0, import_react47.createElement)(
+      "div",
+      { className: "bt-ca-buttons" },
+      (0, import_react47.createElement)("span", { className: "bt-set-hint" }, t("Extended connectors are unavailable. Your existing connectors remain available.")),
+      (0, import_react47.createElement)("button", {
+        type: "button",
+        className: "bt-soft bt-soft-sm",
+        disabled: busy || loading,
+        onClick: () => void run2("retry-service", {}, () => search())
+      }, t("Try again"))
+    ) : null,
+    !configuration && data?.configured && ((data.accounts?.length ?? 0) > 0 || (data.pending?.length ?? 0) > 0) ? (0, import_react47.createElement)(
       "section",
       null,
       (0, import_react47.createElement)(
@@ -19939,63 +20070,69 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
         (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => void run2("refresh") }, t("Refresh accounts"))
       ),
       Number.isFinite(data.lastUpdated) ? (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("Last checked: {time}", { time: new Date(data.lastUpdated).toLocaleString() })) : null,
-      data.pending?.map((attempt) => (0, import_react47.createElement)(
-        "div",
-        { key: attempt.id, className: "bt-ca-pending", role: "status" },
-        (0, import_react47.createElement)("span", null, t("Waiting for {app} authorization", { app: attempt.toolkit })),
-        (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: () => openPage(attempt.url) }, t("Open sign-in")),
-        (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick: () => void run2("cancel", { id: attempt.id }) }, t("Dismiss"))
-      )),
-      data.accounts.length ? data.accounts.map((account) => (0, import_react47.createElement)(Account, {
+      data.pending?.map((attempt) => (0, import_react47.createElement)(PendingAttempt, { key: attempt.id, attempt, busy, cancel: (id) => void run2("cancel", { id }) })),
+      data.accounts.length ? data.accounts.map((account) => (0, import_react47.createElement)(ConnectedAppAccount, {
         key: account.id,
         account,
         bots,
         busy,
+        managed: data.mode === "managed",
         save: (payload) => void run2("policy", payload),
         reconnect: (item) => connect(item, true),
         disconnect: (id) => void run2("disconnect", { id, confirm: true })
       })) : (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("No connected accounts. Choose an app below to sign in."))
     ) : null,
-    data?.configured ? (0, import_react47.createElement)(
+    !configuration && !accountsOnly && (loading || catalog.source || catalog.items.length > 0 || !error) ? (0, import_react47.createElement)(
       "section",
       null,
       (0, import_react47.createElement)("h3", null, t("App library")),
-      (0, import_react47.createElement)("input", {
+      catalog.source === "curated" ? (0, import_react47.createElement)(
+        "p",
+        { className: "bt-set-hint", role: "status" },
+        t("Showing the built-in app catalog. Sign-in is unavailable until the connection service responds.")
+      ) : null,
+      !embedded ? (0, import_react47.createElement)("input", {
         type: "search",
         className: "bt-input",
         value: query,
         "aria-label": t("Search app library"),
         placeholder: t("Search app library"),
         onChange: (e) => setQuery(e.target.value)
-      }),
+      }) : null,
       loading ? (0, import_react47.createElement)("p", { role: "status", className: "bt-set-hint" }, t("Loading apps…")) : null,
-      !loading && catalog.items.length === 0 ? (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("No matching apps.")) : null,
-      (0, import_react47.createElement)("div", { className: "bt-ca-library" }, catalog.items.map((app) => (0, import_react47.createElement)(
+      !loading && data && catalog.items.length === 0 ? (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("No matching apps.")) : null,
+      !selectedApp ? (0, import_react47.createElement)("div", { className: "bt-app-grid bt-ca-library" }, catalog.items.filter((app) => !exclude.includes(app.slug)).map((app) => (0, import_react47.createElement)(
         "div",
-        { key: app.slug, className: "bt-ca-app" },
-        (0, import_react47.createElement)("div", null, (0, import_react47.createElement)("strong", null, app.name), (0, import_react47.createElement)("span", { className: "bt-set-hint" }, app.slug)),
-        (0, import_react47.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy || app.noAuth && app.connected, onClick: () => {
-          if (app.noAuth) {
-            void run2("enable-public", { toolkit: app.slug });
-            return;
-          }
-          setSelectedApp(app);
-          setLabel("");
-          setAuthConfigId("");
-        } }, app.noAuth ? app.connected ? t("Enabled") : t("Enable app") : app.connected ? t("Add account") : t("Connect"))
-      ))),
-      catalog.cursor ? (0, import_react47.createElement)("button", { type: "button", className: "bt-soft", disabled: loading, onClick: () => search(catalog.cursor) }, t("Load more apps")) : null,
+        { key: app.slug, className: "bt-app" },
+        (0, import_react47.createElement)(
+          "button",
+          { type: "button", className: "bt-app-main", disabled: busy || catalog.available === false || app.connected && (app.noAuth || data?.mode === "managed"), onClick: () => chooseApp(app) },
+          (0, import_react47.createElement)("span", { className: "bt-app-icon", style: { width: 36, height: 36 } }, (0, import_react47.createElement)(ConnectorMark, { connector: { id: app.slug, name: app.name } })),
+          (0, import_react47.createElement)(
+            "span",
+            { className: "bt-app-text" },
+            (0, import_react47.createElement)("span", { className: "bt-app-name" }, app.slug === "composio" ? t("Composio API tools") : app.name),
+            app.slug === "composio" ? (0, import_react47.createElement)("span", { className: "bt-app-status" }, t("Platform tools, separate from connection settings")) : null
+          )
+        ),
+        (0, import_react47.createElement)(
+          "button",
+          { type: "button", className: "bt-app-btn", disabled: busy || catalog.available === false || app.connected && (app.noAuth || data?.mode === "managed"), onClick: () => chooseApp(app) },
+          app.noAuth ? app.connected ? t("Enabled") : t("Enable app") : app.connected ? data?.mode === "managed" ? t("Connected") : t("Add account") : t("Connect")
+        )
+      ))) : null,
+      !selectedApp && catalog.cursor ? (0, import_react47.createElement)("button", { type: "button", className: "bt-soft", disabled: loading, onClick: () => search(catalog.cursor) }, t("Load more apps")) : null,
       selectedApp ? (0, import_react47.createElement)(
         "div",
         { className: "bt-ca-connect" },
         (0, import_react47.createElement)("h3", null, t("Connect {app}", { app: selectedApp.name })),
         (0, import_react47.createElement)("label", { className: "bt-q-field" }, t("Account label (optional)"), (0, import_react47.createElement)("input", { className: "bt-input", value: label, maxLength: 200, onChange: (e) => setLabel(e.target.value) })),
-        (0, import_react47.createElement)("label", { className: "bt-q-field" }, t("Auth config ID (optional)"), (0, import_react47.createElement)("input", { className: "bt-input", value: authConfigId, onChange: (e) => setAuthConfigId(e.target.value) })),
-        (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("Most apps use Composio sign-in. Supply an auth config ID only when your project requires a custom configuration.")),
+        data?.mode === "project" ? (0, import_react47.createElement)("label", { className: "bt-q-field" }, t("Auth config ID (optional)"), (0, import_react47.createElement)("input", { className: "bt-input", value: authConfigId, onChange: (e) => setAuthConfigId(e.target.value) })) : null,
+        data?.mode === "project" ? (0, import_react47.createElement)("p", { className: "bt-set-hint" }, t("Most apps use Composio sign-in. Supply an auth config ID only when your project requires a custom configuration.")) : null,
         (0, import_react47.createElement)(
           "div",
           { className: "bt-ca-buttons" },
-          (0, import_react47.createElement)("button", { type: "button", className: "bt-soft", disabled: busy, onClick: () => connect(selectedApp) }, t("Continue to sign-in")),
+          (0, import_react47.createElement)("button", { type: "button", className: "bt-soft", disabled: busy, onClick: () => connect(selectedApp) }, t(busy ? "Opening sign-in…" : "Continue to sign-in")),
           (0, import_react47.createElement)("button", { type: "button", className: "bt-soft", disabled: busy, onClick: () => setSelectedApp(null) }, t("Cancel"))
         )
       ) : null
@@ -20003,8 +20140,8 @@ function ConnectedAppsPanel({ actions, bots = [] }) {
   );
 }
 var CONNECTED_APPS_CSS = `
-.bt-ca{display:flex;flex-direction:column;gap:24px;min-width:0}
-.bt-ca h3{font-size:14px;font-weight:600;margin:0 0 12px}.bt-ca p{margin:6px 0 12px}
+.bt-ca{display:flex;flex-direction:column;gap:20px;min-width:0;container-type:inline-size}
+.bt-ca h3{font-size:13px;line-height:18px;font-weight:600;margin:0 0 12px}.bt-ca p{margin:6px 0 12px}
 .bt-ca-project{padding:14px 16px;border:1px solid var(--bt-line);border-radius:12px;background:var(--bt-card)}
 .bt-ca-project summary{font-weight:500;cursor:pointer}.bt-ca-project[open] summary{margin-bottom:12px}
 .bt-ca .bt-q-field{display:flex;flex-direction:column;gap:6px;margin:12px 0;min-width:0}
@@ -20012,16 +20149,15 @@ var CONNECTED_APPS_CSS = `
 .bt-ca-heading p{font-size:12px;color:var(--bt-ink-2);margin:4px 0}
 .bt-ca-buttons,.bt-ca-confirm,.bt-ca-pending{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .bt-ca-confirm,.bt-ca-pending{padding:12px 0}.bt-ca-confirm{color:var(--bt-ink-2)}
-.bt-ca-account{padding:16px 0;border-top:1px solid var(--bt-line)}
+.bt-ca-account{border-bottom:1px solid var(--bt-line);min-width:0}.bt-ca-account-row{min-height:64px}.bt-ca-account-details{padding:12px 16px 16px;background:var(--bt-card);border-radius:12px;margin-bottom:12px;display:flex;flex-direction:column;gap:12px}.bt-ca-account .bt-app-status{max-width:100%}
 .bt-ca-id{display:block;font-size:11px;color:var(--bt-ink-3);overflow-wrap:anywhere;margin:6px 0 12px}
 .bt-ca-policy{display:flex;flex-wrap:wrap;gap:16px;align-items:center}.bt-ca-policy label,.bt-ca-check{display:flex;align-items:center;gap:8px}
-.bt-ca-bots{border:0;padding:10px 0;display:flex;flex-wrap:wrap;gap:12px}
+.bt-ca-bots{border:0;margin:0;padding:8px 0;display:flex;flex-wrap:wrap;gap:12px}
 .bt-ca-bots legend{font-size:12px;color:var(--bt-ink-2);padding:8px 0}
 .bt-ca-bots label{display:flex;align-items:center;gap:6px}.bt-ca input[type=checkbox]{accent-color:var(--bt-accent)}
-.bt-ca-library{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:0 20px;margin:12px 0}
-.bt-ca-app{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--bt-line)}
-.bt-ca-app>div{display:flex;flex-direction:column;gap:4px;min-width:0}.bt-ca-app strong{font-size:13px;overflow-wrap:anywhere}
+.bt-ca-library{margin:12px 0}.bt-ca > section{min-width:0}.bt-ca > section > .bt-input{width:100%;box-sizing:border-box}.bt-ca .bt-ca-heading{align-items:center}.bt-ca .bt-ca-heading h3{margin:0}.bt-ca .bt-ca-id{margin:0;color:var(--bt-ink-3)}
 .bt-ca-connect{padding:16px;border:1px solid var(--bt-line);border-radius:12px;margin-top:16px}
+.bt-ca-pending a.bt-soft{display:inline-flex;align-items:center;text-decoration:none}
 @media(max-width:560px){.bt-ca-heading{flex-wrap:wrap}.bt-ca-policy{align-items:stretch;flex-direction:column}.bt-ca button{min-height:40px}.bt-ca input,.bt-ca select{font-size:16px}}
 `;
 
@@ -20147,6 +20283,25 @@ function ConnectedSummary({ apps, count, onClick }) {
     (0, import_react48.createElement)(ChevronRightIcon)
   );
 }
+function AppConnectionsEntry({ accounts = [], query = "", onOpen }) {
+  const count = accounts.filter((account) => account.status === "ACTIVE" && !account.disabled).length;
+  return (0, import_react48.createElement)(
+    "div",
+    { className: "bt-app bt-app-module", "data-state": "ready" },
+    (0, import_react48.createElement)(
+      "button",
+      { type: "button", className: "bt-app-main", onClick: onOpen },
+      (0, import_react48.createElement)(AppIcon, { app: { id: "composio", name: "Composio" } }),
+      (0, import_react48.createElement)(
+        "span",
+        { className: "bt-app-text" },
+        (0, import_react48.createElement)("span", { className: "bt-app-name" }, "Composio"),
+        (0, import_react48.createElement)("span", { className: "bt-app-status" }, query.trim() ? t("Search {query} in the app library", { query: query.trim() }) : count ? t("{count} connected accounts", { count }) : t("App library, accounts and Bot access"))
+      )
+    ),
+    (0, import_react48.createElement)("button", { type: "button", className: "bt-app-btn", onClick: onOpen }, t("Open"))
+  );
+}
 function ConnectorsPage({ roster, actions }) {
   const [query, setQuery] = (0, import_react48.useState)("");
   const [category, setCategory] = (0, import_react48.useState)("");
@@ -20170,14 +20325,25 @@ function ConnectorsPage({ roster, actions }) {
   const apps = [mailbox, ...(data.connectors ?? []).filter((c) => c.id !== "mail")];
   const connected = apps.filter((app) => app.state !== "off" || app.pending);
   const marks = [...accounts.map((account) => ({ id: `mail-${account.provider}`, name: account.address })), ...connected.filter((app) => app.id !== "mail")];
-  const count = accounts.length + connected.filter((app) => app.id !== "mail").length;
+  const count = accounts.length + connected.filter((app) => app.id !== "mail").length + (roster?.connectedApps?.accounts ?? []).filter((account) => account.status === "ACTIVE" && !account.disabled).length;
   const open = (id) => setView({ app: id });
   const back = () => setView(null);
   const banner = error ? (0, import_react48.createElement)("div", { className: "bt-connector-error bt-connector-banner", role: "alert" }, hostText(error)) : null;
+  if (view === "app-settings") return (0, import_react48.createElement)(
+    Subview,
+    { title: t("Composio connection settings"), onBack: () => setView("apps") },
+    (0, import_react48.createElement)(ConnectedAppsPanel, { actions, bots: roster?.bots ?? [], configuration: true })
+  );
   if (view === "apps") return (0, import_react48.createElement)(
     Subview,
-    { title: t("Connected apps"), onBack: back },
-    (0, import_react48.createElement)(ConnectedAppsPanel, { actions, bots: roster?.bots ?? [] })
+    { title: t("Composio app connections"), onBack: back },
+    (0, import_react48.createElement)(
+      "div",
+      { className: "bt-app-service-head" },
+      (0, import_react48.createElement)("p", { className: "bt-app-about" }, t("Browse apps, connect accounts and choose which Bots can use them.")),
+      (0, import_react48.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: () => setView("app-settings") }, t("Connection settings"))
+    ),
+    (0, import_react48.createElement)(ConnectedAppsPanel, { actions, bots: roster?.bots ?? [], initialQuery: query, exclude: apps.map((app) => app.id) })
   );
   if (view?.app === "mail") {
     return (0, import_react48.createElement)(
@@ -20217,7 +20383,8 @@ function ConnectorsPage({ roster, actions }) {
         accounts.map((account) => (0, import_react48.createElement)(MailAccount, { key: account.id, account, actions, run: run2 })),
         (mail.pending ?? []).map((p) => (0, import_react48.createElement)(MailPending, { key: p.address ?? "google", pending: p })),
         (0, import_react48.createElement)(MailRules, { mail, bots: roster?.bots, actions, run: run2 })
-      )
+      ),
+      (0, import_react48.createElement)(AppConnectionsEntry, { accounts: roster?.connectedApps?.accounts ?? [], onOpen: () => setView("apps") })
     );
   }
   if (view === "custom") {
@@ -20233,7 +20400,7 @@ function ConnectorsPage({ roster, actions }) {
   const found = apps.filter((app) => (category === "" || app.category === category) && matches(query.trim(), app.name, app.about ?? ""));
   let body;
   if (searching || category !== "") {
-    body = found.length === 0 ? (0, import_react48.createElement)("p", { className: "bt-app-empty" }, t("Nothing matches")) : (0, import_react48.createElement)(Grid, { apps: found, actions, open });
+    body = found.length === 0 ? null : (0, import_react48.createElement)(Grid, { key: "native-results", apps: found, actions, open });
   } else {
     const featured = FEATURED.map((id) => apps.find((app) => app.id === id)).filter(Boolean);
     body = [
@@ -20241,6 +20408,12 @@ function ConnectorsPage({ roster, actions }) {
       ...CATEGORIES.map(([id, label]) => (0, import_react48.createElement)(Section, { key: id, title: t(label), apps: inCategory(id), actions, open, onAll: () => setCategory(id) }))
     ];
   }
+  const appModule = (0, import_react48.createElement)(
+    "section",
+    { className: "bt-app-section bt-app-module-section" },
+    (0, import_react48.createElement)("div", { className: "bt-app-section-head" }, (0, import_react48.createElement)("h3", null, t("App connections"))),
+    (0, import_react48.createElement)(AppConnectionsEntry, { accounts: roster?.connectedApps?.accounts ?? [], query, onOpen: () => setView("apps") })
+  );
   return (0, import_react48.createElement)(
     "div",
     { className: "bt-apps" },
@@ -20255,7 +20428,6 @@ function ConnectorsPage({ roster, actions }) {
         (0, import_react48.createElement)("input", { type: "search", "aria-label": t("Search connectors"), placeholder: t("Search connectors"), value: query, onChange: (e) => setQuery(e.target.value) })
       ),
       (0, import_react48.createElement)("button", { type: "button", className: "bt-app-pill", onClick: () => setView("custom") }, (0, import_react48.createElement)(PlusIcon), t("Custom")),
-      (0, import_react48.createElement)("button", { type: "button", className: "bt-app-pill", onClick: () => setView("apps") }, t("More apps")),
       (0, import_react48.createElement)(ConnectedSummary, { apps: marks, count, onClick: () => setView("connected") })
     ),
     (0, import_react48.createElement)(
@@ -20263,6 +20435,7 @@ function ConnectorsPage({ roster, actions }) {
       { className: "bt-app-chips", role: "group", "aria-label": t("Category") },
       [["", "All"], ...CATEGORIES].map(([id, label]) => (0, import_react48.createElement)("button", { key: id || "all", type: "button", "aria-pressed": category === id, onClick: () => setCategory(id) }, t(label)))
     ),
+    appModule,
     body
   );
 }
@@ -20316,17 +20489,19 @@ var CONNECTORS_PAGE_CSS = CONNECTED_APPS_CSS + `
 @keyframes bt-app-shine{0%{background-position:100% 0}100%{background-position:0 0}}
 @keyframes bt-app-done{0%{opacity:.4;transform:scale(.94)}100%{opacity:1;transform:none}}
 .bt-app-empty{margin:24px 0;text-align:center;font-size:13px;color:var(--bt-ink-3)}
+.bt-app-module{padding:8px 12px;border:1px solid var(--bt-line);border-radius:12px;background:var(--bt-card);min-height:64px}.bt-app-module-section{gap:8px}.bt-app-service-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.bt-app-service-head .bt-app-about{margin:0}.bt-app-service-head button{flex:none}
 .bt-app-sub{display:flex;flex-direction:column;gap:12px}
 .bt-app-sub-head{display:flex;align-items:center;gap:4px;margin-left:-6px}
 .bt-app-sub-head h3{margin:0;font-size:14px;line-height:20px;font-weight:600}
 .bt-app-about{margin:0 4px;font-size:13px;line-height:20px;color:var(--bt-ink-2)}
 .bt-connector-mark{--bt-mark-ink:var(--bt-ink)}
 @container(max-width:600px){.bt-app-bar{flex-wrap:wrap}.bt-app-search{flex-basis:100%}}
+@media(max-width:560px){.bt-app-service-head{align-items:flex-start;flex-direction:column;gap:12px}.bt-app-module{padding:8px 12px}.bt-app-module-section .bt-app-btn{min-height:36px}}
 [data-bt-motion=off] .bt-app,[data-bt-motion=off] .bt-app *,[data-bt-motion=off] .bt-app::after{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.bt-app[data-fresh]::after,.bt-app[data-fresh] .bt-app-icon,.bt-app[data-fresh] .bt-app-btn-done{animation:none}}
 `;
 
-// node_modules/qrcode-generator/dist/qrcode.mjs
+// ../../DS-Bot/ds-bot/node_modules/qrcode-generator/dist/qrcode.mjs
 var qrcode = function(typeNumber, errorCorrectionLevel) {
   const PAD0 = 236;
   const PAD1 = 17;
@@ -26769,10 +26944,29 @@ function lineDiff(before, after) {
   return rows2;
 }
 
+// src/client/review-inbox-model.js
+function reviewHome(roster) {
+  return roster.byId?.[roster.mainBotId] ?? roster.bots?.find((bot) => (roster.mainBotIds ?? []).includes(bot.id));
+}
+function pendingReviewSources(roster, work = {}, browserHolds = {}, computer = {}) {
+  return (roster.bots ?? []).map((bot) => {
+    const sessionId = currentPart(bot);
+    const approvals = (work.approvals ?? []).filter((entry) => entry.botId === bot.id);
+    const pending = (field) => (roster[field]?.[bot.id] ?? []).filter((entry) => entry.status === "pending");
+    const learning = roster.learning?.[bot.id] ?? [];
+    const secret = pending("secretRequests"), connector = pending("connectorRequests"), mail = pending("mailRequests");
+    const question = roster.questions?.[sessionId], view = roster.views?.[sessionId];
+    const browser = browserHolds[bot.id], handoff = computer.holds?.[bot.id];
+    const app = Object.values(computer.asks ?? {}).some((entry) => entry.botId === bot.id);
+    const count = approvals.length + learning.length + secret.length + connector.length + mail.length + Number(Boolean(question)) + Number(Boolean(view)) + Number(Boolean(browser)) + Number(Boolean(handoff)) + Number(app);
+    return { bot, sessionId, approvals, learning, secret, connector, mail, question, view, browser, handoff, app, count };
+  }).filter((source) => source.count > 0);
+}
+
 // src/client/learning-card.js
 var import_react61 = require("react");
 var failedAnswers = /* @__PURE__ */ new Map();
-function ProposalCard({ proposal, initialError = "", onFailure, onResolved, actions }) {
+function ProposalCard({ proposal, sourceNames = "", initialError = "", onFailure, onResolved, actions }) {
   const outcome = proposal.outcome;
   const [busy, setBusy] = (0, import_react61.useState)(false);
   const [error, setError] = (0, import_react61.useState)(initialError);
@@ -26817,7 +27011,7 @@ function ProposalCard({ proposal, initialError = "", onFailure, onResolved, acti
         { type: "button", className: "bt-learning-fold", "aria-expanded": open, onClick: () => setOpen(!open) },
         (0, import_react61.createElement)("span", { className: "bt-learning-icon", "aria-hidden": true }, (0, import_react61.createElement)(agents ? PencilIcon : MemoryIcon)),
         (0, import_react61.createElement)("span", { className: "bt-learning-kind" }, kind),
-        (0, import_react61.createElement)("span", { className: "bt-learning-sum" }, `${t(outcome === "approved" ? "Approved" : "Declined")} · ${what}`)
+        (0, import_react61.createElement)("span", { className: "bt-learning-sum" }, `${t(outcome === "approved" ? "Approved" : outcome === "reused" ? "Already approved for the team" : "Declined")} · ${what}`)
       ),
       open ? change : null
     );
@@ -26827,6 +27021,7 @@ function ProposalCard({ proposal, initialError = "", onFailure, onResolved, acti
     "section",
     { className: "bt-q bt-learning-card", role: "group", "aria-labelledby": titleId, "aria-busy": busy },
     agents ? (0, import_react61.createElement)(ProposalHead, { titleId, icon: PencilIcon, title: kind }) : (0, import_react61.createElement)(ProposalHead, { titleId, title: proposal.name, kind, detail: proposal.description, oldDetail }),
+    sourceNames ? (0, import_react61.createElement)("p", { className: "bt-set-hint" }, t("Requested by {names}", { names: sourceNames })) : null,
     change,
     error ? (0, import_react61.createElement)("div", { className: "bt-learning-error", role: "alert" }, error) : null,
     (0, import_react61.createElement)(ProposalFoot, { busy, answer })
@@ -26908,7 +27103,7 @@ function FileBox({ name, path: path2, state, blocks }) {
     ) : null
   );
 }
-function LearningProposals({ turn, dock, sessionId, useRoster, actions }) {
+function LearningProposals({ turn, dock, sessionId, useRoster, actions, reviewInbox = false }) {
   const roster = useRoster((value) => value);
   const facts = useTurnFacts(sessionId, actions);
   const [failed, setFailed] = (0, import_react61.useState)({});
@@ -26925,6 +27120,8 @@ function LearningProposals({ turn, dock, sessionId, useRoster, actions }) {
   }
   visible.sort((a, b) => (a.at ?? 0) - (b.at ?? 0));
   const cards = visible.filter((proposal) => {
+    if (reviewInbox) return !proposal.outcome;
+    if (!proposal.outcome && reviewHome(roster)) return false;
     const placement = proposalPlacement(proposal, facts?.turns);
     return dock ? placement.kind === "dock" : placement.kind === "turn" && placement.turn === turn?.turn;
   });
@@ -26945,6 +27142,7 @@ function LearningProposals({ turn, dock, sessionId, useRoster, actions }) {
     { className: "bt-q-inline", key: proposal.id },
     (0, import_react61.createElement)(ProposalCard, {
       proposal,
+      sourceNames: [proposal.botId, ...(proposal.contributors ?? []).map((source) => source.botId)].map((id) => roster.byId[id]?.name).filter(Boolean).join(", "),
       initialError: failed[proposal.id]?.error ?? failedAnswers.get(proposal.id)?.error,
       onFailure,
       onResolved,
@@ -27016,6 +27214,83 @@ var LEARNING_CSS = `
 .bt-learning-error{font-size:12px;line-height:16px;color:var(--bt-danger)}
 `;
 
+// src/client/review-inbox.js
+var import_react62 = require("react");
+var EMPTY2 = {};
+var noDrawnCards = (select) => select(EMPTY2);
+function ExecutionReview({ approval, actions }) {
+  const [busy, setBusy] = (0, import_react62.useState)(false), [error, setError] = (0, import_react62.useState)("");
+  const flying = (0, import_react62.useRef)(false);
+  const answer = (choice) => {
+    if (flying.current) return;
+    flying.current = true;
+    setBusy(true);
+    setError("");
+    void Promise.resolve().then(() => actions.answerApproval(approval.id, choice)).catch((failure) => setError(failure?.message ?? String(failure))).finally(() => {
+      flying.current = false;
+      setBusy(false);
+    });
+  };
+  return (0, import_react62.createElement)(
+    "section",
+    { className: "bt-q bt-mw-card", role: "group", "aria-label": t("Approval required"), "data-request-id": approval.id },
+    (0, import_react62.createElement)("strong", null, approval.tool || t("Approval required")),
+    approval.detail?.text ? (0, import_react62.createElement)("p", null, approval.detail.text) : null,
+    (0, import_react62.createElement)("p", { style: { whiteSpace: "pre-wrap", overflowWrap: "anywhere" } }, approval.fullReason || approval.reason),
+    approval.detail?.code ? (0, import_react62.createElement)("pre", { className: "bt-mw-code", style: { whiteSpace: "pre-wrap", overflowWrap: "anywhere" } }, approval.detail.code) : null,
+    (0, import_react62.createElement)("p", { className: "bt-set-hint" }, t("This decision applies to this request only.")),
+    approval.reasonTruncated ? (0, import_react62.createElement)("p", { role: "alert" }, t("The request is incomplete. Reject it or review the full operation before allowing it.")) : null,
+    error ? (0, import_react62.createElement)("p", { role: "alert" }, error) : null,
+    (0, import_react62.createElement)(
+      "div",
+      { className: "bt-mw-actions" },
+      (0, import_react62.createElement)("button", { type: "button", className: "bt-q-btn", disabled: busy || !approval.answerable, onClick: () => answer("reject") }, t("Reject")),
+      (0, import_react62.createElement)("button", { type: "button", className: "bt-q-submit", disabled: busy || !approval.answerable || approval.reasonTruncated, onClick: () => answer("allow") }, t("Allow once"))
+    )
+  );
+}
+var routeRequestDock = (Component2) => function SourceRequestDock(props) {
+  const home = props.useRoster(reviewHome);
+  return home ? null : (0, import_react62.createElement)(Component2, props);
+};
+function ReviewInboxDock(props) {
+  const { sessionId, useRoster, useWork, useBrowserHolds, useComputer, actions } = props;
+  const roster = useRoster((value) => value);
+  const work = useWork?.((value) => value) ?? EMPTY2;
+  const holds = useBrowserHolds?.((value) => value) ?? EMPTY2;
+  const computer = useComputer?.((value) => value) ?? EMPTY2;
+  const home = reviewHome(roster);
+  if (!home) return null;
+  const sources = pendingReviewSources(roster, work, holds, computer);
+  if (!sources.length) return currentPart(home) === sessionId ? (0, import_react62.createElement)("div", { className: "bt-q-dock bt-review-inbox-empty", role: "status", style: { padding: "8px 12px", color: "var(--bt-ink-2)", fontSize: 12 } }, t("Team approvals and confirmations"), " · ", t("No pending requests in this inbox.")) : null;
+  if (currentPart(home) !== sessionId) {
+    if (!sources.some((source) => source.sessionId === sessionId)) return null;
+    return (0, import_react62.createElement)(
+      "div",
+      { className: "bt-q-dock" },
+      (0, import_react62.createElement)("span", null, t("Review this request with {name}.", { name: home.name })),
+      " ",
+      (0, import_react62.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: () => actions.openSession(home.id) }, t("Open {name}", { name: home.name }))
+    );
+  }
+  return (0, import_react62.createElement)(
+    "details",
+    { className: "bt-review-inbox", open: true, style: { width: "100%", maxWidth: 748, margin: "8px auto", border: "1px solid var(--bt-line)", borderRadius: 16, padding: 12 } },
+    (0, import_react62.createElement)("summary", { style: { cursor: "pointer", fontWeight: 600 } }, t("Team approvals and confirmations")),
+    (0, import_react62.createElement)("p", { className: "bt-set-hint" }, t("You decide here. Each Bot receives the result for its original request.")),
+    (0, import_react62.createElement)("div", { style: { maxHeight: "60vh", overflowY: "auto", overscrollBehavior: "contain" } }, sources.map((source) => {
+      const cardProps = { ...props, sessionId: source.sessionId, useCards: source.bot.id === home.id ? props.useCards : noDrawnCards, reviewInbox: true };
+      return (0, import_react62.createElement)(
+        "section",
+        { key: source.bot.id, "data-source-bot": source.bot.id, style: { marginTop: 14 } },
+        (0, import_react62.createElement)("h3", { style: { fontSize: 14, margin: "8px 0" } }, t("From {name}", { name: source.bot.name })),
+        source.approvals.map((approval) => (0, import_react62.createElement)(ExecutionReview, { key: approval.id, approval, actions })),
+        ...[QuestionDock, WidgetDock, SecretDock, ConnectorDock, MailDock, HandoffDock, ComputerHandoffDock, AppAccessDock, LearningDock].map((Component2, index) => (0, import_react62.createElement)(Component2, { key: index, ...cardProps }))
+      );
+    }))
+  );
+}
+
 // src/client/right-panel.js
 var RIGHTBAR_ATTRIBUTES = ["data-rightbar-collapsed", "data-rightbar-fullscreen"];
 function rightColumnOpen(doc) {
@@ -27046,7 +27321,7 @@ function createSwitchWindow(settle) {
 }
 
 // src/client/queue-dock.js
-var import_react62 = require("react");
+var import_react63 = require("react");
 var OWN_QUEUE_KINDS = /* @__PURE__ */ new Set(["user", "schedule", "user-question-reply"]);
 var EMPTY_QUEUE = [];
 var QUEUE_TEXT_FACTS = { collapseWhitespace: true, trimWhitespace: true };
@@ -27063,17 +27338,17 @@ function queueAttachments(content) {
 var fileSizeText2 = (bytes) => typeof bytes !== "number" || !Number.isFinite(bytes) ? "" : bytes < 1024 ? `${bytes} B` : bytes < 1048576 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
 function QueueFile({ attachment, label }) {
   const size = fileSizeText2(attachment.bytes);
-  return (0, import_react62.createElement)(
+  return (0, import_react63.createElement)(
     "span",
     { className: "bt-queue-file", "aria-label": label, title: attachment.name },
-    (0, import_react62.createElement)("span", { className: "bt-queue-fileicon", "aria-hidden": true }, (0, import_react62.createElement)(PaperclipIcon)),
-    (0, import_react62.createElement)("span", { className: "bt-queue-filename" }, attachment.name),
-    size !== "" ? (0, import_react62.createElement)("span", { className: "bt-queue-filesize" }, size) : null
+    (0, import_react63.createElement)("span", { className: "bt-queue-fileicon", "aria-hidden": true }, (0, import_react63.createElement)(PaperclipIcon)),
+    (0, import_react63.createElement)("span", { className: "bt-queue-filename" }, attachment.name),
+    size !== "" ? (0, import_react63.createElement)("span", { className: "bt-queue-filesize" }, size) : null
   );
 }
 function QueueThumb({ attachment, loadImage, label }) {
-  const [url, setUrl] = (0, import_react62.useState)(null);
-  (0, import_react62.useEffect)(() => {
+  const [url, setUrl] = (0, import_react63.useState)(null);
+  (0, import_react63.useEffect)(() => {
     let alive = true;
     loadImage(attachment).then((resolved) => {
       if (alive) setUrl(resolved);
@@ -27083,22 +27358,22 @@ function QueueThumb({ attachment, loadImage, label }) {
       alive = false;
     };
   }, [attachment, loadImage]);
-  return url === null ? (0, import_react62.createElement)("span", { className: "bt-queue-thumb", "aria-hidden": true }) : (0, import_react62.createElement)("img", { className: "bt-queue-thumb", src: url, alt: label });
+  return url === null ? (0, import_react63.createElement)("span", { className: "bt-queue-thumb", "aria-hidden": true }) : (0, import_react63.createElement)("img", { className: "bt-queue-thumb", src: url, alt: label });
 }
 function Preview({ text, renderFactorySlot }) {
   const rendered = renderFactorySlot?.("conversation.user.text", { text, facts: QUEUE_TEXT_FACTS, interactive: false, ellipsis: true });
-  return (0, import_react62.createElement)("span", { className: "bt-queue-preview" }, rendered ?? text);
+  return (0, import_react63.createElement)("span", { className: "bt-queue-preview" }, rendered ?? text);
 }
 function EditField({ text, onChange, onSave, onCancel }) {
-  const field = (0, import_react62.useRef)(null);
-  (0, import_react62.useEffect)(() => {
+  const field = (0, import_react63.useRef)(null);
+  (0, import_react63.useEffect)(() => {
     const node = field.current;
     if (node === null) return;
     node.focus();
     node.style.height = "auto";
     node.style.height = `${node.scrollHeight}px`;
   }, [text]);
-  return (0, import_react62.createElement)("textarea", {
+  return (0, import_react63.createElement)("textarea", {
     ref: field,
     className: "bt-queue-edit",
     value: text,
@@ -27117,28 +27392,28 @@ function EditField({ text, onChange, onSave, onCancel }) {
   });
 }
 function RowButton({ label, title, disabled, onClick, children }) {
-  return (0, import_react62.createElement)("button", { type: "button", className: "bt-queue-action", "aria-label": label, title: title ?? label, disabled, onClick }, children);
+  return (0, import_react63.createElement)("button", { type: "button", className: "bt-queue-action", "aria-label": label, title: title ?? label, disabled, onClick }, children);
 }
 function QueueDock({ useSession, useProjection, updateQueue, loadImage, renderFactorySlot, actions }) {
   const inbox = useProjection?.("inbox");
   const pendingSubmissions = useSession?.((s) => s.pendingSubmissions) ?? EMPTY_QUEUE;
-  const queue = (0, import_react62.useMemo)(() => {
+  const queue = (0, import_react63.useMemo)(() => {
     const rows2 = (inbox?.["next-turn"] ?? EMPTY_QUEUE).filter((row) => OWN_QUEUE_KINDS.has(row.source?.kind));
     const inChat = new Set(pendingSubmissions.filter((item) => item.placement === "transcript").map((item) => item.requestId));
     return inChat.size === 0 ? rows2 : rows2.filter(({ source }) => source === null || typeof source !== "object" || !("rpcId" in source) || !inChat.has(source.rpcId));
   }, [inbox, pendingSubmissions]);
-  const pendingQueue = (0, import_react62.useMemo)(() => {
+  const pendingQueue = (0, import_react63.useMemo)(() => {
     const admitted = new Set(queue.flatMap(({ source }) => source !== null && typeof source === "object" && "rpcId" in source ? [source.rpcId] : []));
     return pendingSubmissions.filter((submission) => submission.placement === "queued" && !admitted.has(submission.requestId));
   }, [pendingSubmissions, queue]);
   const rowCount = queue.length + pendingQueue.length;
   const running = useSession?.((s) => s.running) === true;
   const queueMutable = useSession?.((s) => s.subagent === null || s.subagent === void 0 || s.subagent.address?.mode === "continuable") ?? true;
-  const [editing, setEditing] = (0, import_react62.useState)(null);
-  const [busy, setBusy] = (0, import_react62.useState)(null);
-  const [collapsed, setCollapsed] = (0, import_react62.useState)(true);
-  const listId = (0, import_react62.useId)();
-  (0, import_react62.useEffect)(() => {
+  const [editing, setEditing] = (0, import_react63.useState)(null);
+  const [busy, setBusy] = (0, import_react63.useState)(null);
+  const [collapsed, setCollapsed] = (0, import_react63.useState)(true);
+  const listId = (0, import_react63.useId)();
+  (0, import_react63.useEffect)(() => {
     if (rowCount === 0 && !collapsed) setCollapsed(true);
     if (editing !== null && (!queueMutable || !queue.some((row) => row.id === editing.id))) setEditing(null);
   }, [collapsed, editing, queue, queueMutable, rowCount]);
@@ -27166,77 +27441,77 @@ function QueueDock({ useSession, useProjection, updateQueue, loadImage, renderFa
     if (editing === null || editing.text.trim() === "") return;
     if (await applyAction(editing.id, { kind: "edit", content: [{ type: "text", text: editing.text }] }, t("Couldn’t edit the queued message — it may have started already."))) setEditing(null);
   };
-  return (0, import_react62.createElement)(
+  return (0, import_react63.createElement)(
     "div",
     { className: "bt-queue-dock", "data-queue-dock": "" },
-    (0, import_react62.createElement)(
+    (0, import_react63.createElement)(
       "div",
       { className: "bt-queue-panel" },
-      rowCount > 1 && (0, import_react62.createElement)(
+      rowCount > 1 && (0, import_react63.createElement)(
         "button",
         { type: "button", className: "bt-queue-head", "aria-controls": listId, "aria-expanded": expanded, disabled: interactionActive, onClick: () => setCollapsed((value) => !value) },
-        (0, import_react62.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react62.createElement)(QueueIcon)),
-        (0, import_react62.createElement)("span", { className: "bt-queue-count" }, t("{n} queued messages", { n: rowCount })),
-        !listVisible && pendingQueue.length > 0 && (0, import_react62.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
-        (0, import_react62.createElement)("span", { className: "bt-queue-chev", "aria-hidden": true }, expanded ? (0, import_react62.createElement)(ChevronDownIcon) : (0, import_react62.createElement)(ChevronUpIcon))
+        (0, import_react63.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react63.createElement)(QueueIcon)),
+        (0, import_react63.createElement)("span", { className: "bt-queue-count" }, t("{n} queued messages", { n: rowCount })),
+        !listVisible && pendingQueue.length > 0 && (0, import_react63.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
+        (0, import_react63.createElement)("span", { className: "bt-queue-chev", "aria-hidden": true }, expanded ? (0, import_react63.createElement)(ChevronDownIcon) : (0, import_react63.createElement)(ChevronUpIcon))
       ),
-      (0, import_react62.createElement)(
+      (0, import_react63.createElement)(
         "ul",
         { id: listId, className: "bt-queue-list", hidden: !listVisible },
         listVisible && queue.map((row) => {
           const attachments = queueAttachments(row.content);
           const text = textOf(row.content);
-          return (0, import_react62.createElement)(
+          return (0, import_react63.createElement)(
             "li",
             { key: row.id, className: "bt-queue-row" },
-            rowCount === 1 && (0, import_react62.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react62.createElement)(QueueIcon)),
-            editing?.id === row.id ? (0, import_react62.createElement)(EditField, { text: editing.text, onChange: (text2) => setEditing({ id: row.id, text: text2 }), onSave: saveEdit, onCancel: () => setEditing(null) }) : (0, import_react62.createElement)(
-              import_react62.Fragment,
+            rowCount === 1 && (0, import_react63.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react63.createElement)(QueueIcon)),
+            editing?.id === row.id ? (0, import_react63.createElement)(EditField, { text: editing.text, onChange: (text2) => setEditing({ id: row.id, text: text2 }), onSave: saveEdit, onCancel: () => setEditing(null) }) : (0, import_react63.createElement)(
+              import_react63.Fragment,
               null,
-              attachments.length > 0 && (0, import_react62.createElement)(
+              attachments.length > 0 && (0, import_react63.createElement)(
                 "span",
                 { className: "bt-queue-attachments" },
-                attachments.map((item, index) => item.type === "image" ? (0, import_react62.createElement)(QueueThumb, { key: `${item.attachment.attachmentId}:${index}`, attachment: item.attachment, loadImage, label: t("Queued image") }) : (0, import_react62.createElement)(QueueFile, { key: `${item.attachment.attachmentId}:${item.attachment.name}:${index}`, attachment: item.attachment, label: t("Queued file {name}", { name: item.attachment.name }) }))
+                attachments.map((item, index) => item.type === "image" ? (0, import_react63.createElement)(QueueThumb, { key: `${item.attachment.attachmentId}:${index}`, attachment: item.attachment, loadImage, label: t("Queued image") }) : (0, import_react63.createElement)(QueueFile, { key: `${item.attachment.attachmentId}:${item.attachment.name}:${index}`, attachment: item.attachment, label: t("Queued file {name}", { name: item.attachment.name }) }))
               ),
-              (0, import_react62.createElement)(Preview, { text: row.content.filter((block) => block.type === "text").map((block) => block.text).join(""), renderFactorySlot })
+              (0, import_react63.createElement)(Preview, { text: row.content.filter((block) => block.type === "text").map((block) => block.text).join(""), renderFactorySlot })
             ),
-            queueMutable && (0, import_react62.createElement)(
+            queueMutable && (0, import_react63.createElement)(
               "div",
               { className: "bt-queue-actions" },
-              editing?.id === row.id ? (0, import_react62.createElement)(
-                import_react62.Fragment,
+              editing?.id === row.id ? (0, import_react63.createElement)(
+                import_react63.Fragment,
                 null,
-                (0, import_react62.createElement)(RowButton, { label: t("Save queued message"), disabled: busy !== null || editing.text.trim() === "", onClick: saveEdit }, (0, import_react62.createElement)(CheckIcon)),
-                (0, import_react62.createElement)(RowButton, { label: t("Cancel editing"), disabled: busy !== null, onClick: () => setEditing(null) }, (0, import_react62.createElement)(CloseIcon))
-              ) : (0, import_react62.createElement)(
-                import_react62.Fragment,
+                (0, import_react63.createElement)(RowButton, { label: t("Save queued message"), disabled: busy !== null || editing.text.trim() === "", onClick: saveEdit }, (0, import_react63.createElement)(CheckIcon)),
+                (0, import_react63.createElement)(RowButton, { label: t("Cancel editing"), disabled: busy !== null, onClick: () => setEditing(null) }, (0, import_react63.createElement)(CloseIcon))
+              ) : (0, import_react63.createElement)(
+                import_react63.Fragment,
                 null,
-                (0, import_react62.createElement)(RowButton, { label: t("Edit queued message"), title: text === null ? t("Contains non-text content, so editing is not supported yet") : void 0, disabled: busy !== null || text === null, onClick: () => {
+                (0, import_react63.createElement)(RowButton, { label: t("Edit queued message"), title: text === null ? t("Contains non-text content, so editing is not supported yet") : void 0, disabled: busy !== null || text === null, onClick: () => {
                   if (text !== null) setEditing({ id: row.id, text });
-                } }, (0, import_react62.createElement)(PencilIcon)),
-                (0, import_react62.createElement)(RowButton, { label: t("Delete queued message"), disabled: busy !== null, onClick: () => applyAction(row.id, { kind: "remove" }, t("Couldn’t delete the queued message — it may have started already.")) }, (0, import_react62.createElement)(TrashIcon)),
-                (0, import_react62.createElement)(RowButton, { label: t("Steer queued message"), title: running ? void 0 : t("Only while a turn is running"), disabled: busy !== null || !running, onClick: () => applyAction(row.id, { kind: "steer" }, t("Couldn’t steer the queued message. Try again.")) }, (0, import_react62.createElement)(ArrowUpIcon))
+                } }, (0, import_react63.createElement)(PencilIcon)),
+                (0, import_react63.createElement)(RowButton, { label: t("Delete queued message"), disabled: busy !== null, onClick: () => applyAction(row.id, { kind: "remove" }, t("Couldn’t delete the queued message — it may have started already.")) }, (0, import_react63.createElement)(TrashIcon)),
+                (0, import_react63.createElement)(RowButton, { label: t("Steer queued message"), title: running ? void 0 : t("Only while a turn is running"), disabled: busy !== null || !running, onClick: () => applyAction(row.id, { kind: "steer" }, t("Couldn’t steer the queued message. Try again.")) }, (0, import_react63.createElement)(ArrowUpIcon))
               )
             )
           );
         }),
-        listVisible && pendingQueue.map((submission) => (0, import_react62.createElement)(
+        listVisible && pendingQueue.map((submission) => (0, import_react63.createElement)(
           "li",
           { key: submission.requestId, className: "bt-queue-row bt-queue-pending" },
-          rowCount === 1 && (0, import_react62.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react62.createElement)(QueueIcon)),
-          submission.attachments.length > 0 && (0, import_react62.createElement)(
+          rowCount === 1 && (0, import_react63.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react63.createElement)(QueueIcon)),
+          submission.attachments.length > 0 && (0, import_react63.createElement)(
             "span",
             { className: "bt-queue-attachments" },
-            submission.attachments.map((attachment, index) => attachment.type === "image" ? (0, import_react62.createElement)("img", { key: `${attachment.value.previewUrl}:${index}`, className: "bt-queue-thumb", src: attachment.value.previewUrl, alt: t("Queued image") }) : (0, import_react62.createElement)(QueueFile, { key: `${attachment.value.attachmentId}:${attachment.value.name}:${index}`, attachment: attachment.value, label: t("Queued file {name}", { name: attachment.value.name }) }))
+            submission.attachments.map((attachment, index) => attachment.type === "image" ? (0, import_react63.createElement)("img", { key: `${attachment.value.previewUrl}:${index}`, className: "bt-queue-thumb", src: attachment.value.previewUrl, alt: t("Queued image") }) : (0, import_react63.createElement)(QueueFile, { key: `${attachment.value.attachmentId}:${attachment.value.name}:${index}`, attachment: attachment.value, label: t("Queued file {name}", { name: attachment.value.name }) }))
           ),
-          (0, import_react62.createElement)(Preview, { text: submission.text, renderFactorySlot }),
-          (0, import_react62.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
-          queueMutable && (0, import_react62.createElement)(
+          (0, import_react63.createElement)(Preview, { text: submission.text, renderFactorySlot }),
+          (0, import_react63.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
+          queueMutable && (0, import_react63.createElement)(
             "div",
             { className: "bt-queue-actions" },
-            (0, import_react62.createElement)(RowButton, { label: t("Edit queued message"), title: t("Sending…"), disabled: true }, (0, import_react62.createElement)(PencilIcon)),
-            (0, import_react62.createElement)(RowButton, { label: t("Delete queued message"), title: t("Sending…"), disabled: true }, (0, import_react62.createElement)(TrashIcon)),
-            (0, import_react62.createElement)(RowButton, { label: t("Steer queued message"), title: t("Sending…"), disabled: true }, (0, import_react62.createElement)(ArrowUpIcon))
+            (0, import_react63.createElement)(RowButton, { label: t("Edit queued message"), title: t("Sending…"), disabled: true }, (0, import_react63.createElement)(PencilIcon)),
+            (0, import_react63.createElement)(RowButton, { label: t("Delete queued message"), title: t("Sending…"), disabled: true }, (0, import_react63.createElement)(TrashIcon)),
+            (0, import_react63.createElement)(RowButton, { label: t("Steer queued message"), title: t("Sending…"), disabled: true }, (0, import_react63.createElement)(ArrowUpIcon))
           )
         ))
       )
@@ -27287,9 +27562,11 @@ function noticeApprovals({ work, roster, shownSession, openSession, since = Date
       if (told.has(entry.id)) continue;
       told.add(entry.id);
       if ((entry.at ?? 0) < since) continue;
-      const place = entry.roomId ?? entry.sessionId;
+      const snapshot = roster.getSnapshot();
+      const home = reviewHome(snapshot);
+      const place = home ? currentPart(home) : entry.roomId ?? entry.sessionId;
       if (document.visibilityState === "visible" && shownSession() === place) continue;
-      const { byId, roomsById } = roster.getSnapshot();
+      const { byId, roomsById } = snapshot;
       const room2 = entry.roomId ? roomsById[entry.roomId] : void 0;
       const note = new Notification(t("{name} is waiting for your approval", { name: byId[entry.botId]?.name ?? t("A Bot") }), {
         body: [room2?.name, entry.tool].filter(Boolean).join(" · "),
@@ -27297,7 +27574,7 @@ function noticeApprovals({ work, roster, shownSession, openSession, since = Date
       });
       note.onclick = () => {
         window.focus();
-        openSession(entry.roomId ?? entry.botId);
+        openSession(reviewHome(roster.getSnapshot())?.id ?? entry.roomId ?? entry.botId);
         note.close();
       };
     }
@@ -28342,17 +28619,18 @@ function apply(ctx) {
       priority: BOT_PRIORITY,
       select: (owner) => owner.pendingInteraction?.kind === "question" ? owner.pendingInteraction : null
     }, QuestionCard),
+    () => shadow("conversation.input.dock", { id: "bot-review-inbox", order: -130, inject: face }, ReviewInboxDock),
     () => shadow("conversation.input.dock", { id: "bot-members", order: -120, inject: face }, MemberDock),
     () => shadow("conversation.input.dock", { id: "bot-model", order: -110, inject: face }, ModelChoiceDock),
-    () => shadow("conversation.input.dock", { id: "bot-question", order: -100, inject: face }, QuestionDock),
-    () => shadow("conversation.input.dock", { id: "bot-view", order: -95, inject: face }, WidgetDock),
-    () => shadow("conversation.input.dock", { id: "bot-secret", order: -90, inject: face }, SecretDock),
-    () => shadow("conversation.input.dock", { id: "bot-connector", order: -89, inject: face }, ConnectorDock),
-    () => shadow("conversation.input.dock", { id: "bot-mail", order: -88, inject: face }, MailDock),
-    () => shadow("conversation.input.dock", { id: "bot-handoff", order: -85, inject: face }, HandoffDock),
-    () => shadow("conversation.input.dock", { id: "bot-computer-handoff", order: -84, inject: face }, ComputerHandoffDock),
-    () => shadow("conversation.input.dock", { id: "bot-computer-app", order: -83, inject: face }, AppAccessDock),
-    () => shadow("conversation.input.dock", { id: "bot-learning", order: 850, priority: BOT_PRIORITY, inject: face }, LearningDock),
+    () => shadow("conversation.input.dock", { id: "bot-question", order: -100, inject: face }, routeRequestDock(QuestionDock)),
+    () => shadow("conversation.input.dock", { id: "bot-view", order: -95, inject: face }, routeRequestDock(WidgetDock)),
+    () => shadow("conversation.input.dock", { id: "bot-secret", order: -90, inject: face }, routeRequestDock(SecretDock)),
+    () => shadow("conversation.input.dock", { id: "bot-connector", order: -89, inject: face }, routeRequestDock(ConnectorDock)),
+    () => shadow("conversation.input.dock", { id: "bot-mail", order: -88, inject: face }, routeRequestDock(MailDock)),
+    () => shadow("conversation.input.dock", { id: "bot-handoff", order: -85, inject: face }, routeRequestDock(HandoffDock)),
+    () => shadow("conversation.input.dock", { id: "bot-computer-handoff", order: -84, inject: face }, routeRequestDock(ComputerHandoffDock)),
+    () => shadow("conversation.input.dock", { id: "bot-computer-app", order: -83, inject: face }, routeRequestDock(AppAccessDock)),
+    () => shadow("conversation.input.dock", { id: "bot-learning", order: 850, priority: BOT_PRIORITY, inject: face }, routeRequestDock(LearningDock)),
     // The shell's own queue dock lists every queued inbox row as the user's
     // drafts — including the team's relayed mail. Reusing its id puts ours in
     // its cell; it lists only the sends the user authored (#663).

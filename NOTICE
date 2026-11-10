@@ -7,6 +7,21 @@ This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 Third-party code in this repository
 ==============================================================================
 
+OpenMausBot (source checkout: https://github.com/payAgain/OpenMausBot)
+Apache License, Version 2.0, Copyright 2026 Milind Soni and OpenMausBot contributors
+
+  - ds-bot/src/host/connectors/managed-apps.js is an independently written
+    adapter for the connection-service protocol documented and implemented in
+    OpenMausBot's electron/managed-composio.mjs, server/composio.ts and
+    cloudflare/composio-broker/. It uses the upstream service URL and wire
+    formats for installation, catalog, authorization, inventory and MCP.
+    No upstream application credentials or account grants are included.
+  - The toolkit slugs and product names in
+    ds-bot/src/host/connectors/app-catalog.js follow server/composio.ts's
+    CURATED catalog. The Whop and Agentcard MCP addresses in catalog.js follow
+    src/lib/hosted-mcp-apps.ts. Source revision:
+    11d0093f29f89d0c97738bae7a0be85fd2047a92 (2026-11-06).
+
 DeepSeek Harness (https://github.com/deepseek-ai/deepseek-harness)
 MIT License, Copyright (c) 2026 DeepSeek
 

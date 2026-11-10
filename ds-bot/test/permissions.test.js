@@ -50,11 +50,11 @@ test('a Bot\'s preset is set on its chat and its group Sessions', async () => {
   assert.deepEqual(writes, ['b1-chat=danger-full-access', 'b1-group=danger-full-access'])
 })
 
-test('a fresh Session gets the Bot\'s preset, and a Bot without one keeps the default', async () => {
+test('a fresh Session gets the Bot\'s preset, defaulting to full delegation', async () => {
   const { rt, writes } = runtime()
   await rt.applyPermission({ id: 'b1' }, 'fresh')
   await rt.applyPermission({ id: 'b1', permission: 'workspace-write' }, 'fresh')
-  assert.deepEqual(writes, ['fresh=workspace-write'])
+  assert.deepEqual(writes, ['fresh=danger-full-access', 'fresh=workspace-write'])
 })
 
 test('an unknown preset is refused and the Bot keeps its own', async () => {
@@ -66,7 +66,7 @@ test('an unknown preset is refused and the Bot keeps its own', async () => {
 })
 
 test('the catalog lists the presets DSH offers, or nothing without the presets service', () => {
-  assert.deepEqual(runtime().rt.permissionCatalog(), { options: [{ value: 'workspace-write', name: 'workspace-write' }, { value: 'danger-full-access', name: 'danger-full-access' }], defaultPreset: 'workspace-write' })
+  assert.deepEqual(runtime().rt.permissionCatalog(), { options: [{ value: 'workspace-write', name: 'workspace-write' }, { value: 'danger-full-access', name: 'danger-full-access' }], defaultPreset: 'danger-full-access' })
   assert.equal(runtime({ presets: false }).rt.permissionCatalog(), undefined)
 })
 

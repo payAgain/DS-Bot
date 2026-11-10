@@ -11,6 +11,7 @@ import { dirname, join } from 'node:path'
 import { replaceFile } from './files.js'
 import { looksLikeKey, looksSecret, writtenIn } from './memory.js'
 import { validateCapabilityName } from './capabilities.js'
+import { approvedMatch, approvedSkills, skillVersion } from './learning-skills.js'
 
 export const LEARNING = {
   minTurnMs: 3 * 60_000,
@@ -64,7 +65,7 @@ export function skillSystem() {
     '1. Reusable: tasks of this class will come up again in later, different work. A rule that only fits this task, file, bug, or pull request fails.',
     '2. Missing knowledge: it gives constraints or context that a capable model does not have or gets wrong: requirements and corrections the user stated, project or tool conventions found by trial and error, pitfalls that cost time, how this user wants the result checked or delivered. General know-how fails, and so does anything that reading the code or the docs shows at once.',
     '3. Earned: the work shows it. The user asked for it or corrected the Bot, or a non-obvious way was found after one that failed. Never invent rules the work did not show.',
-    '4. Not covered: no listed skill already says it. When a learned skill of this Bot covers the class, update that skill instead of making a new one. Also update a learned skill that the work showed to be wrong, outdated, or missing a step.',
+    '4. Not covered: no listed skill already says it. Read the approved team skills in full, not only their names. If an approved team skill already covers this work, answer reuse with that exact name; never rename it into another proposal. When new rules are needed, propose an update of a learned skill or a new skill for user review; reuse never changes content. Also update a learned skill that the work showed to be wrong, outdated, or missing a step.',
     '',
     'Never put in a skill: one-off facts, task progress, file lists, dates, version, pull request or issue numbers, pasted errors or logs, facts about the user that are not about how to work (memory keeps those), or keys, passwords, and tokens.',
     'Write rules that stand alone, not the story of this work: a reason says why the rule matters, never when or how it was broken ("the user corrected this before", "version 1.2 missed it"). Examples must be general: do not name the files, functions, values, or fixes that this work happened to touch, not even as an example, and write a placeholder such as `<file>:<line>` instead; name something only when the rule is about it, such as a check the user wants run.',
@@ -76,6 +77,7 @@ export function skillSystem() {
     '',
     'Answer with one JSON object only, one of:',
     '{"action":"none","reason":"<one sentence>"}',
+    '{"action":"reuse","name":"<an approved team skill listed>"}',
     '{"action":"create","name":"…","description":"…","content":"…","why":"<one sentence: what in this work shows the skill is needed>"}',
     '{"action":"update","name":"<a learned skill listed>","description":"…","content":"<the whole new content>","why":"<one sentence>"}',
   ].join('\n')
@@ -88,7 +90,9 @@ export function skillRequest({ bot, lines, learned = [], library = [], declined 
   parts.push(learned.length === 0
     ? 'This Bot has no learned skills yet.'
     : `This Bot's learned skills (${learned.length} of ${limit}${learned.length >= limit ? '; at the limit, only update one' : ''}):\n${learned.map(skill => `<skill name="${skill.name}">\ndescription: ${skill.description}\n${skill.content}\n</skill>`).join('\n')}`)
-  if (library.length > 0) parts.push(`Other skills on the team:\n${library.map(skill => `- ${skill.name}: ${skill.description}`).join('\n')}`)
+  if (library.length > 0) parts.push(`Other skills on the team:\n${library.map(skill => skill.content === undefined
+    ? `- ${skill.name}: ${skill.description}`
+    : `<skill name="${skill.name}" approved="true">\ndescription: ${skill.description}\n${skill.content}\n</skill>`).join('\n')}`)
   if (declined.length > 0) parts.push(`Proposals the user declined. Do not propose them again unless this work shows something new:\n${declined.map(entry => `- ${entry.name}: ${entry.description}`).join('\n')}`)
   if (language) parts.push(`Write the description and the content in ${language}.`)
   parts.push(`The work, oldest first ("User:" lines are the user's own words):\n<work>\n${lines.join('\n')}\n</work>`)
@@ -398,12 +402,39 @@ export function install(rt) {
 
   const skillsOf = () => Object.fromEntries(Object.entries(state.capabilities?.items ?? {}).filter(([, item]) => item.kind === 'skill'))
   const learnedOf = bot => (data().learned[bot.id] ?? []).filter(name => skillsOf()[name] !== undefined && (bot.capabilities ?? []).includes(name))
-  const waitingFor = botId => Object.values(data().proposals).filter(entry => entry.botId === botId)
+  const waitingFor = botId => Object.values(data().proposals).filter(entry => entry.botId === botId || entry.contributors?.some(source => source.botId === botId))
+  const teamSkills = () => approvedSkills(skillsOf(), data().settled)
+  const shareSkill = async (name, expected) => {
+    const check = () => {
+      const current = skillsOf()[name]
+      if (!current || (expected && skillVersion(current) !== expected)) throw new Error(`${name} changed before it could be shared`)
+    }
+    for (const bot of Object.values(state.bots)) {
+      check()
+      if (!(bot.capabilities ?? []).includes(name)) await rt.capabilityEndpoint('bot-capability', { botId: bot.id, name, attached: true })
+    }
+    check()
+  }
+  const reuseSkill = async (proposal, match) => {
+    const store = data()
+    await shareSkill(match.item.name, skillVersion(match.item))
+    store.learned[proposal.botId] = [...new Set([...(store.learned[proposal.botId] ?? []), match.item.name])]
+    delete store.proposals[proposal.id]
+    store.settled[proposal.id] = { ...proposal, sessionId: rt.chatOf(proposal.botId), outcome: 'reused', settledAt: Date.now(),
+      canonicalName: match.item.name, approvedBy: match.approval.id, approvedVersion: skillVersion(match.item) }
+    await persist()
+  }
 
   async function reviewSkill(bot, lines) {
     const skills = skillsOf()
     const learned = learnedOf(bot)
-    const library = Object.values(skills).filter(item => !learned.includes(item.name)).map(item => ({ name: item.name, description: item.description }))
+    const approved = new Set(teamSkills().map(({ item }) => item.name))
+    let budget = settings.textMax
+    const library = Object.values(skills).filter(item => !learned.includes(item.name)).map(item => {
+      const content = approved.has(item.name) && item.content.length <= budget ? item.content : undefined
+      if (content !== undefined) budget -= content.length
+      return { name: item.name, description: item.description, ...(content === undefined ? {} : { content }) }
+    })
     const text = skillRequest({
       bot,
       lines,
@@ -414,6 +445,7 @@ export function install(rt) {
       limit: settings.learnedMax,
     })
     const reply = await rt.botShot(bot, skillSystem(), text, { sessionId: rt.chatOf(bot.id), kind: 'memory' })
+    if (stopped) return undefined
     const proposal = parseJson(reply)
     if (['description', 'content', 'why'].some(key => {
       const value = proposal?.[key]
@@ -422,7 +454,24 @@ export function install(rt) {
       rt.warn('ds-bot: the skill review of %s proposed content containing a saved secret', bot.name)
       return undefined
     }
-    const problem = skillProblem(proposal, { skills, learned, limit: settings.learnedMax })
+    if (proposal?.action === 'reuse') {
+      const match = teamSkills().find(({ item }) => item.name === proposal.name)
+      if (!match) { rt.warn('ds-bot: a skill reuse named no approved current version'); return undefined }
+      await reuseSkill({ id: randomUUID(), kind: 'skill', action: 'reuse', botId: bot.id, at: Date.now(),
+        name: match.item.name, description: match.item.description, content: match.item.content }, match)
+      return undefined
+    }
+    if (['create', 'update'].includes(proposal?.action)) {
+      let valid = false
+      try { validateCapabilityName(proposal.name); valid = true } catch {}
+      const match = valid ? approvedMatch(proposal, skillsOf(), data().settled) : undefined
+      if (match) {
+        await reuseSkill({ ...proposal, id: randomUUID(), kind: 'skill', botId: bot.id, at: Date.now() }, match)
+        return undefined
+      }
+      if (data().declined.some(entry => entry.version === skillVersion(proposal))) return undefined
+    }
+    const problem = skillProblem(proposal, { skills: skillsOf(), learned: learnedOf(bot), limit: settings.learnedMax })
     if (problem !== undefined) {
       rt.warn('ds-bot: the skill review of %s proposed nothing usable: %s', bot.name, problem)
       return undefined
@@ -547,8 +596,16 @@ export function install(rt) {
           const proposal = lines.length === 0 ? undefined : await reviewSkill(bot, lines)
           if (stopped) return made
           if (proposal !== undefined) {
-            store.proposals[proposal.id] = proposal
-            made += 1
+            const duplicate = Object.values(store.proposals).find(entry => entry.kind === 'skill' && skillVersion(entry) === skillVersion(proposal))
+            if (duplicate) {
+              duplicate.contributors ??= []
+              if (duplicate.botId !== proposal.botId && !duplicate.contributors.some(source => source.botId === proposal.botId)) {
+                duplicate.contributors.push({ botId: proposal.botId, id: proposal.id, name: proposal.name, at: proposal.at })
+              }
+            } else {
+              store.proposals[proposal.id] = proposal
+              made += 1
+            }
           }
           if (config.agentsMd !== false) {
             for (const entry of read) {
@@ -657,30 +714,59 @@ export function install(rt) {
   }, 'ds-bot: learning')
 
   // The user's answer to a card.
-  async function answer({ id, approve }) {
+  let answering = Promise.resolve()
+  function answer(body) {
+    const task = answering.then(() => answerOne(body))
+    answering = task.catch(() => {})
+    return task
+  }
+  async function answerOne({ id, approve }) {
     const store = data()
     const proposal = Object.hasOwn(store.proposals, id) ? store.proposals[id] : undefined
-    if (proposal === undefined) throw Object.assign(new Error('This proposal is no longer open'), { code: 'bot/stale' })
+    if (proposal === undefined) {
+      const settled = Object.hasOwn(store.settled, id) ? store.settled[id] : undefined
+      if (settled && (approve === true ? ['approved', 'reused'].includes(settled.outcome) : settled.outcome === 'declined')) return { applied: approve === true, alreadySettled: true }
+      throw Object.assign(new Error('This proposal is no longer open'), { code: 'bot/stale' })
+    }
     // The answered card stays where it was, read-only, with how it ended. A waiting
     // card shows in the Bot's current chat part, so that is where it stays.
     const settle = (outcome) => {
       delete store.proposals[id]
       const { saved: _saved, ...kept } = proposal
-      store.settled[id] = { ...kept, sessionId: rt.chatOf(proposal.botId), outcome, settledAt: Date.now() }
+      store.settled[id] = { ...kept, sessionId: rt.chatOf(proposal.botId), outcome, settledAt: Date.now(),
+        ...(proposal.kind === 'skill' && outcome === 'approved' ? { approvedVersion: skillVersion(proposal), capabilityCreatedAt: skillsOf()[proposal.name]?.createdAt } : {}) }
     }
     if (approve !== true) {
       settle('declined')
       const decline = proposal.kind === 'agents'
         ? { kind: 'agents', folder: proposal.folder, edits: proposal.edits.map(({ op, text, old }) => ({ op, text, old })), at: Date.now() }
-        : { name: proposal.name, description: proposal.description, at: Date.now() }
+        : { name: proposal.name, description: proposal.description, version: skillVersion(proposal), at: Date.now() }
       store.declined = [...store.declined, decline].slice(-settings.declinedMax)
+      if (proposal.kind === 'skill') {
+        for (const duplicate of Object.values(store.proposals)) {
+          if (duplicate.kind !== 'skill' || skillVersion(duplicate) !== skillVersion(proposal)) continue
+          delete store.proposals[duplicate.id]
+          store.settled[duplicate.id] = { ...duplicate, sessionId: rt.chatOf(duplicate.botId), outcome: 'declined', settledAt: Date.now(), resolvedWith: id }
+        }
+      }
       await persist()
       return { applied: false }
     }
     // A failed approval keeps the card, so the user can still decline it.
     if (proposal.kind === 'agents') await applyAgents(proposal)
-    else await applySkill(proposal)
+    else {
+      const match = approvedMatch(proposal, skillsOf(), store.settled)
+      if (match) { await reuseSkill(proposal, match); return { applied: true, reused: match.item.name } }
+      await applySkill(proposal)
+      if (skillVersion(skillsOf()[proposal.name]) !== skillVersion(proposal)) throw new Error(`${proposal.name} changed while it was approved`)
+    }
     settle('approved')
+    if (proposal.kind === 'skill') {
+      for (const duplicate of Object.values(store.proposals)) {
+        if (duplicate.kind !== 'skill' || skillVersion(duplicate) !== skillVersion(proposal)) continue
+        await reuseSkill(duplicate, { item: skillsOf()[proposal.name], approval: store.settled[id] })
+      }
+    }
     await persist()
     return { applied: true }
   }
@@ -750,7 +836,11 @@ export function install(rt) {
       store.learned[bot.id] = [...new Set([...(store.learned[bot.id] ?? []), item.name])]
       await persist()
     }
-    if (!(bot.capabilities ?? []).includes(proposal.name)) await rt.capabilityEndpoint('bot-capability', { botId: bot.id, name: proposal.name, attached: true })
+    await shareSkill(proposal.name, skillVersion(proposal))
+    for (const source of proposal.contributors ?? []) {
+      if (rt.botOf(source.botId)) store.learned[source.botId] = [...new Set([...(store.learned[source.botId] ?? []), proposal.name])]
+    }
+    await persist()
   }
 
   async function learningEndpoint(endpoint, body) {
@@ -761,6 +851,9 @@ export function install(rt) {
   async function removeLearned(name) {
     const learned = data().learned
     const deleted = String(name ?? '')
+    for (const entry of Object.values(data().settled)) {
+      if (entry.kind === 'skill' && entry.name === deleted && entry.outcome === 'approved') entry.retiredAt = Date.now()
+    }
     for (const [botId, names] of Object.entries(learned)) {
       learned[botId] = (Array.isArray(names) ? names : []).filter(entry => entry !== deleted)
     }
@@ -795,5 +888,17 @@ export function install(rt) {
     return result
   }
 
-  Object.assign(rt, { learningView, learningSettledView, learningEndpoint, learningRun: run })
+  Object.assign(rt, { learningView, learningSettledView, learningEndpoint, learningRun: run,
+    learningTeamSkills: () => teamSkills().map(({ item }) => item.name) })
+  ctx.effect(() => {
+    let alive = true
+    void rt.load().then(async () => {
+      if (!alive || rt.readOnly() !== undefined) return
+      for (const { item } of teamSkills()) {
+        if (!alive) break
+        await shareSkill(item.name, skillVersion(item))
+      }
+    }).catch(error => rt.warn('ds-bot: approved team skill refresh failed: %s', error?.message ?? error))
+    return () => { alive = false }
+  }, 'ds-bot: approved team skills')
 }

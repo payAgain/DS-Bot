@@ -204,7 +204,7 @@ export function PendingQuestion({ sessionId, question, actions, inline, enterToS
     })
   }
   const onAnswer = answer => run(() => actions.answerQuestion(sessionId, question.id, { selected: answer.selected ?? [], custom: answer.custom ?? '' }))
-  const onDismiss = () => run(() => actions.dismissQuestion(sessionId))
+  const onDismiss = () => run(() => actions.dismissQuestion(sessionId, question.id))
   return h('div', { className: inline ? 'bt-q-inline' : 'bt-q-dock' },
     h(QuestionView, { key: question.id, question, onAnswer, onDismiss, onInteract: hold, busy, ownAnswer: question.allowCustom === true, raised: !inline, enterToSend }))
 }

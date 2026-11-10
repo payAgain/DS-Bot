@@ -1,0 +1,16 @@
+DS Bot
+Copyright 2026 Fei2411 and the DS Bot contributors
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+OpenMausBot
+Source: https://github.com/payAgain/OpenMausBot
+Revision: 11d0093f29f89d0c97738bae7a0be85fd2047a92 (2026-11-06)
+Apache License, Version 2.0
+Copyright 2026 Milind Soni and OpenMausBot contributors
+
+src/host/connectors/managed-apps.js independently implements the connection
+service protocol in electron/managed-composio.mjs, server/composio.ts and
+cloudflare/composio-broker/. Toolkit slugs and product names in app-catalog.js
+follow server/composio.ts's CURATED catalog. The Whop and Agentcard addresses
+in catalog.js follow src/lib/hosted-mcp-apps.ts.
+No upstream application credentials, project keys or account grants are included.

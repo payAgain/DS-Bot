@@ -111,6 +111,18 @@ function ConnectedSummary({ apps, count, onClick }) {
     t('{count} connected', { count }), h(ChevronRightIcon))
 }
 
+export function AppConnectionsEntry({ accounts = [], query = '', onOpen }) {
+  const count = accounts.filter(account => account.status === 'ACTIVE' && !account.disabled).length
+  return h('div', { className: 'bt-app bt-app-module', 'data-state': 'ready' },
+    h('button', { type: 'button', className: 'bt-app-main', onClick: onOpen },
+      h(AppIcon, { app: { id: 'composio', name: 'Composio' } }),
+      h('span', { className: 'bt-app-text' }, h('span', { className: 'bt-app-name' }, 'Composio'),
+        h('span', { className: 'bt-app-status' }, query.trim()
+          ? t('Search {query} in the app library', { query: query.trim() })
+          : count ? t('{count} connected accounts', { count }) : t('App library, accounts and Bot access')))),
+    h('button', { type: 'button', className: 'bt-app-btn', onClick: onOpen }, t('Open')))
+}
+
 export function ConnectorsPage({ roster, actions }) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('')
@@ -129,12 +141,18 @@ export function ConnectorsPage({ roster, actions }) {
   const connected = apps.filter(app => app.state !== 'off' || app.pending)
   const marks = [...accounts.map(account => ({ id: `mail-${account.provider}`, name: account.address })), ...connected.filter(app => app.id !== 'mail')]
   const count = accounts.length + connected.filter(app => app.id !== 'mail').length
+    + (roster?.connectedApps?.accounts ?? []).filter(account => account.status === 'ACTIVE' && !account.disabled).length
   const open = id => setView({ app: id })
   const back = () => setView(null)
   const banner = error ? h('div', { className: 'bt-connector-error bt-connector-banner', role: 'alert' }, hostText(error)) : null
 
-  if (view === 'apps') return h(Subview, { title: t('Connected apps'), onBack: back },
-    h(ConnectedAppsPanel, { actions, bots: roster?.bots ?? [] }))
+  if (view === 'app-settings') return h(Subview, { title: t('Composio connection settings'), onBack: () => setView('apps') },
+    h(ConnectedAppsPanel, { actions, bots: roster?.bots ?? [], configuration: true }))
+  if (view === 'apps') return h(Subview, { title: t('Composio app connections'), onBack: back },
+    h('div', { className: 'bt-app-service-head' },
+      h('p', { className: 'bt-app-about' }, t('Browse apps, connect accounts and choose which Bots can use them.')),
+      h('button', { type: 'button', className: 'bt-soft bt-soft-sm', onClick: () => setView('app-settings') }, t('Connection settings'))),
+    h(ConnectedAppsPanel, { actions, bots: roster?.bots ?? [], initialQuery: query, exclude: apps.map(app => app.id) }))
 
   if (view?.app === 'mail') {
     return h(Subview, { title: t('Mailbox'), onBack: back }, banner,
@@ -158,7 +176,8 @@ export function ConnectorsPage({ roster, actions }) {
         rows.map(app => h(ConnectorRow, { key: app.id, connector: app, actions })),
         accounts.map(account => h(MailAccount, { key: account.id, account, actions, run })),
         (mail.pending ?? []).map(p => h(MailPending, { key: p.address ?? 'google', pending: p })),
-        h(MailRules, { mail, bots: roster?.bots, actions, run })))
+        h(MailRules, { mail, bots: roster?.bots, actions, run })),
+      h(AppConnectionsEntry, { accounts: roster?.connectedApps?.accounts ?? [], onOpen: () => setView('apps') }))
   }
   if (view === 'custom') {
     return h(Subview, { title: t('Other MCP server'), onBack: back }, banner,
@@ -171,8 +190,8 @@ export function ConnectorsPage({ roster, actions }) {
   let body
   if (searching || category !== '') {
     body = found.length === 0
-      ? h('p', { className: 'bt-app-empty' }, t('Nothing matches'))
-      : h(Grid, { apps: found, actions, open })
+      ? null
+      : h(Grid, { key: 'native-results', apps: found, actions, open })
   } else {
     const featured = FEATURED.map(id => apps.find(app => app.id === id)).filter(Boolean)
     body = [
@@ -180,6 +199,9 @@ export function ConnectorsPage({ roster, actions }) {
       ...CATEGORIES.map(([id, label]) => h(Section, { key: id, title: t(label), apps: inCategory(id), actions, open, onAll: () => setCategory(id) })),
     ]
   }
+  const appModule = h('section', { className: 'bt-app-section bt-app-module-section' },
+    h('div', { className: 'bt-app-section-head' }, h('h3', null, t('App connections'))),
+    h(AppConnectionsEntry, { accounts: roster?.connectedApps?.accounts ?? [], query, onOpen: () => setView('apps') }))
   return h('div', { className: 'bt-apps' },
     banner,
     h('div', { className: 'bt-app-bar' },
@@ -187,11 +209,10 @@ export function ConnectorsPage({ roster, actions }) {
         h(SearchIcon),
         h('input', { type: 'search', 'aria-label': t('Search connectors'), placeholder: t('Search connectors'), value: query, onChange: e => setQuery(e.target.value) })),
       h('button', { type: 'button', className: 'bt-app-pill', onClick: () => setView('custom') }, h(PlusIcon), t('Custom')),
-      h('button', { type: 'button', className: 'bt-app-pill', onClick: () => setView('apps') }, t('More apps')),
       h(ConnectedSummary, { apps: marks, count, onClick: () => setView('connected') })),
     h('div', { className: 'bt-app-chips', role: 'group', 'aria-label': t('Category') },
       [['', 'All'], ...CATEGORIES].map(([id, label]) => h('button', { key: id || 'all', type: 'button', 'aria-pressed': category === id, onClick: () => setCategory(id) }, t(label)))),
-    body)
+    appModule, body)
 }
 
 export const CONNECTORS_PAGE_CSS = CONNECTED_APPS_CSS + `
@@ -244,12 +265,14 @@ export const CONNECTORS_PAGE_CSS = CONNECTED_APPS_CSS + `
 @keyframes bt-app-shine{0%{background-position:100% 0}100%{background-position:0 0}}
 @keyframes bt-app-done{0%{opacity:.4;transform:scale(.94)}100%{opacity:1;transform:none}}
 .bt-app-empty{margin:24px 0;text-align:center;font-size:13px;color:var(--bt-ink-3)}
+.bt-app-module{padding:8px 12px;border:1px solid var(--bt-line);border-radius:12px;background:var(--bt-card);min-height:64px}.bt-app-module-section{gap:8px}.bt-app-service-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.bt-app-service-head .bt-app-about{margin:0}.bt-app-service-head button{flex:none}
 .bt-app-sub{display:flex;flex-direction:column;gap:12px}
 .bt-app-sub-head{display:flex;align-items:center;gap:4px;margin-left:-6px}
 .bt-app-sub-head h3{margin:0;font-size:14px;line-height:20px;font-weight:600}
 .bt-app-about{margin:0 4px;font-size:13px;line-height:20px;color:var(--bt-ink-2)}
 .bt-connector-mark{--bt-mark-ink:var(--bt-ink)}
 @container(max-width:600px){.bt-app-bar{flex-wrap:wrap}.bt-app-search{flex-basis:100%}}
+@media(max-width:560px){.bt-app-service-head{align-items:flex-start;flex-direction:column;gap:12px}.bt-app-module{padding:8px 12px}.bt-app-module-section .bt-app-btn{min-height:36px}}
 [data-bt-motion=off] .bt-app,[data-bt-motion=off] .bt-app *,[data-bt-motion=off] .bt-app::after{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.bt-app[data-fresh]::after,.bt-app[data-fresh] .bt-app-icon,.bt-app[data-fresh] .bt-app-btn-done{animation:none}}
 `

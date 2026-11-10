@@ -39,7 +39,7 @@ export function PendingView({ sessionId, view, actions, inline }) {
     void Promise.resolve().then(make).catch(() => setAnswered(null)).finally(() => { busyRef.current = false })
   }
   const onSubmit = (action, values) => run(() => actions.answerView(sessionId, view.id, action, values))
-  const onDismiss = () => run(() => actions.dismissView(sessionId))
+  const onDismiss = () => run(() => actions.dismissView(sessionId, view.id))
   // Hidden, not unmounted, while the answer is on its way: if it fails the card comes
   // back with what the user had typed or picked. The inputs stay busy meanwhile, so a
   // letter key cannot answer a hidden card.

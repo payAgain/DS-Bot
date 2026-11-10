@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { install } from '../src/host/prompt.js'
 import { fakeContext } from './fake-ctx.js'
 
-function start() {
+function start(delegated = false) {
   const ctx = fakeContext()
   const bots = new Map([
     ['main', { name: 'Chief' }],
@@ -15,6 +15,7 @@ function start() {
     botOf: id => bots.get(id),
     roomOf: id => id === 'room' ? {} : undefined,
     isMain: id => id === 'main',
+    isFullyDelegated: id => delegated && ['main', 'worker', 'group-worker'].includes(id),
   })
   const prompt = id => ctx.sections.get('bot-identity').text({ agent: { id } })
   return { ctx, prompt }
@@ -43,4 +44,15 @@ test('the group relay and non-Bot sessions do not get progress instructions', (t
   assert.match(prompt('room'), /end your turn with an empty reply/)
   assert.doesNotMatch(prompt('room'), /progress|milestone/)
   assert.equal(prompt('outside'), '')
+})
+
+test('full delegation covers every task while questions remain about user intent', (t) => {
+  const { ctx, prompt } = start(true)
+  t.after(() => ctx.dispose())
+  for (const id of ['main', 'worker', 'group-worker']) {
+    assert.match(prompt(id), /for all tasks, including direct requests, group work and scheduled tasks/)
+    assert.match(prompt(id), /without asking for execution permission/)
+    assert.match(prompt(id), /ask_user only when their intent or a necessary decision is missing/)
+  }
+  assert.doesNotMatch(prompt('room'), /fully delegated/)
 })

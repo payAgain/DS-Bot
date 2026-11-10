@@ -8,6 +8,7 @@ import { TEAM_TOOLS } from '../src/host/constants.js'
 import { fakeContext } from './fake-ctx.js'
 
 const flush = async () => { for (let index = 0; index < 8; index += 1) await Promise.resolve() }
+const CONNECTED_APP_TOOLS = ['connected_apps', 'search_app_tools', 'execute_app_tool']
 
 // Enough of the dsh services for the roster and the agents module; tool restrict
 // calls and archived Sessions are recorded for the assertions.
@@ -210,7 +211,7 @@ test('TEAM_TOOLS names exactly the tools ds-bot defines for Bot sessions', async
   // read_browser exists only in the Desktop profile; the flag stands in for it.
   const { stop } = start(TEAM, { config: { browser: true } })
   t.after(stop)
-  assert.deepEqual(rt.teamTools.map(d => d.name).sort(), [...TEAM_TOOLS].sort())
+  assert.deepEqual(rt.teamTools.map(d => d.name).sort(), [...TEAM_TOOLS, ...CONNECTED_APP_TOOLS].sort())
 })
 
 test('agent-session honors a known workspace and falls back to the team workspace', async (t) => {
@@ -264,7 +265,7 @@ test('a Bot Session gets the team tools in its own scope; a DSH Agent Session ge
   })
   await flush()
   assert.deepEqual(scoped.filter(entry => entry.sessionId === 'm1').map(entry => entry.name).sort(),
-    [...TEAM_TOOLS].filter(name => name !== 'read_browser').sort())
+    [...TEAM_TOOLS, ...CONNECTED_APP_TOOLS].filter(name => name !== 'read_browser').sort())
   assert.equal(restricted.length, 0)
   // An Agent Session is a plain dsh conversation: nothing is scoped onto it and
   // nothing is masked, because the team tools never reach the global layer.

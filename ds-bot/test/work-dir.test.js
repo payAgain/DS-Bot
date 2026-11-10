@@ -338,10 +338,10 @@ test('a group\'s permissions hold for every member there in place of its own, un
   assert.equal(presetOf.get('gb'), 'read-only')
   assert.match(await tool('list_bots', {}, 'a'), /"Ops" — .*; members work with the read-only permissions here/)
 
-  // Writer has no preset of its own, so its group Session goes back to DSH's default.
+  // Writer has no preset of its own, so its group Session uses full delegation.
   assert.deepEqual((await call('update-room', { id: 'r1', permission: null })).value.changes, ['every member uses its own permissions again'])
   assert.equal(state().rooms.r1.permission, undefined)
-  assert.equal(presetOf.get('gb'), 'workspace-write')
+  assert.equal(presetOf.get('gb'), 'danger-full-access')
 
   // While the group sets one, Writer's own preset reaches its own chat only.
   await call('update-room', { id: 'r1', permission: 'read-only' })

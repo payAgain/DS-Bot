@@ -31,6 +31,7 @@ import { SECRET_CSS, SecretDock } from './secret-card.js'
 import { ConnectorDock, MailDock, CONNECTOR_CSS } from './connectors.js'
 import { CONNECTORS_PAGE_CSS } from './connectors-page.js'
 import { LearningDock, LearningTurnTail, LEARNING_CSS } from './learning-card.js'
+import { ReviewInboxDock, routeRequestDock } from './review-inbox.js'
 import { MODEL_CSS, ModelChoiceDock, DeepSeekSignIn } from './model-menu.js'
 import { BOT_SETTINGS_CSS } from './bot-settings.js'
 import { AVATAR_LIBRARY_CSS } from './avatar-library.js'
@@ -1095,17 +1096,18 @@ export function apply(ctx) {
       priority: BOT_PRIORITY,
       select: owner => (owner.pendingInteraction?.kind === 'question' ? owner.pendingInteraction : null),
     }, QuestionCard),
+    () => shadow('conversation.input.dock', { id: 'bot-review-inbox', order: -130, inject: face }, ReviewInboxDock),
     () => shadow('conversation.input.dock', { id: 'bot-members', order: -120, inject: face }, MemberDock),
     () => shadow('conversation.input.dock', { id: 'bot-model', order: -110, inject: face }, ModelChoiceDock),
-    () => shadow('conversation.input.dock', { id: 'bot-question', order: -100, inject: face }, QuestionDock),
-    () => shadow('conversation.input.dock', { id: 'bot-view', order: -95, inject: face }, WidgetDock),
-    () => shadow('conversation.input.dock', { id: 'bot-secret', order: -90, inject: face }, SecretDock),
-    () => shadow('conversation.input.dock', { id: 'bot-connector', order: -89, inject: face }, ConnectorDock),
-    () => shadow('conversation.input.dock', { id: 'bot-mail', order: -88, inject: face }, MailDock),
-    () => shadow('conversation.input.dock', { id: 'bot-handoff', order: -85, inject: face }, HandoffDock),
-    () => shadow('conversation.input.dock', { id: 'bot-computer-handoff', order: -84, inject: face }, ComputerHandoffDock),
-    () => shadow('conversation.input.dock', { id: 'bot-computer-app', order: -83, inject: face }, AppAccessDock),
-    () => shadow('conversation.input.dock', { id: 'bot-learning', order: 850, priority: BOT_PRIORITY, inject: face }, LearningDock),
+    () => shadow('conversation.input.dock', { id: 'bot-question', order: -100, inject: face }, routeRequestDock(QuestionDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-view', order: -95, inject: face }, routeRequestDock(WidgetDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-secret', order: -90, inject: face }, routeRequestDock(SecretDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-connector', order: -89, inject: face }, routeRequestDock(ConnectorDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-mail', order: -88, inject: face }, routeRequestDock(MailDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-handoff', order: -85, inject: face }, routeRequestDock(HandoffDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-computer-handoff', order: -84, inject: face }, routeRequestDock(ComputerHandoffDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-computer-app', order: -83, inject: face }, routeRequestDock(AppAccessDock)),
+    () => shadow('conversation.input.dock', { id: 'bot-learning', order: 850, priority: BOT_PRIORITY, inject: face }, routeRequestDock(LearningDock)),
     // The shell's own queue dock lists every queued inbox row as the user's
     // drafts — including the team's relayed mail. Reusing its id puts ours in
     // its cell; it lists only the sends the user authored (#663).

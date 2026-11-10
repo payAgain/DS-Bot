@@ -415,6 +415,7 @@ export function install(rt) {
           return ok(true)
         case 'dismiss-view':
           await rt.load()
+          if (body.viewId !== undefined && state.views[body.sessionId]?.id !== body.viewId) return fail('This view is no longer open', 'bot/stale')
           if (rt.own(state.views, body.sessionId) !== undefined) {
             rt.closeCard(body.sessionId, state.views[body.sessionId], 'dismissed')
             delete state.views[body.sessionId]

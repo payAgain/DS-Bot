@@ -968,3 +968,116 @@ test('a failed chat read keeps that Bot pending while other Bots are reviewed', 
   assert.equal(runtime.learningState().cursors.b3, 11)
   assert.equal(runtime.requests.length, 1)
 })
+
+
+test('identical cross-Bot reviews coalesce and one approval shares the catalog with the team', async t => {
+  const renamed = JSON.stringify({ ...JSON.parse(createReply), name: 'other-release-checks' })
+  const runtime = await startRuntime({ replies: [createReply, renamed], config: { agentsMd: false, learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  await finishTurn(runtime.ctx, { id: 'b2' })
+  await finishTurn(runtime.ctx, { id: 'm1' })
+  await runtime.rt.learningRun()
+  const proposals = Object.values(runtime.learningState().proposals)
+  assert.equal(proposals.length, 1)
+  assert.deepEqual(proposals[0].contributors.map(source => source.botId), ['m1'])
+  const answers = await Promise.all([1, 2, 3].map(() => runtime.call('learning-answer', { id: proposals[0].id, approve: true })))
+  assert.ok(answers.every(answer => answer.ok && answer.value.applied))
+  const team = runtime.teamState()
+  assert.deepEqual(Object.keys(team.capabilities.items), ['release-checks'])
+  for (const bot of Object.values(team.bots)) assert.ok(bot.capabilities.includes('release-checks'))
+  assert.deepEqual(runtime.rt.learningTeamSkills(), ['release-checks'])
+  assert.equal(Object.keys(runtime.learningState().proposals).length, 0)
+})
+
+test('approving one version settles seeded duplicate ids but never a new-content proposal', async t => {
+  const make = (id, botId, name, content = 'Run the release checks.') => ({ ...JSON.parse(createReply), id, botId, name, content, kind: 'skill', at: 1 })
+  const runtime = await startRuntime({ learningSeed: { proposals: {
+    one: make('one', 'b2', 'release-checks'), two: make('two', 'm1', 'renamed-checks'),
+    changed: make('changed', 'm1', 'new-rules', 'Run additional actions that have not been approved.'),
+  } }, config: { learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  const answers = await Promise.all(['one', 'two'].map(id => runtime.call('learning-answer', { id, approve: true })))
+  assert.ok(answers.every(answer => answer.ok))
+  const learning = runtime.learningState()
+  assert.equal(learning.settled.one.outcome, 'approved')
+  assert.equal(learning.settled.two.outcome, 'reused')
+  assert.equal(learning.settled.two.approvedBy, 'one')
+  assert.deepEqual(Object.keys(learning.proposals), ['changed'])
+  assert.deepEqual(Object.keys(runtime.teamState().capabilities.items), ['release-checks'])
+})
+
+test('a later Bot reuses an approved exact version and receives its full content during review', async t => {
+  const runtime = await startRuntime({ replies: [createReply, JSON.stringify({ ...JSON.parse(createReply), name: 'same-other-name' })], config: { agentsMd: false, learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  await finishTurn(runtime.ctx, { id: 'b2' }); await runtime.rt.learningRun()
+  const proposal = Object.values(runtime.learningState().proposals)[0]
+  await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  await finishTurn(runtime.ctx, { id: 'm1' }); await runtime.rt.learningRun()
+  assert.deepEqual(runtime.rt.learningView(), {})
+  assert.deepEqual(runtime.learningState().learned.m1, ['release-checks'])
+  assert.ok(Object.values(runtime.learningState().settled).some(entry => entry.botId === 'm1' && entry.outcome === 'reused' && entry.approvedBy === proposal.id))
+  assert.match(runtime.requests.at(-1).messages[0].content[0].text, /approved="true"[\s\S]*Run the release checks/)
+})
+
+test('a changed skill version remains pending and competing reject/approve cannot bypass that decision', async t => {
+  const history = { b2: [...ownChat] }
+  const updated = { ...JSON.parse(createReply), action: 'update', content: 'Run the release checks and a newly proposed action.' }
+  const runtime = await startRuntime({ history, replies: [createReply, JSON.stringify(updated)], config: { agentsMd: false, learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  await finishTurn(runtime.ctx); await runtime.rt.learningRun()
+  const first = Object.values(runtime.learningState().proposals)[0]
+  await runtime.call('learning-answer', { id: first.id, approve: true })
+  addNextTurn(history); await finishTurn(runtime.ctx); await runtime.rt.learningRun()
+  const next = Object.values(runtime.learningState().proposals)[0]
+  assert.equal(next.content, updated.content)
+  assert.equal(runtime.teamState().capabilities.items['release-checks'].content, 'Run the release checks.')
+  const [rejected, late] = await Promise.all([runtime.call('learning-answer', { id: next.id, approve: false }), runtime.call('learning-answer', { id: next.id, approve: true })])
+  assert.equal(rejected.value.applied, false)
+  assert.equal(late.error.code, 'bot/stale')
+  assert.equal(runtime.teamState().capabilities.items['release-checks'].content, 'Run the release checks.')
+})
+
+test('a review already in flight observes approval by another Bot instead of generating another card', async t => {
+  let release
+  const gate = new Promise(resolve => { release = resolve })
+  const runtime = await startRuntime({ replies: [createReply, gate], config: { agentsMd: false, learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  await finishTurn(runtime.ctx, { id: 'b2' }); await finishTurn(runtime.ctx, { id: 'm1' })
+  const running = runtime.rt.learningRun()
+  await until(() => runtime.requests.length === 2)
+  const proposal = (await runtime.call('state')).value.learning.b2[0]
+  const answer = await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(answer.value.applied, true)
+  release(JSON.stringify({ ...JSON.parse(createReply), name: 'late-same-rules' }))
+  await running
+  assert.deepEqual(runtime.rt.learningView(), {})
+  assert.equal(Object.keys(runtime.teamState().capabilities.items).length, 1)
+})
+
+
+test('a new Bot inherits only currently approved team skill versions', async t => {
+  const runtime = await startRuntime({ replies: [createReply], config: { agentsMd: false, learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  await finishTurn(runtime.ctx); await runtime.rt.learningRun()
+  const proposal = Object.values(runtime.learningState().proposals)[0]
+  await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  runtime.ctx.workspaceRegistry = { get: () => ({ id: 'workspace' }), resolveByPath: async () => ({ id: 'workspace' }), create: async () => ({ id: 'workspace' }) }
+  runtime.ctx.sessionController.create = async () => ({ sessionId: 'new-bot' })
+  runtime.ctx.sessionTitle = { rename: async () => {} }
+  const bot = await runtime.rt.createBot({ name: 'New Bot', pickModel: true })
+  assert.deepEqual(bot.capabilities, ['release-checks'])
+})
+
+test('host startup refresh shares legacy approved skills without approving pending new content', async t => {
+  const skill = { kind: 'skill', name: 'release-checks', description: 'Use when checking a release.', content: 'Run the release checks.', createdAt: 1 }
+  const seed = JSON.parse(JSON.stringify(TEAM))
+  seed.capabilities.items['release-checks'] = skill
+  const runtime = await startRuntime({ seed, learningSeed: {
+    settled: { approved: { ...skill, id: 'approved', botId: 'm1', action: 'create', outcome: 'approved', settledAt: 2 } },
+    proposals: { new: { ...skill, id: 'new', botId: 'b2', action: 'update', content: 'Unapproved extra rules.' } },
+  }, config: { learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  await until(() => runtime.teamState().bots.b2.capabilities.includes('release-checks'))
+  assert.equal(runtime.teamState().capabilities.items['release-checks'].content, skill.content)
+  assert.equal(runtime.learningState().proposals.new.content, 'Unapproved extra rules.')
+})
