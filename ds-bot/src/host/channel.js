@@ -285,6 +285,9 @@ export function install(rt) {
           const bot = await rt.createBot({ name: body.name, role: body.role, color: body.color, instructions: body.instructions, promptMode: body.promptMode, systemPrompt: body.systemPrompt, brief: body.brief, avatar: body.avatar, model: body.model, effort: body.effort, workDir: body.workDir })
           return ok(bot)
         }
+        case 'resolve-handoff':
+          await rt.load()
+          return ok(await rt.resolveHandoff(body))
         case 'update-bot':
           await rt.load()
           return ok(await rt.updateBot(body.id, body))

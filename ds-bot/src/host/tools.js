@@ -165,8 +165,8 @@ export function install(rt) {
       message: { type: 'string', required: true, description: 'Self-contained message; the other Bot cannot see this conversation' },
       reply_to: {
         type: 'string',
-        enum: ['me', 'user'],
-        description: '"me" (default): the reply comes back to you and the user does not see it. "user": the Bot answers the user in its own chat, where the user reads it, and nothing comes back to you. Use "user" whenever the user wants to hear from that Bot directly or asks Bots to say something in their own chats.',
+        enum: ['me', 'user', 'none'],
+        description: '"none": information only, no reply or work dependency. "me" (default): the reply comes back to you and the user does not see it. "user": the Bot answers the user in its own chat, where the user reads it, and nothing comes back to you. Use "user" whenever the user wants to hear from that Bot directly or asks Bots to say something in their own chats.',
       },
       when: {
         type: 'string',
@@ -199,7 +199,7 @@ export function install(rt) {
         payload: {
           to: target.id,
           message: String(args.message ?? '').replace(/\r\n?/g, '\n').trim(),
-          reply_to: args.reply_to === 'user' ? 'user' : 'me',
+          reply_to: args.reply_to === 'user' ? 'user' : args.reply_to === 'none' ? 'none' : 'me',
           when: args.when === 'queue' ? 'queue' : 'now',
         },
       })
@@ -217,6 +217,7 @@ export function install(rt) {
         if (seen !== undefined) return answer(seen)
       }
       if (room !== undefined) {
+        if (args.reply_to === 'none') refuse('One-way notices are for a Bot own chat; use a group post for group information.')
         const refusal = groupRefusal(room, sender, target)
         if (refusal !== undefined) refuse(refusal)
         const send = () => callInGroup(exec, room, sender, target, text.trim())
@@ -234,14 +235,15 @@ export function install(rt) {
         return `Not sent: ${target.name} is waiting for the result of the work you are doing, and your answer reaches it by itself once everything you handed on is back. Finish the work and end your turn; to ask ${target.name} something, end your turn with the question.`
       }
       const send = async () => {
+        const notice = args.reply_to === 'none'
         const toUser = args.reply_to === 'user'
-        const work = toUser ? undefined : works[0]
+        const work = toUser || notice ? undefined : works[0]
         const chat = rt.chatOf(target.id)
         const agent = await rt.resolveAgent(chat)
         const status = rt.statusOf(target.id)
         // A request it has not read yet, sent for the same work, takes this one in, so
         // messages to a Bot that cannot read them do not pile up.
-        const earlier = unreadRequest(agent, sender.id, toUser)
+        const earlier = notice ? undefined : unreadRequest(agent, sender.id, toUser)
         const joinable = earlier !== undefined && (toUser || rt.sameWork(earlier.message.source.exchangeId, work))
         const before = joinable ? bodyOf(earlier.message) : undefined
         let long = await rt.attachLong(before ? `${before.text}\n\n${text}` : text, `Message from ${sender.name}.txt`)
@@ -254,9 +256,9 @@ export function install(rt) {
         const steer = (args.when !== 'queue' && !toUser) || (joins && earlier.steered)
         const exchangeId = joins ? earlier.message.source.exchangeId : randomUUID()
         if (joins) rt.forgetDelivery?.(exchangeId)
-        else if (!toUser) rt.openWork(exchangeId, { from: sender.id, to: target.id, parent: work })
+        else if (!toUser && !notice) rt.openWork(exchangeId, { from: sender.id, to: target.id, parent: work })
         try {
-          await rt.deliver({ fromId: sender.id, toId: target.id, text: long.text, files: [...long.files, ...(joins ? before.files : [])], length: long.length, role: 'request', steer, exchangeId, ...(joins ? { merged: true } : {}), ...(toUser ? { audience: 'user' } : {}) })
+          await rt.deliver({ fromId: sender.id, toId: target.id, text: long.text, files: [...long.files, ...(joins ? before.files : [])], length: long.length, role: notice ? 'notice' : 'request', steer, exchangeId, ...(joins ? { merged: true } : {}), ...(toUser ? { audience: 'user' } : {}) })
         } catch (error) {
           // The delivery stays noted for the next start while its Bot exists
           // (resume.js), and the resent request still answers up the tree, so the
@@ -264,7 +266,7 @@ export function install(rt) {
           if (!joins && rt.botOf(target.id) === undefined) rt.dropWork(exchangeId)
           throw error
         }
-        const sent = toUser
+        const sent = notice ? `Delivered to ${target.name} as information only. No reply or handback is expected; no work dependency was created.` : toUser
           ? `Delivered to ${target.name}. It will answer the user in its own chat; nothing comes back to you, so point the user to ${target.name}'s chat instead of relaying.`
           : working && steer
             ? `Delivered to ${target.name} while it is working: it reads your message at its next step and answers once that work is done. Its reply will arrive later as a new message; do not wait for it.`

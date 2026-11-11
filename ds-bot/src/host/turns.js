@@ -10,6 +10,7 @@ import { absoluteLinks } from './links.js'
 import { splitRef, textOf } from './text.js'
 import { viaOf } from '../shared/im-platforms.js'
 import { reminderText } from './schedules.js'
+import { routingFromEvents } from './handoff-routing.js'
 
 // Failures only the user can fix: a key, a sign-in, a balance. They block the Bot
 // until it is fixed (`bot.blocked`, for the repair card).
@@ -38,6 +39,7 @@ export const failureLine = failure => `${failure.code}${failure.status ? ` ${fai
 // for closes, and the answer goes up to the Bot that asked. `id` is the Session the
 // answer comes from; `source` is the trigger the turn answered.
 export function answerSender(rt, id, source, text, long) {
+  if (rt.settledWork?.(source.exchangeId)) return
   const back = rt.roomOf(source.senderRoomId)?.sessions?.[source.senderSessionId]
   const name = rt.botOf(rt.selfOf(id))?.name ?? 'The other Bot'
   const work = rt.closeWork?.(source.exchangeId, name, text)
@@ -624,7 +626,52 @@ export function install(rt) {
     if (rt.groupOwners.has(info?.id)) void rt.goalSettled?.(rt.roomOf(rt.groupOwners.get(info.id).roomId)).catch(error => rt.warn('ds-bot: goal settle failed: %s', error))
   })
 
-  ctx.on('session/event', (session, event) => {
+  const recovering = new Map()
+  async function adoptLiveWork() {
+    await rt.load()
+    const agents = rt.ctx.get?.('agents')?.list?.() ?? []
+    await Promise.all(agents.filter(agent => agent?.status === 'running' && rt.isBotSession(agent.id)).map(async agent => {
+      const id = agent.id
+      if (live.get(id)?.turn !== undefined) return
+      const adoptedAt = Date.now()
+      const pending = []
+      recovering.set(id, pending)
+      try {
+        const seen = await ctx.sessionController.inspect(id, AbortSignal.timeout(20_000))
+        const events = seen?.events
+        if (!Array.isArray(events)) return
+        // The turn can end while inspect is in flight. Restore its routing before
+        // replaying that terminal event, rather than silently consuming the end.
+        const start = events.findLastIndex(event => event.type === 'turn/start' && (event.time ?? 0) <= adoptedAt)
+        const end = start < 0 ? -1 : events.findIndex((event, index) => index > start && event.type === 'turn/end')
+        const routing = routingFromEvents(end < 0 ? events : events.slice(0, end))
+        const last = events.at(-1)?.seq ?? -1
+        if (routing) {
+          Object.assign(liveOf(id), routing)
+          if (!rt.groupOwners.has(id) || ['request', 'stopped'].includes(routing.info?.role)) liveOf(id).shown = 0
+          setActivity(id, 'thinking')
+        }
+        recovering.delete(id)
+        if (routing && end >= 0) for (const event of events.slice(end)) onSessionEvent(agent.session, event)
+        for (const [session, event] of pending) if (event.seq > last) onSessionEvent(session, event)
+      } catch (error) {
+        rt.warn('ds-bot: restoring handoff routing failed for %s: %s', id, error?.code ?? 'inspect unavailable')
+      } finally {
+        if (recovering.has(id)) {
+          recovering.delete(id)
+          // Unavailable history never justifies closing work or repeating a request.
+          const entry = liveOf(id)
+          entry.opened = true
+          for (const [session, event] of pending) onSessionEvent(session, event)
+        }
+      }
+    }))
+  }
+  function onSessionEvent(session, event) {
+    if (recovering.has(session?.id)) {
+      recovering.get(session.id).push([session, event])
+      return
+    }
     const id = session?.id
     if (id === undefined) return
     if (!rt.isBotSession(id) && !rt.roomOf(id)) {
@@ -1070,7 +1117,8 @@ export function install(rt) {
         break
       }
     }
-  })
+  }
+  ctx.on('session/event', onSessionEvent)
 
   // A subagent a Bot's turn delegates to is work handed on, like message_bot: each
   // run of the child hangs under the work the turn answers until its settlement
@@ -1145,5 +1193,5 @@ export function install(rt) {
     }, 'ds-bot: prompt rejection reasons')
   }
 
-  Object.assign(rt, { live, liveOf, roomWaiters, roomProgress, roomInbox, activityView, workView, roomWorkView, turnsView, steeredView, callDetail, doingOf, stopRoomTurn, stopChat, releaseBot, unblockBots, resumeBot, markSteerCut, hasSubagents, stopSubagents })
+  Object.assign(rt, { live, liveOf, roomWaiters, roomProgress, roomInbox, activityView, workView, roomWorkView, turnsView, steeredView, callDetail, doingOf, stopRoomTurn, stopChat, releaseBot, unblockBots, resumeBot, markSteerCut, hasSubagents, stopSubagents, adoptLiveWork })
 }

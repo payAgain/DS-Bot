@@ -83,5 +83,6 @@ export function createRuntime(ctx, config = {}) {
     },
   }
   for (const module of MODULES) module.install(rt)
+  void rt.adoptLiveWork().catch(error => rt.warn('ds-bot: live routing recovery failed: %s', error?.code ?? 'unknown'))
   return rt
 }

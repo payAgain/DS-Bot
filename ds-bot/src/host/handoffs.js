@@ -5,7 +5,7 @@
 // that came back, together with what came back. Results find their way up by
 // themselves, so no Bot needs to message one that waits for it, and that is the one
 // hand-off refused. The open works are kept in state.json so a restart waits on.
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { TEXT_KEPT } from './constants.js'
@@ -19,6 +19,7 @@ const minutes = since => {
 export function install(rt) {
   const { state } = rt
   const works = () => (state.works ??= {})
+  const settled = () => (state.settledWorks ??= {})
   // What came back, whole; state.json keeps the start of each.
   const whole = new Map()
   const save = () => void rt.save().catch(() => {})
@@ -99,6 +100,17 @@ export function install(rt) {
   // session id of the subagent a run of this work belongs to — the run, not the
   // child, is the sub-work, so a child that is continued hands up a result per run.
   function openWork(id, { from, to, parent, fromRoom, room, name, child }) {
+    if (settled()[id]) throw new Error('This handoff was already settled')
+    if (works()[id]) {
+      const prior = works()[id]
+      if (prior.from === from && prior.to === to && prior.parent === parent) return
+      throw new Error('This handoff id is already in use')
+    }
+    const seen = new Set([id])
+    for (let ancestor = parent; ancestor !== undefined; ancestor = works()[ancestor]?.parent) {
+      if (seen.has(ancestor)) throw new Error('A handoff cannot depend on itself')
+      seen.add(ancestor)
+    }
     const above = parent === undefined ? undefined : works()[parent]
     works()[id] = { ...(from ? { from } : {}), ...(to ? { to } : {}), ...(room ? { room } : {}), ...(above ? { parent } : {}), ...(fromRoom ? { fromRoom } : {}), ...(name ? { name } : {}), ...(child ? { child } : {}), open: [], results: [], at: Date.now() }
     if (above !== undefined) above.open.push(id)
@@ -110,6 +122,7 @@ export function install(rt) {
   function closeWork(id, name, text) {
     const work = works()[id]
     if (work === undefined) return undefined
+    settled()[id] = { at: Date.now(), from: work.from, to: work.to, ...(work.parent ? { parent: work.parent } : {}) }
     delete works()[id]
     // What it still waits for comes back to it alone.
     for (const child of Object.values(works())) if (child.parent === id) delete child.parent
@@ -326,5 +339,34 @@ export function install(rt) {
     return lines.join('; ')
   }
 
-  Object.assign(rt, { workOf, openWork, closeWork, dropWork, takenWork: taken, lateWork, answerMissed, ownsWork: owns, waitsWork: waits, holdWork: hold, workAsker: askedBy, answerText, upstreamOf, sameWork, forgetBotWork: forgetBot, statusOf, waitingView, settleSubWork, subWorkRun, nameSubWork })
+  // Explicit maintenance of a confirmed historical notice, never an age-based purge.
+  async function resolveHandoff({ id, parent, reason, notify = true }) {
+    if (typeof notify !== 'boolean') throw new Error('notify must be a boolean')
+    if (typeof reason !== 'string' || reason.trim().length < 10 || reason.length > 1000) throw new Error('Give an audit reason of 10 to 1000 characters')
+    if (rt.readOnly?.() !== undefined) throw new Error('This window does not own the team')
+    const prior = settled()[id]
+    if (prior) {
+      if (prior.resolution !== 'notification' || prior.parent !== parent) throw new Error('This work was settled differently')
+      return { id, alreadySettled: true }
+    }
+    const work = works()[id]
+    if (!work || work.parent !== parent || !works()[parent] || work.open.length) throw new Error('The selected leaf handoff changed')
+    const chat = rt.chatOf(work.to)
+    const agent = await rt.resolveAgent(chat)
+    // Do not resolve a live or unread request; the user can finish or cancel it normally.
+    if (agent.status === 'running' || [...(agent.inbox?.nextStep ?? []), ...(agent.inbox?.nextTurn ?? [])].some(message => message.source?.exchangeId === id)) throw new Error('The recipient is running or has not read this request')
+    if (works()[id] !== work || work.open.length || work.parent !== parent || works()[parent] === undefined) throw new Error('The handoff changed during inspection')
+    const name = nameOf(work.to) ?? 'The other Bot'
+    const text = `Historical notification released after explicit review. No business reply is pending; this does not claim task execution succeeded. Audit: ${reason.trim()}`
+    closeWork(id, name, text)
+    taken(parent, id)
+    Object.assign(settled()[id], { resolution: 'notification', reason: reason.trim(), notified: notify })
+    await rt.save({ required: true })
+    // Maintenance may release a reviewed notice without waking suspended Bots.
+    // Its administrative result stays with the parent and in the audit either way.
+    if (notify) await rt.deliver({ fromId: work.to, toId: work.from, role: 'reply', replyTo: id, exchangeId: randomUUID(), work: parent, text })
+    return { id, released: true, notified: notify }
+  }
+
+  Object.assign(rt, { workOf, openWork, closeWork, dropWork, takenWork: taken, lateWork, answerMissed, ownsWork: owns, waitsWork: waits, holdWork: hold, workAsker: askedBy, answerText, upstreamOf, sameWork, forgetBotWork: forgetBot, statusOf, waitingView, settleSubWork, subWorkRun, nameSubWork, settledWork: id => settled()[id], resolveHandoff })
 }
