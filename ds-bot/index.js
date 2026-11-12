@@ -21,6 +21,7 @@ import * as timeContext from './src/host/time-context.js'
 import * as tools from './src/host/tools.js'
 import * as chatIndex from './src/host/chat-index.js'
 import * as groups from './src/host/groups.js'
+import * as ledger from './src/host/ledger.js'
 import * as goals from './src/host/goals.js'
 import * as approvals from './src/host/approvals.js'
 import * as resume from './src/host/resume.js'
@@ -34,7 +35,7 @@ import * as computer from './src/host/computer/index.js'
 import * as secrets from './src/host/secrets.js'
 import * as connectors from './src/host/connectors/index.js'
 import * as composio from './src/host/connectors/composio.js'
-import * as mobile from './src/host/mobile.js'
+import * as mobileAdmission from './src/host/mobile-admission.js'
 import * as capabilities from './src/host/capabilities.js'
 import * as learning from './src/host/learning.js'
 import * as schedules from './src/host/schedules.js'
@@ -42,7 +43,9 @@ import * as usage from './src/host/usage.js'
 import * as update from './src/host/update.js'
 import * as dshUpdate from './src/host/dsh-update.js'
 import * as thinking from './src/host/thinking.js'
+import * as phone from './src/host/phone.js'
 import * as channel from './src/host/channel.js'
+import * as mobile from './src/host/mobile.js'
 import * as feed from './src/host/feed.js'
 import * as im from './src/host/im/index.js'
 import * as officeSkills from './src/host/office-skills.js'
@@ -59,7 +62,7 @@ export const inject = ['llm', 'tools', 'systemPrompt', 'sessionController', 'ses
 // install. Listeners run and tools are listed in registration order, so this order holds:
 // usage meters model requests after every listener that rewrites them. privacy checks a
 // call before the hooks of tools do, so a closed call never reaches a card they show.
-const MODULES = [diagnostics, store, models, providers, permissions, turns, steer, handoffs, requests, delivery, roster, folders, privacy, agents, prompt, timeContext, tools, chatIndex, groups, goals, approvals, resume, memory, parts, images, avatarLibrary, secrets, connectors, composio, capabilities, learning, schedules, browser, browserPlugins, computer, usage, update, dshUpdate, thinking, feed, im, mobile, channel, officeSkills, goalSkills, localAgents]
+const MODULES = [diagnostics, store, ledger, models, providers, permissions, turns, steer, handoffs, requests, delivery, roster, folders, privacy, agents, prompt, timeContext, tools, chatIndex, groups, goals, approvals, resume, memory, parts, images, avatarLibrary, secrets, connectors, composio, capabilities, learning, schedules, browser, browserPlugins, computer, usage, update, dshUpdate, thinking, mobile, mobileAdmission, feed, phone, im, channel, officeSkills, goalSkills, localAgents]
 
 export function apply(ctx, config = {}) {
   createRuntime(ctx, config)
@@ -83,6 +86,13 @@ export function createRuntime(ctx, config = {}) {
     },
   }
   for (const module of MODULES) module.install(rt)
-  void rt.adoptLiveWork().catch(error => rt.warn('ds-bot: live routing recovery failed: %s', error?.code ?? 'unknown'))
+  // A live Agent can be scoped before the last module has added its tools (the memory
+  // module starts a load during install): complete the scope now that every tool is in.
+  rt.syncScopedTools?.()
+  // dsh can load this plugin again in place, its files replaced while it runs: dsh
+  // keeps the turns and child agents it had, while this runtime starts with empty
+  // maps. Adopt them now, so Stop, the group view and a late child settle still see
+  // the work. A fresh start has nothing to adopt.
+  void rt.adoptLiveWork?.().catch(error => rt.warn?.('ds-bot: adopting the work still running failed: %s', error))
   return rt
 }

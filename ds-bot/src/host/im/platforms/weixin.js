@@ -15,6 +15,12 @@ const QR_BASE = 'https://ilinkai.weixin.qq.com/'
 const BOT_TYPE = '3'
 const TEXT_LIMIT = 1800
 const POLL_TIMEOUT_MS = 35_000
+// The server answers this on getupdates when the bot session is not open; the
+// account has to scan a new QR code.
+const SESSION_EXPIRED = -14
+// Waits between attempts to open the session, from the reference client; the
+// last one repeats while the network stays down, like the poll's own retry.
+const START_RETRY_DELAYS_MS = [250, 1_000, 3_000]
 
 const qrBase = env => String(env.config?.qr ?? env.config?.api ?? QR_BASE).replace(/\/+$/, '') + '/'
 const base = (env, fields) => String(fields.baseUrl || env.config?.api || QR_BASE).replace(/\/+$/, '') + '/'
@@ -81,7 +87,14 @@ export default {
 
   // The token is proven by a short, structurally valid getupdates poll.
   async check(fields, env) {
-    await request(env, base(env, fields), fields.token, 'getupdates', { get_updates_buf: '', timeout_ms: 0 }, 8_000)
+    try {
+      await request(env, base(env, fields), fields.token, 'getupdates', { get_updates_buf: '', timeout_ms: 0 }, 8_000)
+    } catch (error) {
+      // An explicit failed connection check needs the owner to fix the connection;
+      // polling still retries transient platform errors and preserves rate limits.
+      if (error.code !== undefined && error.code !== 429) error.permanent = true
+      throw error
+    }
     return { account: { id: String(fields.ilinkBotId ?? ''), name: 'WeChat' } }
   },
 
@@ -156,8 +169,42 @@ export default {
       }
     }
 
+    // The session has to be opened before getupdates carries anything. A
+    // refused or expired session is shown once and polling never starts. A
+    // network failure keeps retrying, as the poll does: an app started before
+    // the network is up must still connect once it is. After the quick retries
+    // the failure is on screen until a start succeeds.
+    const startSession = async () => {
+      let shown = false
+      for (let attempt = 0; ; attempt += 1) {
+        if (stopped) return
+        try {
+          await notifyStart(env, base(env, fields), fields.token)
+          break
+        } catch (error) {
+          if (stopped) return
+          const reason = String(error?.message ?? error)
+          if (error?.permanent === true) {
+            env.log?.warn?.('ds-bot im: weixin could not start the session: %s', reason)
+            handlers.onStatus({ state: 'error', error: reason })
+            return
+          }
+          const wait = START_RETRY_DELAYS_MS[attempt]
+          if (wait === undefined && !shown) {
+            shown = true
+            env.log?.warn?.('ds-bot im: weixin could not start the session, still retrying: %s', reason)
+            handlers.onStatus({ state: 'error', error: reason })
+          } else if (wait !== undefined) {
+            env.log?.warn?.('ds-bot im: weixin session start failed, retrying: %s', reason)
+          }
+          await sleep(wait ?? START_RETRY_DELAYS_MS.at(-1))
+        }
+      }
+      if (!stopped) void poll()
+    }
+
     handlers.onStatus({ state: 'connecting' })
-    void poll()
+    void startSession()
 
     return {
       send: async (chat, { text }) => {
@@ -223,7 +270,7 @@ const chunk = (text, limit) => {
 // iLink can omit both status codes on a successful long poll. In that case
 // require the observed updates envelope, rather than treating any HTTP 200 as OK.
 function validateUpdates(answer) {
-  const invalid = () => fail('WeChat returned an invalid updates response')
+  const invalid = () => fail('WeChat returned an invalid updates response (unreadable)')
   if (!answer || typeof answer !== 'object' || Array.isArray(answer)) throw invalid()
   let hasCode = false
   for (const key of ['ret', 'errcode']) {
@@ -232,7 +279,7 @@ function validateUpdates(answer) {
     const value = answer[key]
     if ((typeof value !== 'number' && !(typeof value === 'string' && /^-?\d+$/.test(value))) || !Number.isFinite(Number(value))) throw invalid()
     const code = Number(value)
-    if (code !== 0) throw fail(`WeChat answered ${code}`, { permanent: code === 401 || code === 403 })
+    if (code !== 0) throw fail(code === SESSION_EXPIRED ? 'WeChat session expired; scan the QR code again' : `WeChat answered ${code}`, { code, permanent: code === 401 || code === 403 || code === SESSION_EXPIRED })
   }
   if (answer.errmsg !== undefined && (typeof answer.errmsg !== 'string' || answer.errmsg.trim() !== '')) throw fail('WeChat returned an error in its updates response')
   if (!Array.isArray(answer.msgs) || answer.msgs.some(msg => !msg || typeof msg !== 'object' || Array.isArray(msg))) throw invalid()
@@ -260,7 +307,20 @@ function validateSend(answer, contextTokenPresent) {
   if (answer.errmsg !== undefined && (typeof answer.errmsg !== 'string' || answer.errmsg.trim() !== '')) throw refused()
 }
 
+// iLink only carries getupdates for an opened session: before msg/notifystart
+// the server keeps answering {"errcode":-14,"errmsg":"session timeout"}.
+async function notifyStart(env, baseUrl, token) {
+  const answer = await request(env, baseUrl, token, 'msg/notifystart', {}, 10_000)
+  const code = answer?.errcode ?? answer?.ret
+  if (code === undefined || Number(code) === 0) return
+  const reason = Number(code) === SESSION_EXPIRED
+    ? 'WeChat session expired; scan the QR code again'
+    : `WeChat did not start the session (${code})`
+  throw fail(reason, { permanent: true })
+}
+
 async function request(env, baseUrl, token, endpoint, body, timeoutMs = POLL_TIMEOUT_MS) {
+
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(new Error('timeout')), timeoutMs)
   timer.unref?.()
@@ -278,7 +338,10 @@ async function request(env, baseUrl, token, endpoint, body, timeoutMs = POLL_TIM
     })
   } catch (error) {
     const timedOut = error?.name === 'AbortError' || /timeout|aborted/i.test(String(error?.message))
-    throw Object.assign(new Error(timedOut ? 'timeout' : String(error?.message ?? error)), { timeout: timedOut })
+    // fetch reports "fetch failed" and hides ENOTFOUND, ECONNRESET and the like in
+    // cause; surface it in the message and keep the chain for diagnosis.
+    const cause = error?.cause?.code ?? error?.cause?.message
+    throw Object.assign(new Error(timedOut ? 'timeout' : String(cause ?? error?.message ?? error), { cause: error }), { timeout: timedOut })
   } finally {
     clearTimeout(timer)
   }

@@ -52,6 +52,7 @@ export function install(rt) {
     approvalAgents.set(entry, request.agent)
     pending.set(id, entry)
     rt.noteApproval?.(sessionId, { tool: entry.tool, reason: entry.reason.slice(0, 200) })
+    rt.approvalWaiting?.(entry)
     emit('open', { ...entry, answerable: true })
     const settle = (outcome) => {
       if (!pending.has(id)) return false

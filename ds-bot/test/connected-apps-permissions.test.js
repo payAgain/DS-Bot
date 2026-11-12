@@ -40,7 +40,7 @@ test('project-backed accounts execute automatically by default and ignore legacy
   const rt = createRuntime(ctx, { home })
   t.after(async () => { await ctx.dispose(); rmSync(home, { recursive: true, force: true }) })
   await rt.load()
-  await rt.composioEndpoint('composio-configure', { apiKey: 'synthetic-project-fixture', userId: 'fixture-user' })
+  await rt.composioEndpoint('composio-configure', { apiKey: 'synthetic-test-project-fixture', userId: 'fixture-user' })
   await rt.composioEndpoint('composio-refresh')
   const grant = mode => rt.composioEndpoint('composio-policy', { id: account.id, ...(mode ? { mode } : {}), bots: ['a'], enabled: true })
   const execute = rt.teamTools.find(tool => tool.name === 'execute_app_tool')

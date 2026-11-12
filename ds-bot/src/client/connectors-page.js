@@ -1,11 +1,13 @@
 // Settings → Connectors. The catalog is a two-column grid of apps grouped by
 // category, with search and category chips on top and the connected count at the
-// right. A tile connects in place when nothing more is needed; anything that needs
-// a form, a code or a choice opens the app's own view, which reuses the rows in
-// connectors.js. Connected apps and the mailbox accounts have their own view.
+// right. A tile connects in place when nothing more is needed, and shows the
+// sign-in it started; anything that needs a form or a choice opens the app's own
+// view, which reuses the rows in connectors.js. Connected apps and the mailbox
+// accounts have their own view.
 import { createElement as h, useEffect, useRef, useState } from 'react'
 import { ConnectedAppsPanel, CONNECTED_APPS_CSS } from './connected-apps.js'
-import { ConnectorMark, ConnectorRow, MailAccount, MailCatalogRow, MailPending, MailRules, AddMenu, openSignIn } from './connectors.js'
+import { ConnectorMark, ConnectorRow, MailAccount, MailCatalogRow, MailPending, MailRules, AddMenu, openSignIn, SignInPanel } from './connectors.js'
+import { useMorph } from './motion.js'
 import { reserveWindow } from './open-window.js'
 import { ChevronLeftIcon, ChevronRightIcon, CheckIcon, PlusIcon, SearchIcon } from './icons.js'
 import { hostText, t } from './i18n.js'
@@ -45,7 +47,7 @@ function tileStatus(app) {
   return null
 }
 
-function AppTile({ app, actions, onOpen }) {
+function AppTile({ app, actions, onOpen, showsSignIn, onSignIn }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const fresh = useJustConnected(app.state)
@@ -59,6 +61,7 @@ function AppTile({ app, actions, onOpen }) {
     const auth = app.auth ?? {}
     if (app.id === 'mail' || auth.kind === 'key' || (auth.kind === 'oauth' && auth.token && !auth.client?.id)) return onOpen()
     if (auth.kind === 'oauth') {
+      onSignIn()
       const win = reserveWindow()
       return void run(actions.connectorConnect(app.id, {}), view => openSignIn(win, app.id, view), () => win.close())
     }
@@ -73,27 +76,39 @@ function AppTile({ app, actions, onOpen }) {
     if (app.state === 'error') return void run(actions.connectorRetry(app.id))
     return onOpen()
   }
-  return h('div', { className: 'bt-app', 'data-state': app.state, 'data-fresh': fresh ? '' : undefined, 'data-error': error ? '' : undefined },
+  const signIn = showsSignIn ? app.pending?.kind : undefined
+  const tile = useRef(null)
+  useMorph(tile, signIn ?? '')
+  return h('div', { ref: tile, className: 'bt-app', 'data-state': app.state, 'data-fresh': fresh ? '' : undefined, 'data-error': error ? '' : undefined, 'data-signing': signIn ? '' : undefined },
     h('button', { type: 'button', className: 'bt-app-main', onClick: onOpen },
       h(AppIcon, { app }),
       h('span', { className: 'bt-app-text' },
         h('span', { className: 'bt-app-name' }, app.name, app.custom ? h('span', { className: 'bt-tag' }, t('Added')) : null),
         status ? h('span', { className: 'bt-app-status' }, status) : null)),
-    h('button', { type: 'button', className: ready ? 'bt-app-btn bt-app-btn-done' : 'bt-app-btn', disabled: busy, onClick: press },
-      ready ? h(CheckIcon) : null, label))
+    signIn ? null : h('button', { type: 'button', className: ready ? 'bt-app-btn bt-app-btn-done' : 'bt-app-btn', disabled: busy, onClick: press },
+      ready ? h(CheckIcon) : null, label),
+    signIn ? h(SignInPanel, { connector: app, actions, run }) : null)
 }
 
-function Grid({ apps, actions, open }) {
-  return h('div', { className: 'bt-app-grid' }, apps.map(app => h(AppTile, { key: app.id, app, actions, onOpen: () => open(app.id) })))
+// An app can be listed in two sections. Only one tile draws the sign-in: the one
+// that was clicked, or after a reload the first one on the page.
+function Grid({ apps, actions, open, place = null, signInPlaces }) {
+  const homePlace = app => (FEATURED.includes(app.id) ? 'featured' : app.category)
+  return h('div', { className: 'bt-app-grid' }, apps.map(app => h(AppTile, {
+    key: app.id, app, actions,
+    onOpen: () => open(app.id),
+    showsSignIn: place === null || place === (signInPlaces.current[app.id] ?? homePlace(app)),
+    onSignIn: () => { signInPlaces.current[app.id] = place },
+  })))
 }
 
-function Section({ title, apps, actions, open, onAll }) {
+function Section({ title, apps, actions, open, onAll, place, signInPlaces }) {
   if (apps.length === 0) return null
   return h('section', { className: 'bt-app-section' },
     h('div', { className: 'bt-app-section-head' },
       h('h3', null, title),
       onAll && apps.length > PREVIEW ? h('button', { type: 'button', className: 'bt-app-all', onClick: onAll }, t('See all')) : null),
-    h(Grid, { apps: onAll ? apps.slice(0, PREVIEW) : apps, actions, open }))
+    h(Grid, { apps: onAll ? apps.slice(0, PREVIEW) : apps, actions, open, place, signInPlaces }))
 }
 
 function Subview({ title, onBack, children }) {
@@ -128,6 +143,7 @@ export function ConnectorsPage({ roster, actions }) {
   const [category, setCategory] = useState('')
   const [view, setView] = useState(null)
   const [error, setError] = useState(null)
+  const signInPlaces = useRef({})
   const run = (task, onDone) => Promise.resolve(task).then((value) => { setError(null); onDone?.(value) }, failure => setError(failure?.message ?? String(failure)))
   const data = roster?.connectors ?? { connectors: [], mail: { accounts: [], google: false } }
   const mail = data.mail ?? { accounts: [] }
@@ -190,13 +206,13 @@ export function ConnectorsPage({ roster, actions }) {
   let body
   if (searching || category !== '') {
     body = found.length === 0
-      ? null
-      : h(Grid, { key: 'native-results', apps: found, actions, open })
+      ? h('p', { className: 'bt-app-empty' }, t('Nothing matches'))
+      : h(Grid, { key: 'native-results', apps: found, actions, open, signInPlaces })
   } else {
     const featured = FEATURED.map(id => apps.find(app => app.id === id)).filter(Boolean)
     body = [
-      h(Section, { key: 'featured', title: t('Recommended'), apps: featured, actions, open }),
-      ...CATEGORIES.map(([id, label]) => h(Section, { key: id, title: t(label), apps: inCategory(id), actions, open, onAll: () => setCategory(id) })),
+      h(Section, { key: 'featured', place: 'featured', signInPlaces, title: t('Recommended'), apps: featured, actions, open }),
+      ...CATEGORIES.map(([id, label]) => h(Section, { key: id, place: id, signInPlaces, title: t(label), apps: inCategory(id), actions, open, onAll: () => setCategory(id) })),
     ]
   }
   const appModule = h('section', { className: 'bt-app-section bt-app-module-section' },
@@ -241,7 +257,7 @@ export const CONNECTORS_PAGE_CSS = CONNECTED_APPS_CSS + `
 .bt-app-section-head h3{margin:0;font-size:14px;line-height:20px;font-weight:600}
 .bt-app-all{border:0;background:none;padding:2px 4px;color:var(--bt-ink-3);font:inherit;font-size:12px;cursor:pointer}
 .bt-app-all:hover{color:var(--bt-ink)}
-.bt-app-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}
+.bt-app-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;align-items:start}
 @container (max-width:520px){.bt-app-grid{grid-template-columns:minmax(0,1fr)}}
 .bt-app{position:relative;display:flex;align-items:center;gap:10px;min-height:60px;border-radius:12px}
 .bt-app-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
@@ -264,6 +280,9 @@ export const CONNECTORS_PAGE_CSS = CONNECTED_APPS_CSS + `
 @keyframes bt-app-pop{0%{transform:scale(.86)}55%{transform:scale(1.07)}100%{transform:scale(1)}}
 @keyframes bt-app-shine{0%{background-position:100% 0}100%{background-position:0 0}}
 @keyframes bt-app-done{0%{opacity:.4;transform:scale(.94)}100%{opacity:1;transform:none}}
+.bt-app[data-signing]{flex-wrap:wrap;padding-bottom:12px}
+.bt-app[data-signing] .bt-app-main{flex-basis:100%;min-height:60px}
+.bt-app[data-signing] .bt-connector-form{flex:1 0 100%;min-width:0}
 .bt-app-empty{margin:24px 0;text-align:center;font-size:13px;color:var(--bt-ink-3)}
 .bt-app-module{padding:8px 12px;border:1px solid var(--bt-line);border-radius:12px;background:var(--bt-card);min-height:64px}.bt-app-module-section{gap:8px}.bt-app-service-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.bt-app-service-head .bt-app-about{margin:0}.bt-app-service-head button{flex:none}
 .bt-app-sub{display:flex;flex-direction:column;gap:12px}

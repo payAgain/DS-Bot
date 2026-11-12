@@ -6,6 +6,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { paths, state } from './fake-electron.mjs'
 import { hold } from './fake-host-process.mjs'
+import { RELEASES_URL } from '../../src/updates.mjs'
+
+// macOS checks the release feed directly rather than using electron-updater.
+// Keep this UI harness offline too: a real new release must not insert a card
+// ahead of the move confirmation that a test is about to answer.
+const nativeFetch = globalThis.fetch
+globalThis.fetch = (input, options) => String(input) === RELEASES_URL
+  ? Promise.resolve(Response.json([]))
+  : nativeFetch(input, options)
 
 /** Wait until the app has done something, so that the test does not guess a moment. */
 export const waitFor = async (check, what, timeout = 10_000) => {
