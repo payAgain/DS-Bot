@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [main, dev, 'chore/daily-upstream-*', 'chore/source-publish-*']
+    branches: [main, dev]
   pull_request:
 
 permissions:

@@ -1,0 +1,120 @@
+# Source-only checks for custom integration branches; no package publishing or deployment.
+name: Custom source checks
+
+on:
+  push:
+    branches: ['chore/daily-upstream-*', 'chore/source-publish-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to a pull request replaces its running checks. A run on main or dev finishes, and
+# of the pushes that wait for it only the newest runs next: a cancelled run never saves the
+# download caches that every pull request restores from dev, and running one at a time keeps the
+# Docker image of an earlier commit from being pushed after a later one.
+concurrency:
+  group: custom-source-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Node ${{ matrix.node }} · DSH ${{ matrix.dsh }}
+    runs-on: ${{ matrix.os }}
+    # The suite takes a few minutes; a test that never settles used to hold the job for the
+    # runner's six-hour limit.
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, node: 24, dsh: 0.2.2-rc.1 }
+          - { os: windows-latest, node: 24, dsh: 0.2.2-rc.1 }
+          - { os: ubuntu-latest, node: 22, dsh: 0.2.2-rc.1 }
+          - { os: ubuntu-latest, node: 24, dsh: 0.2.0-rc.2 }
+    defaults:
+      run:
+        shell: bash
+        working-directory: ds-bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci --no-fund --no-audit
+      - name: Install the phone link's packages
+        run: npm ci --no-fund --no-audit --prefix ../link
+      - name: Install DSH ${{ matrix.dsh }}
+        # The testkit pins the DSH packages it was built with; at another version it would
+        # bring a second, mismatched set.
+        run: npm run harness -- --no-save "@deepseek-ai/dsh@${{ matrix.dsh }}" "@deepseek-ai/dsh-agent-loop-testkit@${{ matrix.dsh }}"
+      - run: npm test
+      - run: node scripts/build-client.mjs --check
+      - run: npm run lint
+
+  scan:
+    name: Leak scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # Scan exactly the tracked files, as they would be published.
+      - run: mkdir -p "$RUNNER_TEMP/tree" && git archive HEAD | tar -x -C "$RUNNER_TEMP/tree"
+      - run: node scripts/scan.mjs "$RUNNER_TEMP/tree"
+        env:
+          SCAN_EXTRA_PATTERNS: ${{ secrets.SCAN_EXTRA_PATTERNS }}
+
+  app:
+    name: Desktop app profile
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # The test composes the profile and starts no window, so it needs no Electron binary.
+      - run: npm ci --no-fund --no-audit
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      - run: npm test
+
+  mobile:
+    name: Mobile app typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # The app type-checks the shared code in ../link, which has its own packages.
+      - name: Install the phone link's packages
+        run: npm ci --no-fund --no-audit --prefix ../link
+      - run: npm ci --no-fund --no-audit
+      - run: npm run typecheck
+      - run: npm test
+
+  link:
+    name: Phone link and Relay Server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: link
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-fund --no-audit
+      - run: npm run typecheck
+      - run: npm test
