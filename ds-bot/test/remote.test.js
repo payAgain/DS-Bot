@@ -350,10 +350,16 @@ test('full ds-bot runtime serves real hello, state and live feed through TypertG
   root.provide('sessions', { flush: async () => {} })
 
   let rt
-  await root.plugin((sub) => {
-    rt = createRuntime(sub, { home })
+  await root.plugin({
+    name: 'ds-bot-remote-test-runtime',
+    inject: pluginEntry.inject,
+    apply(sub) {
+      rt = createRuntime(sub, { home })
+    },
   })
   await tick()
+  // Match the real plugin's service contract, including late asynchronous model reads.
+  assert.equal(rt.ctx.llm.listProviders()[0].id, 'deepseek')
 
   const gateway = root.typertGateway
   assert.equal(gateway.claimsEndpoint('dsBot/call'), true)
