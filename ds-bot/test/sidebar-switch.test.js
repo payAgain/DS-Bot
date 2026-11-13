@@ -115,7 +115,7 @@ test('a row picked outside the drawer leaves it alone', () => {
 })
 
 // A Bot working in its own chat previews what it is doing, the way a group row does
-// for members at work; an idle Bot keeps the last message preview.
+// for members at work; an idle Bot shows its current idle state.
 test('a running Bot\'s sidebar row shows what it is doing', () => {
   viewport.innerWidth = 1280
   const bot = { id: 'writer', name: 'Writer', createdAt: 1 }
@@ -167,7 +167,7 @@ test('a running Bot\'s sidebar row shows what it is doing', () => {
   assert.doesNotMatch(textOf(previews[0]), /^Writer ·/)
 })
 
-test('an idle Bot\'s sidebar row keeps the message preview', () => {
+test('an idle Bot\'s sidebar row shows Idle', () => {
   viewport.innerWidth = 1280
   const bot = { id: 'writer', name: 'Writer', createdAt: 1 }
   const roster = { bots: [bot], rooms: [], agents: [], byId: { writer: bot }, ready: true, exchangeTurns: {} }
@@ -203,7 +203,8 @@ test('an idle Bot\'s sidebar row keeps the message preview', () => {
     collect(node.props?.children)
   }
   collect(expand(rows[0].type(rows[0].props)))
-  assert.equal(previews.length, 0)
+  assert.equal(previews.length, 1)
+  assert.equal(previews[0].props.children.flat(Infinity).join(''), 'Idle')
 })
 
 // The rail shows avatars only, and a group's name can be 60 characters long: a row whose

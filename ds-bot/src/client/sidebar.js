@@ -41,7 +41,7 @@ const nameIfCut = (event) => {
 
 // Whether an approval waits for the user: for a Bot, in any of its Sessions; for a group,
 // from any of its members there.
-const useApproval = (useWork, match) => (useWork ? useWork(work => (work.approvals ?? []).some(match)) : false)
+const useApproval = (useWork, match) => (useWork ? useWork(work => (work.approvals ?? []).some(entry => !entry.outcome && (entry.status === undefined || entry.status === 'pending') && match(entry))) : false)
 
 // Work running in group Sessions, as "botId|tool" keys so a row redraws only when it
 // changes: the groups one Bot works in, or the members at work in one group.
@@ -52,18 +52,15 @@ const useGroupWork = (useWork, pick) => {
 }
 const doingOf = ({ tool, said, note, target, switching }) => ({ tool, said, note, target, switching })
 const workLine = (lead, doing, more) => h(Shimmer, null, `${lead} · ${workPhrase(doing)}…${more > 0 ? ` +${more}` : ''}`)
-// The row already names the Bot; its own-chat preview is just what it is doing.
-const doingLine = doing => h(Shimmer, null, `${workPhrase(doing)}…`)
 // The Bots and groups a Bot waits for (handoffs.js), by the names they have now.
 const waitingFor = (roster, waits) => {
   const names = [...(waits?.bots ?? []).map(id => roster.byId[id]?.name), ...(waits?.rooms ?? []).map(id => roster.roomsById[id]?.name)].filter(Boolean)
   return names.length === 0 ? '' : t('Waiting for {names}', { names: names.join(t(' and ')) })
 }
 
-function BotRow({ bot, roster, actions, useSessions, useSessionStatus, useSessionRetainInfo, useActivity, useWork, wide, marked, onDragStart }) {
+function BotRow({ bot, roster, actions, useSessionStatus, useSessionRetainInfo, useActivity, useWork, wide, marked, onDragStart }) {
   const id = bot.id
   const part = currentPart(bot)
-  const preview = useSessions(list => previewOf(list, part, roster.exchangeTurns[part]))
   const running = useSessionStatus(map => map.get(part)?.running === true)
   const active = useSessionRetainInfo(part, info => (info?.retainedBy?.mainView ?? 0) > 0)
   const unread = useSessionStatus(map => map.get(part)?.completionUnread === true || map.get(part)?.pendingInteraction !== undefined) || (marked && !active)
@@ -71,33 +68,41 @@ function BotRow({ bot, roster, actions, useSessions, useSessionStatus, useSessio
   const main = isMainOf(roster, id)
   const tile = roster.mainBotId === id
   const approval = useApproval(useWork, entry => entry.botId === id)
-  const alert = roster.questions?.[part] !== undefined || approval
+  const pending = entry => entry && !entry.outcome && (entry.status === undefined || entry.status === 'pending')
+  const question = pending(roster.questions?.[part]) || pending(roster.views?.[part])
+  const alert = Boolean(question || approval)
   const doing = useActivity(map => map[id])
   // Work in a group runs in a Session of its own, so the Bot's chat stays idle meanwhile.
   const groups = useGroupWork(useWork, rooms => Object.entries(rooms).flatMap(([roomId, entries]) => entries.filter(entry => entry.botId === id).map(entry => ({ id: roomId, ...doingOf(entry) }))))
   const away = !running && groups.length > 0
-  const state = botState(running || away, doing, alert)
-  // A Bot running in its own chat previews what it is doing, like a group's row.
-  const runningLine = running && doing ? doingLine(doing) : null
-  const awayLine = away ? workLine(roster.roomsById[groups[0].id]?.name ?? t('a group chat'), groups[0], groups.length - 1) : null
+  const ownRaw = useWork ? useWork(work => JSON.stringify(work.bots?.[id] ?? null)) : 'null'
+  const own = useMemo(() => JSON.parse(ownRaw), [ownRaw])
   const waitsRaw = useWork ? useWork(work => JSON.stringify(work.waiting?.[id] ?? null)) : 'null'
   const waits = useMemo(() => JSON.parse(waitsRaw), [waitsRaw])
-  const waitsFor = state === 'waiting' ? waitingFor(roster, waits) : ''
+  const live = running || Boolean(own)
+  const waitsFor = !live && !away ? waitingFor(roster, waits) : ''
+  const userWait = approval ? t('Waiting for your approval') : question ? t('Waiting for your answer') : ''
+  const activeWork = !userWait && (live || away)
+  const state = botState(!userWait && (live || away), waitsFor ? 'waiting' : doing, alert)
+  const statusText = userWait || (live ? `${workPhrase(own ?? doing)}…`
+    : away ? `${roster.roomsById[groups[0].id]?.name ?? t('a group chat')} · ${workPhrase(groups[0])}…${groups.length > 1 ? ` +${groups.length - 1}` : ''}`
+      : waitsFor || t('Idle'))
+  const statusLine = activeWork ? h(Shimmer, null, statusText) : statusText
   if (bot.hidden && !active && !main) return null
   const onContextMenu = (event) => {
     event.preventDefault()
     actions.openMenu({ kind: 'bot', id, x: event.clientX, y: event.clientY })
   }
   const pinned = bot.pinned === true && !tile
-  const label = [bot.name, main ? t('Main Bot') : '', pinned ? t('Pinned') : '', running || away ? t('Working') : '', waitsFor, approval ? t('Waiting for your approval') : alert ? t('Waiting for your answer') : '', unread ? t('Unread activity') : ''].filter(Boolean).join(', ')
+  const label = [bot.name, main ? t('Main Bot') : '', pinned ? t('Pinned') : '', statusText, unread ? t('Unread activity') : ''].filter(Boolean).join(', ')
   if (tile && wide) {
     return h('div', { className: 'bt-tile-wrap' }, h('button', {
       type: 'button', className: 'bt-tile', 'aria-label': label, 'aria-current': active ? 'page' : undefined,
-      'data-bot-id': id, title: preview || bot.name, onClick: () => actions.openSession(id), onContextMenu,
+      'data-bot-id': id, title: `${bot.name} · ${statusText}`, onClick: () => actions.openSession(id), onContextMenu,
     },
     h(BotAvatar, { bot, size: 60, state, main: true }),
     h('span', { className: 'bt-tile-name' }, bot.name),
-    bot.role ? h('span', { className: 'bt-chip' }, bot.role) : null))
+    h('span', { className: 'bt-row-preview', title: statusText }, statusLine)))
   }
   return h('button', {
     type: 'button', className: 'bt-row', 'aria-label': label, 'aria-current': active ? 'page' : undefined,
@@ -110,10 +115,7 @@ function BotRow({ bot, roster, actions, useSessions, useSessionStatus, useSessio
   pinned && !wide ? h(PinMark) : null,
   wide ? h('span', { className: 'bt-row-body' },
     h('span', { className: 'bt-row-name' }, h('span', { className: 'bt-row-title' }, bot.name), bot.engine ? h(AgentBadge, { engine: bot.engine }) : null, pinned ? h(PinMark) : null),
-    runningLine ? h('span', { className: 'bt-row-preview' }, runningLine)
-      : awayLine ? h('span', { className: 'bt-row-preview' }, awayLine)
-        : waitsFor ? h('span', { className: 'bt-row-preview' }, waitsFor)
-          : preview ? h('span', { className: 'bt-row-preview' }, preview) : null) : null,
+    h('span', { className: 'bt-row-preview', title: statusText }, statusLine)) : null,
   wide && unread && !active ? h('span', { className: 'bt-unread', 'aria-hidden': true })
     : !wide && !active && (alert || unread) ? h('span', { className: `bt-dot${alert ? ' bt-dot-wait' : ''}`, 'aria-hidden': true }) : null)
 }
@@ -1275,6 +1277,7 @@ export function BrandName() {
 // FooterAccount only shows when the seat went to no one. The shell's footer classes
 // are CSS-module names, so they match on their stems.
 export const SIDEBAR_CSS = `
+.bt-tile .bt-row-preview{max-width:100%;font-size:12px}
 .bt-confirm{width:260px;max-width:72vw;padding:10px 12px 12px;display:flex;flex-direction:column;gap:10px}
 .bt-confirm-text{margin:0;font-size:13px;line-height:19px;color:var(--bt-ink-2)}
 .bt-confirm-error{margin:0;font-size:12px;line-height:17px;color:var(--bt-danger);overflow-wrap:anywhere}

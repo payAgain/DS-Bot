@@ -28172,22 +28172,20 @@ var nameIfCut = (event) => {
   if (name && name.scrollWidth > name.clientWidth) row.title = name.textContent;
   else row.removeAttribute("title");
 };
-var useApproval = (useWork, match) => useWork ? useWork((work) => (work.approvals ?? []).some(match)) : false;
+var useApproval = (useWork, match) => useWork ? useWork((work) => (work.approvals ?? []).some((entry) => !entry.outcome && (entry.status === void 0 || entry.status === "pending") && match(entry))) : false;
 var useGroupWork = (useWork, pick2) => {
   const raw = useWork ? useWork((work) => JSON.stringify(pick2(work.rooms ?? {}))) : "[]";
   return (0, import_react35.useMemo)(() => JSON.parse(raw), [raw]);
 };
 var doingOf = ({ tool, said, note, target, switching }) => ({ tool, said, note, target, switching });
 var workLine = (lead, doing, more) => (0, import_react35.createElement)(Shimmer, null, `${lead} · ${workPhrase(doing)}…${more > 0 ? ` +${more}` : ""}`);
-var doingLine = (doing) => (0, import_react35.createElement)(Shimmer, null, `${workPhrase(doing)}…`);
 var waitingFor = (roster, waits) => {
   const names = [...(waits?.bots ?? []).map((id) => roster.byId[id]?.name), ...(waits?.rooms ?? []).map((id) => roster.roomsById[id]?.name)].filter(Boolean);
   return names.length === 0 ? "" : t("Waiting for {names}", { names: names.join(t(" and ")) });
 };
-function BotRow({ bot, roster, actions, useSessions, useSessionStatus, useSessionRetainInfo, useActivity, useWork, wide, marked: marked2, onDragStart }) {
+function BotRow({ bot, roster, actions, useSessionStatus, useSessionRetainInfo, useActivity, useWork, wide, marked: marked2, onDragStart }) {
   const id = bot.id;
   const part = currentPart(bot);
-  const preview = useSessions((list) => previewOf(list, part, roster.exchangeTurns[part]));
   const running = useSessionStatus((map) => map.get(part)?.running === true);
   const active2 = useSessionRetainInfo(part, (info) => (info?.retainedBy?.mainView ?? 0) > 0);
   const unread = useSessionStatus((map) => map.get(part)?.completionUnread === true || map.get(part)?.pendingInteraction !== void 0) || marked2 && !active2;
@@ -28195,23 +28193,30 @@ function BotRow({ bot, roster, actions, useSessions, useSessionStatus, useSessio
   const main = isMainOf(roster, id);
   const tile = roster.mainBotId === id;
   const approval = useApproval(useWork, (entry) => entry.botId === id);
-  const alert = roster.questions?.[part] !== void 0 || approval;
+  const pending = (entry) => entry && !entry.outcome && (entry.status === void 0 || entry.status === "pending");
+  const question = pending(roster.questions?.[part]) || pending(roster.views?.[part]);
+  const alert = Boolean(question || approval);
   const doing = useActivity((map) => map[id]);
   const groups = useGroupWork(useWork, (rooms) => Object.entries(rooms).flatMap(([roomId, entries2]) => entries2.filter((entry) => entry.botId === id).map((entry) => ({ id: roomId, ...doingOf(entry) }))));
   const away = !running && groups.length > 0;
-  const state = botState(running || away, doing, alert);
-  const runningLine = running && doing ? doingLine(doing) : null;
-  const awayLine = away ? workLine(roster.roomsById[groups[0].id]?.name ?? t("a group chat"), groups[0], groups.length - 1) : null;
+  const ownRaw = useWork ? useWork((work) => JSON.stringify(work.bots?.[id] ?? null)) : "null";
+  const own = (0, import_react35.useMemo)(() => JSON.parse(ownRaw), [ownRaw]);
   const waitsRaw = useWork ? useWork((work) => JSON.stringify(work.waiting?.[id] ?? null)) : "null";
   const waits = (0, import_react35.useMemo)(() => JSON.parse(waitsRaw), [waitsRaw]);
-  const waitsFor = state === "waiting" ? waitingFor(roster, waits) : "";
+  const live = running || Boolean(own);
+  const waitsFor = !live && !away ? waitingFor(roster, waits) : "";
+  const userWait = approval ? t("Waiting for your approval") : question ? t("Waiting for your answer") : "";
+  const activeWork = !userWait && (live || away);
+  const state = botState(!userWait && (live || away), waitsFor ? "waiting" : doing, alert);
+  const statusText4 = userWait || (live ? `${workPhrase(own ?? doing)}…` : away ? `${roster.roomsById[groups[0].id]?.name ?? t("a group chat")} · ${workPhrase(groups[0])}…${groups.length > 1 ? ` +${groups.length - 1}` : ""}` : waitsFor || t("Idle"));
+  const statusLine = activeWork ? (0, import_react35.createElement)(Shimmer, null, statusText4) : statusText4;
   if (bot.hidden && !active2 && !main) return null;
   const onContextMenu = (event) => {
     event.preventDefault();
     actions.openMenu({ kind: "bot", id, x: event.clientX, y: event.clientY });
   };
   const pinned = bot.pinned === true && !tile;
-  const label = [bot.name, main ? t("Main Bot") : "", pinned ? t("Pinned") : "", running || away ? t("Working") : "", waitsFor, approval ? t("Waiting for your approval") : alert ? t("Waiting for your answer") : "", unread ? t("Unread activity") : ""].filter(Boolean).join(", ");
+  const label = [bot.name, main ? t("Main Bot") : "", pinned ? t("Pinned") : "", statusText4, unread ? t("Unread activity") : ""].filter(Boolean).join(", ");
   if (tile && wide) {
     return (0, import_react35.createElement)("div", { className: "bt-tile-wrap" }, (0, import_react35.createElement)(
       "button",
@@ -28221,13 +28226,13 @@ function BotRow({ bot, roster, actions, useSessions, useSessionStatus, useSessio
         "aria-label": label,
         "aria-current": active2 ? "page" : void 0,
         "data-bot-id": id,
-        title: preview || bot.name,
+        title: `${bot.name} · ${statusText4}`,
         onClick: () => actions.openSession(id),
         onContextMenu
       },
       (0, import_react35.createElement)(BotAvatar, { bot, size: 60, state, main: true }),
       (0, import_react35.createElement)("span", { className: "bt-tile-name" }, bot.name),
-      bot.role ? (0, import_react35.createElement)("span", { className: "bt-chip" }, bot.role) : null
+      (0, import_react35.createElement)("span", { className: "bt-row-preview", title: statusText4 }, statusLine)
     ));
   }
   return (0, import_react35.createElement)(
@@ -28251,7 +28256,7 @@ function BotRow({ bot, roster, actions, useSessions, useSessionStatus, useSessio
       "span",
       { className: "bt-row-body" },
       (0, import_react35.createElement)("span", { className: "bt-row-name" }, (0, import_react35.createElement)("span", { className: "bt-row-title" }, bot.name), bot.engine ? (0, import_react35.createElement)(AgentBadge, { engine: bot.engine }) : null, pinned ? (0, import_react35.createElement)(PinMark) : null),
-      runningLine ? (0, import_react35.createElement)("span", { className: "bt-row-preview" }, runningLine) : awayLine ? (0, import_react35.createElement)("span", { className: "bt-row-preview" }, awayLine) : waitsFor ? (0, import_react35.createElement)("span", { className: "bt-row-preview" }, waitsFor) : preview ? (0, import_react35.createElement)("span", { className: "bt-row-preview" }, preview) : null
+      (0, import_react35.createElement)("span", { className: "bt-row-preview", title: statusText4 }, statusLine)
     ) : null,
     wide && unread && !active2 ? (0, import_react35.createElement)("span", { className: "bt-unread", "aria-hidden": true }) : !wide && !active2 && (alert || unread) ? (0, import_react35.createElement)("span", { className: `bt-dot${alert ? " bt-dot-wait" : ""}`, "aria-hidden": true }) : null
   );
@@ -29507,6 +29512,7 @@ function BrandName() {
   return (0, import_react35.createElement)("span", { style: { fontWeight: 600, fontSize: 14 } }, "DS Bot");
 }
 var SIDEBAR_CSS = `
+.bt-tile .bt-row-preview{max-width:100%;font-size:12px}
 .bt-confirm{width:260px;max-width:72vw;padding:10px 12px 12px;display:flex;flex-direction:column;gap:10px}
 .bt-confirm-text{margin:0;font-size:13px;line-height:19px;color:var(--bt-ink-2)}
 .bt-confirm-error{margin:0;font-size:12px;line-height:17px;color:var(--bt-danger);overflow-wrap:anywhere}
