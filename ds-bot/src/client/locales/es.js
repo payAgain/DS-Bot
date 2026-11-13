@@ -991,6 +991,7 @@ export const ES = {
   'At least {count} characters.': 'Al menos {count} caracteres.',
   'Replace value': 'Reemplazar valor',
   'Saving…': 'Guardando…',
+  'Could not save this file': 'No se pudo guardar este archivo',
   Save: 'Guardar',
   'Allowing…': 'Permitiendo…',
   Allow: 'Permitir',
@@ -1307,6 +1308,10 @@ export const ES = {
   'Its group conversation could not open': 'No se pudo abrir su conversación grupal',
   'Its group conversation could not open, so it starts a new one next time': 'No se pudo abrir su conversación grupal, por lo que iniciará una nueva la próxima vez',
   // The composer's +
+  'Pasted text · {count} characters': 'Texto pegado · {count} caracteres',
+  'Put back': 'Devolver',
+  'Put back into the box': 'Devolver al cuadro de texto',
+  'Remove pasted text': 'Quitar el texto pegado',
   'Add files': 'Añadir archivos',
   'Reference a chat': 'Referenciar un chat',
   'Chat with {name}': 'Chat con {name}',

@@ -991,6 +991,7 @@ export const KO = {
   'At least {count} characters.': '최소 {count}자 이상이어야 합니다.',
   'Replace value': '값 교체',
   'Saving…': '저장 중…',
+  'Could not save this file': '이 파일을 저장하지 못했습니다',
   Save: '저장',
   'Allowing…': '허용 중…',
   Allow: '허용',
@@ -1307,6 +1308,10 @@ export const KO = {
   'Its group conversation could not open': '그룹 대화 세션을 열 수 없습니다',
   'Its group conversation could not open, so it starts a new one next time': '그룹 대화 세션을 열 수 없어 다음번에 새 세션을 시작합니다',
   // The composer's +
+  'Pasted text · {count} characters': '붙여넣은 텍스트 · {count}자',
+  'Put back': '되돌리기',
+  'Put back into the box': '입력창에 되돌리기',
+  'Remove pasted text': '붙여넣은 텍스트 삭제',
   'Add files': '파일 추가',
   'Reference a chat': '대화 참조',
   'Chat with {name}': '{name}와(과)의 대화',
