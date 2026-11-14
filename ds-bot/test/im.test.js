@@ -576,6 +576,30 @@ test('a deleted Bot target gets the unbound reply', async (t) => {
   assert.equal(s.prompts.length, 0)
 })
 
+test('unknown delivery acceptance remains visible without automatic or explicit replay', async (t) => {
+  const s = await start()
+  t.after(s.stop)
+  const conn = await add(s)
+  s.rt.state.im.connections[conn.id].paired.push({ id: 'u1', name: 'U1', at: 1 })
+  await s.rt.save()
+  await dm(s, 'u1', 'hi')
+  s.imTurn('a')
+  s.fake.fails.push(Object.assign(new Error('response lost'), { unknown: true }))
+  s.emitEvent('a', 'assistant/message', { message: { content: [{ type: 'text', text: 'uncertain acceptance' }] } })
+  await s.flush()
+  assert.equal(s.rt.imStatusView()[conn.id].state, 'error')
+  assert.equal(s.rt.imStatusView()[conn.id].delivery.state, 'failed')
+  assert.match(s.rt.imStatusView()[conn.id].error, /outcome is unknown/)
+  const count = s.fake.sent.length
+  s.fake.handlers.onStatus({ state: 'ready' })
+  assert.equal(s.rt.imStatusView()[conn.id].state, 'error')
+  await s.flush()
+  assert.equal(s.fake.sent.length, count)
+  await s.rt.imEndpoint('im-retry', { id: conn.id })
+  await s.flush()
+  assert.equal(s.fake.sent.filter(entry => entry.text === 'uncertain acceptance').length, 1, 'only the original uncertain attempt exists; it is never retained as a replayable job')
+})
+
 test('a permanent send error shows in the status and is not retried; a network error resends in order', async (t) => {
   const s = await start()
   t.after(s.stop)

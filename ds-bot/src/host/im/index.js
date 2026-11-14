@@ -511,7 +511,14 @@ export function install(rt) {
           failedFor(conn.id, chatKey).push(job)
           setSendStatus(conn.id, chatKey, { state: 'error', error: failMessage(error) })
           rt.warn('ds-bot im: %s delivery permanently refused', conn.platform)
-        } else job.onDrop?.()
+        } else {
+          job.onDrop?.()
+          // Unknown acceptance must remain visible, but the job must never enter
+          // the explicit retry queue: the platform may already have delivered it.
+          if (error?.unknown === true && runners.get(conn.id) === runner) {
+            setSendStatus(conn.id, chatKey, { state: 'error', error: 'Delivery outcome is unknown; this message was not resent' })
+          }
+        }
       }
     }
   }
