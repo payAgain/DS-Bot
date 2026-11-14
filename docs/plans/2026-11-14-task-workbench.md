@@ -18,6 +18,10 @@ User-authorized first trial. One team entry opens the board and a right-hand tas
 
 Implement on the installed 0.3.2-payagain.12 baseline and integrate the same feature into the latest custom source tree. Authorized host changes are only task storage/tool registration, task endpoints, task tool names, and protection of the task store in private-Bot filesystem checks. Do not update other host modules from 0.3.6. Rebuild generated clients from source. Rollback reinstalls the original package; `tasks.json` is retained and ignored by the older version.
 
+## Upstream module coexistence
+
+The 2026-11-15 source merge adds the upstream group-member task board. Its `src/host/tasks.js` module, `group_task` tool, and `room.tasks` state remain independent of this user workbench. The workbench host implementation is named `src/host/workbench-tasks.js`; its `task_workbench` tool, authenticated endpoints and separate `tasks.json` data format are unchanged. Both modules and styles are registered; neither board imports or fabricates the other's records.
+
 ## Verification
 
 Persistent CRUD and restart, stale concurrent edits/deletes, malformed/read-only stores, owner and URL validation, empty production defaults, deadline separation, cross-day and midnight intervals, inclusive form vs exclusive API all-day end, named zones/DST, actual runtime tool registration/execution, board/calendar shared records, narrow and desktop browser rendering, unchanged configuration fingerprints and package allowlist.

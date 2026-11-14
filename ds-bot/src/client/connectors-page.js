@@ -292,6 +292,6 @@ export const CONNECTORS_PAGE_CSS = CONNECTED_APPS_CSS + `
 .bt-connector-mark{--bt-mark-ink:var(--bt-ink)}
 @container(max-width:600px){.bt-app-bar{flex-wrap:wrap}.bt-app-search{flex-basis:100%}}
 @media(max-width:560px){.bt-app-service-head{align-items:flex-start;flex-direction:column;gap:12px}.bt-app-module{padding:8px 12px}.bt-app-module-section .bt-app-btn{min-height:36px}}
-[data-bt-motion=off] .bt-app,[data-bt-motion=off] .bt-app *,[data-bt-motion=off] .bt-app::after{animation:none!important;transition:none!important}
+[data-bt-effects=off] .bt-app,[data-bt-effects=off] .bt-app *,[data-bt-effects=off] .bt-app::after{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.bt-app[data-fresh]::after,.bt-app[data-fresh] .bt-app-icon,.bt-app[data-fresh] .bt-app-btn-done{animation:none}}
 `

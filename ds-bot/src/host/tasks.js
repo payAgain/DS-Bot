@@ -1,118 +1,163 @@
-import { randomUUID } from 'node:crypto'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { join } from 'node:path'
+// The group task board: what each member is working on in a group, one line apiece.
+// A Bot registers a task when it takes the work and updates it as the work moves; the
+// board is read from the group's own overview and never guessed from the chat. Tasks
+// live on the room beside its goal, memory and folder, so they go when the group goes.
+import { randomBytes } from 'node:crypto'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import { replaceFile } from './files.js'
 import { output } from './tools.js'
-import { cleanSchedule, TASK_STATUSES, validDate } from '../shared/task-time.js'
 
-const fail = (text, code = 'bot/invalid') => Object.assign(new Error(text), { code })
-const FIELDS = ['title', 'description', 'kind', 'ownerId', 'status', 'start', 'end', 'allDay', 'timeZone', 'due', 'waiting', 'conversationId', 'results']
-function text(value, max, name) {
-  if (typeof value !== 'string' || value.length > max) throw fail(`${name}: expected text of at most ${max} characters.`)
-  return value.trim()
-}
-export function cleanTask(input, previous, bots, rooms, now = Date.now()) {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) throw fail('Expected task fields.')
-  if (Object.keys(input).some(key => !FIELDS.includes(key))) throw fail('Unknown task field.')
-  let task = { title: '', description: '', kind: 'personal', ownerId: null, status: 'todo', start: null, end: null, allDay: false, timeZone: 'UTC', due: null, waiting: '', conversationId: null, results: [], ...previous, ...input }
-  task.title = text(task.title, 200, 'title')
-  if (!task.title) throw fail('A task title is required.')
-  task.description = text(task.description, 12000, 'description')
-  task.waiting = text(task.waiting, 1000, 'waiting')
-  if (!['personal', 'bot'].includes(task.kind) || !TASK_STATUSES.includes(task.status)) throw fail('Unknown task kind or status.')
-  if (typeof task.allDay !== 'boolean') throw fail('allDay must be a boolean.')
-  if (task.kind === 'personal') task.ownerId = null
-  else if (typeof task.ownerId !== 'string' || !Object.hasOwn(bots, task.ownerId)) throw fail('Choose a current Bot as owner.')
-  if (task.conversationId !== null) {
-    const owners = [...Object.values(bots), ...Object.values(rooms)]
-    if (typeof task.conversationId !== 'string' || !owners.some(owner => owner.id === task.conversationId)) throw fail('Link a current Bot or group conversation by its stable ID.')
-  }
-  if (task.due !== null && !validDate(task.due)) throw fail('Deadline must be a valid YYYY-MM-DD date or null.')
-  if (!Array.isArray(task.results) || task.results.length > 20) throw fail('At most 20 result links.')
-  task.results = task.results.map(item => {
-    if (!item || typeof item !== 'object') throw fail('Invalid result link.')
-    const label = text(item.label, 200, 'result label')
-    const url = text(item.url, 2000, 'result URL')
-    let parsed
-    try { parsed = new URL(url) } catch { throw fail('Result links must be HTTP or HTTPS URLs.') }
-    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || !label) throw fail('Result links must have a label and an HTTP or HTTPS URL without credentials.')
-    return { label, url: parsed.href }
-  })
-  try { task = cleanSchedule(task) } catch (error) { throw fail(error.message) }
-  return { ...task, id: previous?.id ?? `task-${randomUUID()}`, revision: (previous?.revision ?? 0) + 1, createdAt: previous?.createdAt ?? now, updatedAt: now }
-}
+export const TASK_STATUSES = ['active', 'review', 'blocked', 'done', 'cancelled']
+const OPEN_STATUSES = ['active', 'review', 'blocked']
+const GOAL_MAX = 200
+const PROGRESS_MAX = 300
+const RESULT_MAX = 2000
+const NOTE_MAX = 500
+const REASON_MAX = 500
 
-// One queue covers read/validate/write, so concurrent edits cannot pass the same
-// revision check. The team lock also excludes a second host on this data folder.
-export function createTaskStore(path, { writable = () => {}, bots = () => ({}), rooms = () => ({}) } = {}) {
-  let queue = Promise.resolve()
-  const run = fn => {
-    const result = queue.then(fn)
-    queue = result.catch(() => {})
-    return result
-  }
-  const read = async () => {
-    try {
-      const data = JSON.parse(await readFile(path, 'utf8'))
-      if (data.version !== 1 || !Array.isArray(data.tasks)) throw fail('Task data format is not supported; original file preserved.')
-      return data
-    } catch (error) {
-      if (error.code === 'ENOENT') return { version: 1, revision: 0, tasks: [] }
-      throw error
-    }
-  }
-  return (action, args = {}, guard = () => true) => run(async () => {
-    const data = await read()
-    if (action === 'list') return { revision: data.revision, tasks: data.tasks.filter(guard) }
-    writable()
-    const old = data.tasks.find(task => task.id === args.id)
-    if (action !== 'create' && (!old || !guard(old))) throw fail('Task not found.', 'bot/not-found')
-    if (action !== 'create' && args.expectedRevision !== old.revision) throw fail('This task changed elsewhere. Reload before editing.', 'bot/stale')
-    let task
-    if (action === 'delete') data.tasks = data.tasks.filter(item => item.id !== args.id)
-    else if (action === 'create' || action === 'update') {
-      if (action === 'create' && data.tasks.length >= 10000) throw fail('Task limit reached (10000).')
-      task = cleanTask(args.fields, action === 'update' ? old : undefined, bots(), rooms())
-      if (!guard(task)) throw fail('This task is outside your task access.', 'bot/refused')
-      data.tasks = action === 'create' ? [...data.tasks, task] : data.tasks.map(item => item.id === task.id ? task : item)
-    } else throw fail('Unknown task action.')
-    data.revision += 1
-    await mkdir(join(path, '..'), { recursive: true })
-    const temp = `${path}.${randomUUID()}.tmp`
-    await writeFile(temp, JSON.stringify(data), { mode: 0o600 })
-    writable()
-    await replaceFile(temp, path, writable)
-    return { revision: data.revision, ...(task ? { task } : { deleted: args.id }) }
-  })
+const oneLine = (text, max) => String(text ?? '').replace(/\s+/g, ' ').trim().slice(0, max)
+const tasksOf = room => (room.tasks ??= {})
+const listOf = room => Object.values(tasksOf(room)).sort((a, b) => a.startedAt - b.startedAt)
+export const openTasksOf = room => listOf(room).filter(task => OPEN_STATUSES.includes(task.status))
+export const pastTasksOf = room => listOf(room).filter(task => !OPEN_STATUSES.includes(task.status))
+const newId = () => `t_${randomBytes(4).toString('hex')}`
+
+// The task an update names: its id, or the caller's own newest open task when no id is
+// given (the common case: one Bot working on one thing).
+function pickTask(room, id, botId) {
+  if (id !== undefined && String(id).trim() !== '') return tasksOf(room)[String(id).trim()]
+  return openTasksOf(room).filter(task => task.botId === botId).at(-1)
 }
 
 export function install(rt) {
-  const tasks = createTaskStore(join(rt.home, 'tasks.json'), {
-    writable: () => { const reason = rt.readOnly(); if (reason) throw fail(reason, 'bot/read-only') },
-    bots: () => rt.state.bots, rooms: () => rt.state.rooms,
-  })
-  rt.taskEndpoint = async (action, args) => { await rt.load(); return tasks(action, args) }
-  const privateOwner = task => [task.ownerId, task.conversationId].filter(id => id && (rt.botOf(id)?.private || rt.state.privateArchives?.some(bot => bot.id === id)))
+  const open = (room, botId, goal) => {
+    const text = oneLine(goal, GOAL_MAX)
+    if (text === '') return { error: 'A task needs a one-line goal.' }
+    const at = Date.now()
+    const task = { id: newId(), botId, goal: text, status: 'active', startedAt: at, updatedAt: at, progress: '' }
+    tasksOf(room)[task.id] = task
+    return { task }
+  }
+  const update = (room, botId, id, { status, progress } = {}) => {
+    const task = pickTask(room, id, botId)
+    if (task === undefined) return { error: 'No open task of yours in this group. Name one with its id, or open a task first.' }
+    if (!OPEN_STATUSES.includes(task.status)) return { error: 'That task is already finished.' }
+    if (task.botId !== botId) return { error: `Task ${task.id} belongs to another member.` }
+    if (status !== undefined && !OPEN_STATUSES.includes(status)) {
+      return { error: `A running task\'s status is ${OPEN_STATUSES.join(', ')}; finish it with complete or cancel.` }
+    }
+    if (status !== undefined) task.status = status
+    if (progress !== undefined) task.progress = oneLine(progress, PROGRESS_MAX)
+    task.updatedAt = Date.now()
+    return { task }
+  }
+  const complete = (room, botId, id, result) => {
+    const task = pickTask(room, id, botId)
+    if (task === undefined) return { error: 'No open task of yours in this group.' }
+    if (!OPEN_STATUSES.includes(task.status)) return { error: 'That task is already finished.' }
+    if (task.botId !== botId) return { error: `Task ${task.id} belongs to another member.` }
+    const text = oneLine(result, RESULT_MAX)
+    if (text === '') return { error: 'A finished task needs a result summary.' }
+    task.status = 'done'
+    task.result = text
+    task.updatedAt = Date.now()
+    return { task }
+  }
+  const cancel = (room, botId, id, reason, isAdmin) => {
+    const task = pickTask(room, id, botId)
+    if (task === undefined) return { error: 'No open task to cancel.' }
+    if (!OPEN_STATUSES.includes(task.status)) return { error: 'That task is already finished.' }
+    if (task.botId !== botId && !isAdmin) return { error: `Task ${task.id} belongs to another member; only its owner, the admin or a Main Bot cancels it.` }
+    task.status = 'cancelled'
+    const why = oneLine(reason, REASON_MAX)
+    if (why !== '') task.reason = why
+    task.updatedAt = Date.now()
+    return { task }
+  }
+  const note = (room, id, text, by) => {
+    const task = tasksOf(room)[String(id ?? '')]
+    if (task === undefined) return undefined
+    const line = oneLine(text, NOTE_MAX)
+    if (line === '') return undefined
+    ;(task.notes ??= []).push({ at: Date.now(), by, text: line })
+    task.updatedAt = Date.now()
+    return task
+  }
+  const owner = task => rt.botOf(task.botId)
+
+  // What the tool answers with: the current board, not only the task it touched.
+  const ledger = (room, self) => {
+    const room_ = room
+    const open = openTasksOf(room_).map(task => {
+      const bot = owner(task)
+      const mine = task.botId === self ? ' (yours)' : ''
+      const progress = task.progress === '' ? '' : `\n  progress: ${task.progress}`
+      return `- ${task.id} · ${bot?.name ?? task.botId} · ${task.status} · ${task.goal}${mine}${progress}`
+    })
+    const past = pastTasksOf(room_)
+    const lines = [`Tasks in "${room_.name}"${open.length === 0 ? ': none open.' : ':'}`, ...open]
+    if (past.length > 0) lines.push(`${past.length} finished or cancelled in the history; the group shows them under Tasks.`)
+    return lines.join('\n')
+  }
+
   rt.teamTools.push(defineTool({
-    name: 'task_workbench',
-    description: 'Read and maintain the user’s persistent task board and calendar. List before updating or deleting; supply the returned revision. A planned interval is separate from a deadline. Does not run Bots, create schedules or import chats. Change tasks only within the user’s request. Personal tasks have ownerId null; Bot tasks use the exact Bot ID. Conversation links use stable Bot/group IDs, not URLs. All-day end is exclusive; timed values require explicit ISO offsets and an IANA timeZone. Results accept labelled HTTP(S) links.',
+    name: 'group_task',
+    description: 'Register and move a group chat task: the work one member is doing in the group, so the user can see who is on what without reading the chat. Only a group member registers work, and every change is explicit: open when you take the work, update while it runs, complete with a one-line result, cancel when it stops. The group overview shows the board to the user; the history keeps finished and cancelled tasks. Called outside a group it refuses; inside a group the group is implied.',
     parameters: {
-      action: { type: 'string', enum: ['list', 'create', 'update', 'delete'], required: true },
-      id: { type: 'string' }, expectedRevision: { type: 'integer' },
-      fields: { type: 'object', additionalProperties: false, properties: {
-        title: { type: 'string' }, description: { type: 'string' }, kind: { type: 'string', enum: ['personal', 'bot'] }, ownerId: { oneOf: [{ type: 'string' }, { type: 'null' }] },
-        status: { type: 'string', enum: TASK_STATUSES }, start: { oneOf: [{ type: 'string' }, { type: 'null' }] }, end: { oneOf: [{ type: 'string' }, { type: 'null' }] }, allDay: { type: 'boolean' }, timeZone: { type: 'string' }, due: { oneOf: [{ type: 'string' }, { type: 'null' }] }, waiting: { type: 'string' }, conversationId: { oneOf: [{ type: 'string' }, { type: 'null' }] },
-        results: { type: 'array', items: { type: 'object', additionalProperties: false, properties: { label: { type: 'string', required: true }, url: { type: 'string', required: true } } } },
-      } },
-    }, output,
+      action: { type: 'string', required: true, enum: ['open', 'update', 'complete', 'cancel', 'show'], description: 'What to do' },
+      goal: { type: 'string', description: 'open: the task in one line, as the user would say the goal' },
+      id: { type: 'string', description: 'update, complete, cancel: the task id; the caller\'s newest open task when left out' },
+      status: { type: 'string', enum: ['active', 'review', 'blocked'], description: 'update: active while working, review when the result waits for the user, blocked when something stops you' },
+      progress: { type: 'string', description: 'update: the latest one-line progress' },
+      result: { type: 'string', description: 'complete: the result summary the board keeps' },
+      reason: { type: 'string', description: 'cancel: why the task stops' },
+    },
+    output,
     async execute(args, exec) {
       await rt.load()
       const self = rt.selfOf(exec.agent?.id)
-      if (!rt.botOf(self)) return 'Only team Bots can use the task workbench.'
-      // Private Bots may maintain their own tasks, but cannot publish to the shared board.
-      const guard = task => privateOwner(task).every(id => id === self) && (!rt.botOf(self).private || task.ownerId === self)
-      try { return JSON.stringify(await tasks(args.action, args, guard)) } catch (error) { return JSON.stringify({ error: error.message, code: error.code ?? 'bot/error' }) }
+      const member = rt.botOf(self)
+      if (member === undefined) return 'Only Bots on the team can use group_task.'
+      const room = rt.roomOf(rt.groupOwners.get(exec.agent?.id)?.roomId)
+      if (room === undefined) return 'group_task works inside a group chat, where the work belongs to the group. Call it from your group session.'
+      const isAdmin = rt.isMain(self) || rt.isAdminOf(room, self)
+      const action = String(args.action ?? '')
+      let result
+      switch (action) {
+        case 'open': result = open(room, self, args.goal); break
+        case 'update': result = update(room, self, args.id, { status: args.status, progress: args.progress }); break
+        case 'complete': result = complete(room, self, args.id, args.result); break
+        case 'cancel': result = cancel(room, self, args.id, args.reason, isAdmin); break
+        case 'show': return ledger(room, self)
+        default: return `Unknown action ${action}.`
+      }
+      if (result.error !== undefined) return result.error
+      const task = result.task
+      const done = task.status === 'done' ? ` Finished: "${task.result}"` : task.status === 'cancelled' ? ' Cancelled.' : ''
+      await rt.save()
+      return `${action === 'open' ? `Opened ${task.id}: ${task.goal}` : `Updated ${task.id} (${task.status}).`}${done}\n\n${ledger(room, self)}`
     },
   }))
+
+  // For the group overview. The endpoint adds the user's note and posts it to the room.
+  Object.assign(rt, {
+    taskNote: (roomId, id, text) => {
+      const room = rt.roomOf(roomId)
+      if (room === undefined) return { error: 'No such group.' }
+      const task = tasksOf(room)[String(id ?? '')]
+      if (task === undefined) return { error: 'No such task.' }
+      if (!OPEN_STATUSES.includes(task.status)) return { error: 'That task is already finished.' }
+      const noted = note(room, id, text, 'user')
+      return noted === undefined ? { error: 'Write a note first.' } : { task: noted }
+    },
+    taskCancel: (roomId, id) => {
+      const room = rt.roomOf(roomId)
+      if (room === undefined) return { error: 'No such group.' }
+      const task = tasksOf(room)[String(id ?? '')]
+      if (task === undefined) return { error: 'No such task.' }
+      if (!OPEN_STATUSES.includes(task.status)) return { error: 'That task is already finished.' }
+      task.status = 'cancelled'
+      task.updatedAt = Date.now()
+      return { task }
+    },
+  })
 }
