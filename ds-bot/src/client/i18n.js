@@ -9,10 +9,12 @@ import { DSH_FR, HOST_ERRORS_FR, FR } from './locales/fr.js'
 import { DSH_DE, HOST_ERRORS_DE, DE } from './locales/de.js'
 import { CUSTOM_UI } from './locales/custom-ui.js'
 import { TASK_UI } from './locales/task-ui.js'
+import { SCHEDULE_COPY } from './schedule-copy.js'
 
 export const NAMESPACE = 'ds-bot'
 
 const ZH = {
+  ...SCHEDULE_COPY.zh,
   'Choose a valid IANA time zone.': '请填写有效的 IANA 时区，例如 Asia/Shanghai。',
   'Planned start and end are both required.': '计划开始和结束时间必须同时填写，或同时清空。',
   'All-day end must be after start (exclusive end date).': '全天任务的结束日期必须晚于开始日期（接口结束日期不包含当天）。',
@@ -1940,11 +1942,11 @@ export const LANGUAGES = [
 export const DICTIONARY = {
   zh: ZH,
   'zh-TW': ZH_TW,
-  ja: { ...TASK_UI.ja, ...CUSTOM_UI.ja, ...JA },
-  ko: { ...TASK_UI.ko, ...CUSTOM_UI.ko, ...KO },
-  es: { ...TASK_UI.es, ...CUSTOM_UI.es, ...ES },
-  fr: { ...TASK_UI.fr, ...CUSTOM_UI.fr, ...FR },
-  de: { ...TASK_UI.de, ...CUSTOM_UI.de, ...DE },
+  ja: { ...SCHEDULE_COPY.ja, ...TASK_UI.ja, ...CUSTOM_UI.ja, ...JA },
+  ko: { ...SCHEDULE_COPY.ko, ...TASK_UI.ko, ...CUSTOM_UI.ko, ...KO },
+  es: { ...SCHEDULE_COPY.es, ...TASK_UI.es, ...CUSTOM_UI.es, ...ES },
+  fr: { ...SCHEDULE_COPY.fr, ...TASK_UI.fr, ...CUSTOM_UI.fr, ...FR },
+  de: { ...SCHEDULE_COPY.de, ...TASK_UI.de, ...CUSTOM_UI.de, ...DE },
 }
 
 const HOST_ERROR_TABLE = {

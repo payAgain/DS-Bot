@@ -1,12 +1,15 @@
 import { createElement as h, useEffect, useRef, useState } from 'react'
 import { call } from './api.js'
 import { t, language, hostText } from './i18n.js'
+import { scheduledRows, SCHEDULE_LABELS } from '../shared/scheduled-tasks.js'
+import { ScheduleDetail, nextScheduleText, deliveryText, SCHEDULE_COVERAGE, SCHEDULE_WORKBENCH_CSS } from './schedule-workbench.js'
 import { addDays, dayInZone, instantFromWall, taskOnDay, TASK_STATUSES, wallTime } from '../shared/task-time.js'
 
 const LABELS = { todo: 'To plan', doing: 'In progress', waiting: 'Waiting', review: 'To review', done: 'Completed', cancelled: 'Cancelled' }
 const zoneHere = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 const emptyTask = zone => ({ title: '', description: '', kind: 'personal', ownerId: null, status: 'todo', start: null, end: null, allDay: false, timeZone: zone, due: null, waiting: '', conversationId: null, results: [] })
 export function scheduleLabel(task, zone) {
+  if (task.source === 'schedule') return nextScheduleText(task, zone)
   if (!task.start) return t('Unscheduled')
   if (task.allDay) return `${task.start} → ${addDays(task.end, -1)} · ${t('All day')}`
   const format = instant => new Intl.DateTimeFormat(language(), { timeZone: zone, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(instant))
@@ -101,6 +104,10 @@ export function TaskWorkbench({ roster, actions, request = call, initialZone, in
   const today = initialToday ?? dayInZone(Date.now(), zone)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
+  const [scheduleView, setScheduleView] = useState(null)
+  const [scheduleError, setScheduleError] = useState('')
+  const [scheduleEditing, setScheduleEditing] = useState(false)
+  const [scheduleDraftTask, setScheduleDraftTask] = useState(null)
   const [busy, setBusy] = useState(false)
   const [mode, setMode] = useState('board')
   const [query, setQuery] = useState('')
@@ -119,6 +126,7 @@ export function TaskWorkbench({ roster, actions, request = call, initialZone, in
   const selectDay = date => { setDay(date); requestAnimationFrame(() => agenda.current?.scrollIntoView({ block: 'nearest' })) }
   const dataRef = useRef(null)
   const inFlight = useRef(false)
+  const scheduleGeneration = useRef(0)
   useEffect(() => {
     let ignore = false
     let order = 0
@@ -139,15 +147,27 @@ export function TaskWorkbench({ roster, actions, request = call, initialZone, in
     root.current?.focus()
     return () => before?.focus?.()
   }, [])
+  useEffect(() => {
+    let stopped = false
+    let timer
+    const refresh = async () => {
+      const generation = scheduleGeneration.current
+      try { const result = await request('workbench-schedules'); if (!stopped && generation === scheduleGeneration.current) { setScheduleView(result); setScheduleError('') } }
+      catch (failure) { if (!stopped && generation === scheduleGeneration.current) setScheduleError(failure.message) }
+      finally { if (!stopped) timer = setTimeout(refresh, 15000) }
+    }
+    void refresh()
+    return () => { stopped = true; clearTimeout(timer) }
+  }, [request])
   const close = () => {
-    if (editing) { setError(t('Save or cancel your task edit before closing.')); return }
+    if (editing || scheduleEditing) { setError(t('Save or cancel your task edit before closing.')); return }
     actions.closeTasks()
   }
   const choose = task => {
-    if (editing) { setError(t('Save or cancel your task edit first.')); return }
+    if (editing || scheduleEditing) { setError(t('Save or cancel your task edit first.')); return }
     setSelected(task.id); setError('')
   }
-  const create = (plannedDay, status = 'todo') => { if (editing) return; setSelected(null); setCreateDay(plannedDay); setCreateStatus(status); setEditing(true); setError('') }
+  const create = (plannedDay, status = 'todo') => { if (editing || scheduleEditing) return; setSelected(null); setCreateDay(plannedDay); setCreateStatus(status); setEditing(true); setError('') }
   const mutate = async (action, fields) => {
     if (inFlight.current) return
     inFlight.current = true; setBusy(true); setError('')
@@ -169,15 +189,20 @@ export function TaskWorkbench({ roster, actions, request = call, initialZone, in
     if (selected && (!current || current.revision !== editRevision)) { setError(t('This task changed elsewhere. Cancel and reopen the editor.')); return Promise.reject(new Error(t('This task changed elsewhere. Cancel and reopen the editor.'))) }
     return mutate(current ? 'update' : 'create', fields)
   }
-  const tasks = (data?.tasks ?? []).filter(task => (archived ? ['done', 'cancelled'].includes(task.status) : !['done', 'cancelled'].includes(task.status)) && (kind === 'all' || task.kind === kind) && (owner === 'all' || task.ownerId === owner || (owner === 'me' && !task.ownerId)) && (!unscheduled || !task.start) && (!query || `${task.title} ${task.description} ${task.waiting} ${roster.bots.find(bot => bot.id === task.ownerId)?.name ?? ''} ${task.results.map(item => item.label).join(' ')}`.toLowerCase().includes(query.toLowerCase())))
+  const projected = scheduledRows(scheduleView?.tasks ?? [])
+  const tasks = (kind === 'scheduled' ? [] : data?.tasks ?? []).filter(task => (archived ? ['done', 'cancelled'].includes(task.status) : !['done', 'cancelled'].includes(task.status)) && (['all', 'ordinary'].includes(kind) || task.kind === kind) && (owner === 'all' || task.ownerId === owner || (owner === 'me' && !task.ownerId)) && (!unscheduled || !task.start) && (!query || `${task.title} ${task.description} ${task.waiting} ${roster.bots.find(bot => bot.id === task.ownerId)?.name ?? ''} ${task.results.map(item => item.label).join(' ')}`.toLowerCase().includes(query.toLowerCase())))
     .sort((a, b) => b.updatedAt - a.updatedAt)
-  const current = data?.tasks.find(task => task.id === selected)
+  const schedules = (['all', 'scheduled'].includes(kind) ? projected : []).filter(task => (owner === 'all' || task.ownerId === owner) && !unscheduled && (!query || `${task.title} ${roster.bots.find(bot => bot.id === task.ownerId)?.name ?? ''}`.toLowerCase().includes(query.toLowerCase())))
+  const calendarTasks = [...tasks, ...schedules]
+  const current = [...(data?.tasks ?? []), ...projected].find(task => task.id === selected) ?? (scheduleEditing ? scheduleDraftTask : undefined)
+  const showOrdinary = kind !== 'scheduled' && (tasks.length > 0 || schedules.length === 0 || kind !== 'all')
+  const showScheduled = ['all', 'scheduled'].includes(kind)
   const statuses = archived ? ['done', 'cancelled'] : TASK_STATUSES.slice(0, 4)
   const card = task => h('button', { type: 'button', key: task.id, className: 'bt-wb-card', 'data-selected': task.id === selected || undefined, onClick: () => choose(task) },
-    h('span', { className: 'bt-wb-kind' }, t(task.kind === 'personal' ? 'Personal' : 'Bot work')),
+    h('span', { className: 'bt-wb-kind' }, task.source === 'schedule' ? h('span', { className: 'bt-wb-schedule-badge' }, t('Scheduled task'), h('span', null, t(SCHEDULE_LABELS[task.status]))) : t(task.kind === 'personal' ? 'Personal' : 'Bot work')),
     h('strong', null, task.title), task.waiting || task.description ? h('span', { className: task.waiting ? 'bt-wb-wait-text' : 'bt-wb-excerpt' }, task.waiting || task.description) : null,
-    h('span', { className: 'bt-wb-owner' }, roster.bots.find(bot => bot.id === task.ownerId)?.name ?? (task.kind === 'personal' ? t('Me') : t('Former Bot'))),
-    h('span', { className: 'bt-wb-card-time' }, scheduleLabel(task, zone)), task.results.length ? h('span', { className: 'bt-wb-result-count' }, t('{count} results', { count: task.results.length })) : null)
+    h('span', { className: 'bt-wb-owner' }, [...roster.bots, ...roster.rooms].find(bot => bot.id === task.ownerId)?.name ?? (task.kind === 'personal' ? t('Me') : t('Former Bot'))),
+    h('span', { className: 'bt-wb-card-time' }, scheduleLabel(task, zone)), task.source === 'schedule' ? h('span', { className: 'bt-wb-delivery' }, deliveryText(task.schedule, zone)) : null, task.results.length ? h('span', { className: 'bt-wb-result-count' }, t('{count} results', { count: task.results.length })) : null)
   const shiftMonth = amount => {
     const date = new Date(`${month}-15T12:00:00Z`); date.setUTCMonth(date.getUTCMonth() + amount); setMonth(date.toISOString().slice(0, 7))
   }
@@ -197,39 +222,44 @@ export function TaskWorkbench({ roster, actions, request = call, initialZone, in
     h('header', { className: 'bt-wb-header' }, h('div', null, h('h1', null, t('Task workbench')), h('p', null, t('Plan your time and keep Bot work in view.'))), button('Back to chats', close)),
     h('div', { className: 'bt-wb-toolbar' }, input(query, setQuery, { type: 'search', placeholder: t('Search tasks, owners or results'), 'aria-label': t('Search tasks, owners or results') }),
       choice(owner, setOwner, [['all', t('All owners')], ['me', t('Me')], ...roster.bots.map(bot => [bot.id, bot.name])], { 'aria-label': t('Owner') }),
-      choice(kind, setKind, [['all', t('All tasks')], ['personal', t('Personal')], ['bot', t('Bot work')]], { 'aria-label': t('Task type') }),
+      choice(kind, setKind, [['all', t('All tasks')], ['ordinary', t('Ordinary tasks')], ['scheduled', t('Scheduled tasks')], ['personal', t('Personal')], ['bot', t('Bot work')]], { 'aria-label': t('Task type') }),
       h('div', { className: 'bt-wb-switch' }, button('Board', () => setMode('board'), { 'aria-pressed': mode === 'board' }), button('Calendar', () => setMode('calendar'), { 'aria-pressed': mode === 'calendar' })),
-      button('New task', () => create(null), { className: 'bt-wb-primary', disabled: editing || !data || Boolean(roster.readOnly) })),
-    h('div', { className: 'bt-wb-subbar' }, h('span', null, t('{count} tasks', { count: tasks.length })),
+      button('New task', () => create(null), { className: 'bt-wb-primary', disabled: editing || scheduleEditing || !data || Boolean(roster.readOnly) })),
+    h('div', { className: 'bt-wb-subbar' }, h('span', null, t('{count} tasks', { count: tasks.length + schedules.length })),
       h('label', null, h('input', { type: 'checkbox', checked: archived, onChange: event => setArchived(event.target.checked) }), t('Completed / cancelled')),
       h('label', null, h('input', { type: 'checkbox', checked: unscheduled, onChange: event => setUnscheduled(event.target.checked) }), t('Unscheduled only')),
       h('span', { className: 'bt-wb-note' }, `${t('Calendar time zone')}: ${zone}`)),
+    scheduleError ? h('div', { className: 'bt-wb-error', role: 'alert' }, t('Could not refresh scheduled tasks.'), ' ', scheduleError) : null,
     error && !editing ? h('div', { className: 'bt-wb-error', role: 'alert' }, error) : null,
     h('div', { className: 'bt-wb-body', 'data-details': Boolean(current || editing) || undefined },
       h('main', { className: 'bt-wb-main' }, !data ? h('p', null, t('Loading…')) : mode === 'board'
-        ? h('div', { className: 'bt-wb-board' }, statuses.map(status => h('section', { key: status, className: 'bt-wb-column' }, h('h2', null, h('i', { 'data-status': status }), t(LABELS[status]), h('span', null, tasks.filter(task => task.status === status).length)), h('div', { className: 'bt-wb-column-body' }, tasks.filter(task => task.status === status).map(card), button('Add task', () => create(null, status), { disabled: editing || Boolean(roster.readOnly) })))), tasks.length === 0 ? h('p', { className: 'bt-wb-empty' }, t('No tasks yet. Create your first task.')) : null)
+        ? h('div', null, showOrdinary ? h('div', { className: 'bt-wb-board', 'data-with-schedules': showScheduled || undefined }, statuses.map(status => h('section', { key: status, className: 'bt-wb-column' }, h('h2', null, h('i', { 'data-status': status }), t(LABELS[status]), h('span', null, tasks.filter(task => task.status === status).length)), h('div', { className: 'bt-wb-column-body' }, tasks.filter(task => task.status === status).map(card), button('Add task', () => create(null, status), { disabled: editing || Boolean(roster.readOnly) })))), tasks.length === 0 ? h('p', { className: 'bt-wb-empty' }, t('No tasks yet. Create your first task.')) : null) : null,
+          showScheduled ? h('section', { className: 'bt-wb-scheduled-section' }, h('h2', null, t('Scheduled tasks')), h('p', { className: 'bt-wb-note' }, t(SCHEDULE_COVERAGE)),
+            scheduleView === null ? h('p', null, t('Loading…')) : !scheduleView.available ? h('p', null, t('Scheduled tasks are unavailable in this Host.')) : h('div', { className: 'bt-wb-scheduled-grid' }, schedules.map(card)),
+            scheduleView?.available && schedules.length === 0 ? h('p', { className: 'bt-wb-note' }, t('No matching scheduled tasks.')) : null) : null)
         : h('div', { className: 'bt-wb-calendar' },
+          showScheduled ? h('p', { className: 'bt-wb-coverage' }, t(SCHEDULE_COVERAGE)) : null,
           h('div', { className: 'bt-wb-calendar-head' }, button('Previous month', () => shiftMonth(-1)), h('strong', null, new Intl.DateTimeFormat(language(), { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${month}-15T12:00:00Z`))), button('Next month', () => shiftMonth(1)), button('Today', () => { setMonth(today.slice(0, 7)); setDay(today) }),
             choice(zone, value => setZone(value), [...new Set([zone, zoneHere(), 'Asia/Shanghai', 'Asia/Tokyo', 'UTC', 'America/New_York', 'Europe/London'])].map(value => [value, value]), { 'aria-label': t('Calendar time zone') })),
           h('div', { className: 'bt-wb-weekdays' }, Array.from({ length: 7 }, (_, index) => h('span', { key: index }, new Intl.DateTimeFormat(language(), { weekday: 'short', timeZone: 'UTC' }).format(new Date(`2026-11-${String(9 + index).padStart(2, '0')}T12:00:00Z`))))),
           h('div', { className: 'bt-wb-month', role: 'group', 'aria-label': t('Calendar') }, days.map(date => {
-            const daily = tasks.filter(task => taskOnDay(task, date, zone)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start))
+            const daily = calendarTasks.filter(task => taskOnDay(task, date, zone)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start))
             return h('div', { key: date, className: 'bt-wb-day', 'data-outside': date.slice(0, 7) !== month || undefined, 'data-today': date === today || undefined, 'data-selected': date === day || undefined },
               button(date.slice(-2).replace(/^0/, ''), () => selectDay(date), { 'aria-label': date, 'aria-pressed': date === day }),
-              daily.slice(0, 3).map(task => h('button', { type: 'button', className: 'bt-wb-day-event', key: task.id, onClick: () => { setDay(date); choose(task) }, title: `${task.title} · ${scheduleLabel(task, zone)}` }, task.allDay ? '' : `${wallTime(task.start, zone).slice(11)} `, task.title)),
+              daily.slice(0, 3).map(task => h('button', { type: 'button', className: 'bt-wb-day-event', 'data-scheduled': task.source === 'schedule' || undefined, key: task.id, onClick: () => { setDay(date); choose(task) }, title: `${task.title} · ${scheduleLabel(task, zone)}` }, task.allDay ? '' : `${wallTime(task.start, zone).slice(11)} `, task.title)),
               daily.length > 3 ? button(`+${daily.length - 3}`, () => selectDay(date), { 'aria-label': `${date} +${daily.length - 3}` }) : null)
           })),
           h('section', { className: 'bt-wb-agenda', ref: agenda }, h('div', { className: 'bt-wb-section-head' }, h('h2', null, day), button('Schedule a task', () => create(day), { disabled: editing || Boolean(roster.readOnly) })),
             h('p', { className: 'bt-wb-note' }, t('Planned intervals only · deadlines are shown in task details.')),
-            tasks.filter(task => taskOnDay(task, day, zone)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start)).map(card), tasks.some(task => taskOnDay(task, day, zone)) ? null : h('p', { className: 'bt-wb-note' }, t('Nothing planned for this day.'))),
+            calendarTasks.filter(task => taskOnDay(task, day, zone)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start)).map(card), calendarTasks.some(task => taskOnDay(task, day, zone)) ? null : h('p', { className: 'bt-wb-note' }, t('Nothing planned for this day.'))),
           h('section', { className: 'bt-wb-unscheduled' }, h('h2', null, t('Unscheduled')), tasks.filter(task => !task.start).map(card)))),
-      current || editing ? h('aside', { className: 'bt-wb-inspector', 'aria-label': t('Task details') }, editing
+      current || editing ? h('aside', { className: 'bt-wb-inspector', 'aria-label': t('Task details') }, current?.source === 'schedule' ? h(ScheduleDetail, { key: current.id, task: current, roster, actions, request, manageable: scheduleView?.manageable === true, onChanged: next => { scheduleGeneration.current += 1; setScheduleView(next); setScheduleError(''); setError('') }, onEditing: value => { setScheduleEditing(value); setScheduleDraftTask(value ? current : null) }, onClose: () => { if (scheduleEditing) { setError(t('Save or cancel your task edit first.')); return } setSelected(null) } }) : editing
         ? h(TaskEditor, { key: `${selected ?? 'new'}-${createDay ?? ''}`, task: current ?? { ...emptyTask(zone), status: createStatus, ...(createDay ? { start: createDay, end: addDays(createDay, 1), allDay: true } : {}) }, roster, zone, busy, error,
           onSave: save, onCancel: () => { setEditing(false); setError('') }, onDelete: () => { if (current?.revision !== editRevision) { setError(t('This task changed elsewhere. Cancel and reopen the editor.')); return } void mutate('delete').catch(() => {}) } })
         : h(TaskDetail, { task: current, roster, zone, actions, onClose: () => setSelected(null), onEdit: () => edit(current) })) : null))
 }
 
-export const TASK_CSS = `
+export const TASK_CSS = SCHEDULE_WORKBENCH_CSS + `
 .bt-wb-workbench{position:fixed;inset:0;z-index:1100;background:var(--bt-main);color:var(--bt-ink);font:13px/1.5 var(--bt-font);display:flex;flex-direction:column;padding:28px;box-sizing:border-box;outline:none;overflow:hidden}
 .bt-wb-workbench *{box-sizing:border-box}.bt-wb-workbench button,.bt-wb-workbench input,.bt-wb-workbench select,.bt-wb-workbench textarea{font:inherit;color:inherit;border:1px solid var(--bt-line);background:var(--bt-card);border-radius:8px;padding:8px 12px;min-width:0}.bt-wb-workbench button{cursor:pointer}.bt-wb-workbench button:hover{background:var(--bt-hover)}.bt-wb-workbench button:disabled{cursor:default;opacity:.5}.bt-wb-workbench :focus-visible{outline:2px solid var(--bt-accent);outline-offset:2px}.bt-wb-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.bt-wb-header h1{font-size:22px;line-height:1.4;margin:0 0 6px;font-weight:600}.bt-wb-header p{color:var(--bt-ink-2);margin:0}.bt-wb-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.bt-wb-toolbar input[type=search]{flex:1;min-width:180px}.bt-wb-toolbar select{max-width:180px}.bt-wb-switch{display:flex;padding:3px;background:var(--bt-hover);border-radius:10px}.bt-wb-switch button{border:0;background:none}.bt-wb-switch button[aria-pressed=true]{color:var(--bt-accent);background:var(--bt-card);box-shadow:0 1px 4px var(--bt-line)}.bt-wb-workbench .bt-wb-primary{background:var(--bt-accent);color:var(--bt-accent-ink);border-color:var(--bt-accent)}.bt-wb-workbench .bt-wb-primary:hover{filter:brightness(.96);background:var(--bt-accent)}.bt-wb-subbar{display:flex;flex-wrap:wrap;gap:16px;align-items:center;color:var(--bt-ink-2);padding:18px 0}.bt-wb-subbar label{display:flex;align-items:center;gap:6px}.bt-wb-note{font-size:12px;color:var(--bt-ink-2);line-height:1.6}.bt-wb-body{display:flex;flex:1;min-height:0;gap:24px;position:relative}.bt-wb-main{flex:1;min-width:0;overflow:auto}.bt-wb-board{display:grid;grid-template-columns:repeat(4,minmax(200px,1fr));gap:16px;min-height:100%;position:relative}.bt-wb-column h2{font-size:13px;display:flex;gap:8px;align-items:center;margin:0 0 14px;font-weight:600}.bt-wb-column h2>span{margin-left:auto;font-size:12px;color:var(--bt-ink-3)}.bt-wb-column h2 i{width:7px;height:7px;border-radius:50%;background:var(--bt-ink-3)}.bt-wb-column h2 i[data-status=doing]{background:var(--bt-accent)}.bt-wb-column h2 i[data-status=waiting]{background:var(--bt-star)}.bt-wb-column h2 i[data-status=review]{background:var(--bt-green)}.bt-wb-column-body{background:var(--bt-hover);border-radius:12px;min-height:320px;padding:10px;display:flex;flex-direction:column;gap:12px}.bt-wb-workbench .bt-wb-card{width:100%;text-align:left;background:var(--bt-card);padding:16px;border-radius:12px;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 6px color-mix(in srgb,var(--bt-ink) 3%,transparent);overflow:hidden}.bt-wb-workbench .bt-wb-card[data-selected]{border-color:var(--bt-accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--bt-accent) 30%,transparent)}.bt-wb-card strong{font-size:15px;font-weight:600;overflow-wrap:anywhere}.bt-wb-kind{color:var(--bt-ink-3);font-size:12px}.bt-wb-excerpt,.bt-wb-wait-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--bt-ink-2);overflow-wrap:anywhere}.bt-wb-wait-text{color:var(--bt-star)}.bt-wb-owner{font-weight:500}.bt-wb-card-time{font-size:12px;color:var(--bt-ink-2);border-top:1px solid var(--bt-line);padding-top:10px}.bt-wb-result-count{font-size:12px;color:var(--bt-accent)}.bt-wb-inspector{flex:0 0 340px;max-width:40%;border:1px solid var(--bt-line);border-radius:16px;background:var(--bt-card);overflow:auto;padding:22px}.bt-wb-detail-top,.bt-wb-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.bt-wb-id{font-size:12px;color:var(--bt-accent)}.bt-wb-detail h2{font-size:22px;overflow-wrap:anywhere;margin:12px 0}.bt-wb-status{display:inline-block;background:var(--bt-tag-bg);color:var(--bt-tag-ink);border-radius:20px;padding:4px 10px;font-size:12px}.bt-wb-status[data-status=review]{color:var(--bt-green)}.bt-wb-description{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--bt-ink-2);line-height:1.8;margin:24px 0}.bt-wb-detail dl{display:grid;grid-template-columns:90px 1fr;gap:16px 12px;padding:24px 0;border-block:1px solid var(--bt-line)}.bt-wb-detail dt{color:var(--bt-ink-3)}.bt-wb-detail dd{margin:0;overflow-wrap:anywhere}.bt-wb-detail h3{font-size:13px;margin:24px 0 12px}.bt-wb-linked{display:block;width:100%;text-align:left;padding:12px;margin-bottom:10px;border:1px solid var(--bt-line);border-radius:8px;color:var(--bt-accent);text-decoration:none;overflow-wrap:anywhere}.bt-wb-field{display:flex;flex-direction:column;gap:6px;margin:14px 0}.bt-wb-field>span{font-size:12px;color:var(--bt-ink-2)}.bt-wb-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bt-wb-field textarea{resize:vertical;min-height:80px}.bt-wb-check{display:flex;align-items:center;gap:8px}.bt-wb-editor-actions{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}.bt-wb-workbench .bt-wb-danger{color:var(--bt-danger)}.bt-wb-error,.bt-wb-delete{padding:10px 12px;border:1px solid var(--bt-danger);border-radius:8px;color:var(--bt-danger);margin:12px 0;white-space:pre-wrap}.bt-wb-result-edit{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}.bt-wb-result-edit span{overflow-wrap:anywhere;min-width:0}.bt-wb-calendar-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}.bt-wb-calendar-head strong{flex:1;text-align:center;font-size:15px}.bt-wb-calendar-head select{max-width:180px}.bt-wb-weekdays,.bt-wb-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}.bt-wb-weekdays span{text-align:center;color:var(--bt-ink-3);padding:8px;font-size:12px}.bt-wb-month{border:1px solid var(--bt-line);border-radius:12px;overflow:hidden}.bt-wb-day{min-height:115px;padding:6px;border-right:1px solid var(--bt-line);border-bottom:1px solid var(--bt-line);overflow:hidden}.bt-wb-day[data-selected]{background:var(--bt-hover)}.bt-wb-day[data-outside]{opacity:.5}.bt-wb-day>button:first-child{padding:3px 7px;border:0;background:none}.bt-wb-day[data-today]>button:first-child{background:var(--bt-accent);color:var(--bt-accent-ink);border-radius:50%}.bt-wb-workbench .bt-wb-day-event{display:block;width:100%;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;background:color-mix(in srgb,var(--bt-accent) 9%,var(--bt-card));color:var(--bt-accent);font-size:11px;padding:3px 5px;margin-top:3px;border-radius:4px}.bt-wb-agenda,.bt-wb-unscheduled{margin-top:24px}.bt-wb-agenda h2,.bt-wb-unscheduled h2{font-size:15px}.bt-wb-agenda>.bt-wb-card,.bt-wb-unscheduled>.bt-wb-card{margin:10px 0}.bt-wb-empty{position:absolute;top:170px;left:20px;right:20px;text-align:center;color:var(--bt-ink-3);pointer-events:none}.bt-wb-entry{margin:6px 8px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border:1px solid var(--bt-line);background:var(--bt-hover);color:var(--bt-ink);border-radius:10px;cursor:pointer;font:13px var(--bt-font)}.bt-wb-entry:hover{color:var(--bt-accent)}
 @media(min-width:1600px){.bt-wb-inspector{flex-basis:400px}.bt-wb-workbench{padding:36px}}@media(max-width:1050px){.bt-wb-inspector{flex-basis:320px;max-width:45%}.bt-wb-board{grid-template-columns:repeat(4,210px)}}@media(max-width:700px){.bt-wb-workbench{padding:16px}.bt-wb-header{margin-bottom:16px}.bt-wb-header h1{font-size:17px}.bt-wb-header p{font-size:12px}.bt-wb-toolbar{gap:8px}.bt-wb-toolbar input[type=search]{flex-basis:100%}.bt-wb-toolbar select{max-width:none;flex:1 1 calc(50% - 4px)}.bt-wb-subbar{gap:8px;font-size:12px}.bt-wb-subbar>.bt-wb-note{width:100%}.bt-wb-body{gap:0}.bt-wb-inspector{position:absolute;inset:0;max-width:none;width:100%;z-index:1;padding:18px}.bt-wb-month .bt-wb-day{min-height:76px;padding:2px}.bt-wb-day-event{font-size:10px!important;padding:2px!important}.bt-wb-calendar-head{gap:4px}.bt-wb-calendar-head button{padding:6px}.bt-wb-weekdays span{padding:5px 0}.bt-wb-header>button{flex-shrink:0}}
