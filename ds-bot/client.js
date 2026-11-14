@@ -11884,6 +11884,10 @@ var CUSTOM_UI = Object.fromEntries(["ja", "ko", "es", "fr", "de"].map((language2
 
 // src/client/locales/task-ui.js
 var rows2 = [
+  ["Waiting", "待機中", "대기 중", "En espera", "En attente", "Wartend"],
+  ["Completed", "完了", "완료", "Completada", "Terminée", "Abgeschlossen"],
+  ["Title", "タイトル", "제목", "Título", "Titre", "Titel"],
+  ["Status", "状態", "상태", "Estado", "Statut", "Status"],
   ["Task workbench", "タスク管理", "작업 공간", "Panel de tareas", "Espace de tâches", "Aufgabenübersicht"],
   ["Plan your time and keep Bot work in view.", "自分の予定と Bot の作業をまとめて確認。", "내 일정과 Bot 작업을 함께 관리하세요.", "Planifica tu tiempo y consulta el trabajo de los Bots.", "Planifiez votre temps et suivez le travail des Bots.", "Plane deine Zeit und behalte Bot-Aufgaben im Blick."],
   ["Back to chats", "チャットに戻る", "대화로 돌아가기", "Volver a los chats", "Retour aux discussions", "Zurück zu Chats"],
@@ -11963,6 +11967,10 @@ var ZH = {
   "This task changed elsewhere. Reload before editing.": "任务已在其他位置修改，请取消编辑并重新打开。",
   "A task title is required.": "请填写任务标题。",
   "Choose a current Bot as owner.": "请选择当前团队的 Bot 作为负责人。",
+  "Waiting": "等待处理",
+  "Completed": "已完成",
+  "Title": "标题",
+  "Status": "状态",
   "Task workbench": "任务工作台",
   "Plan your time and keep Bot work in view.": "安排自己的事，也看清 Bot 正在推进的事。",
   "Back to chats": "返回对话",

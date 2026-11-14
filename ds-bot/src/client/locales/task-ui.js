@@ -1,5 +1,9 @@
 // Workbench copy follows the existing five additional interface locales.
 const rows = [
+  ['Waiting', '待機中', '대기 중', 'En espera', 'En attente', 'Wartend'],
+  ['Completed', '完了', '완료', 'Completada', 'Terminée', 'Abgeschlossen'],
+  ['Title', 'タイトル', '제목', 'Título', 'Titre', 'Titel'],
+  ['Status', '状態', '상태', 'Estado', 'Statut', 'Status'],
   ['Task workbench', 'タスク管理', '작업 공간', 'Panel de tareas', 'Espace de tâches', 'Aufgabenübersicht'],
   ['Plan your time and keep Bot work in view.', '自分の予定と Bot の作業をまとめて確認。', '내 일정과 Bot 작업을 함께 관리하세요.', 'Planifica tu tiempo y consulta el trabajo de los Bots.', 'Planifiez votre temps et suivez le travail des Bots.', 'Plane deine Zeit und behalte Bot-Aufgaben im Blick.'],
   ['Back to chats', 'チャットに戻る', '대화로 돌아가기', 'Volver a los chats', 'Retour aux discussions', 'Zurück zu Chats'],
