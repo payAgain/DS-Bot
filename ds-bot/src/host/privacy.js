@@ -67,6 +67,7 @@ export function install(rt) {
   ].filter(Boolean).map(spellings))).flat()
   const sharedFiles = async () => (await Promise.all([
     rt.statePath,
+    join(rt.home, 'tasks.json'),
     join(rt.home, 'chat-index.sqlite'),
     join(rt.home, 'chat-index.sqlite-wal'),
     join(rt.home, 'chat-index.sqlite-shm'),

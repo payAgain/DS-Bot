@@ -42,6 +42,7 @@ import { GROUP_SETTINGS_CSS } from './group-settings.js'
 import { FOLDER_CSS } from './folder-menu.js'
 import { USAGE_CSS } from './usage-page.js'
 import { SCHEDULE_CSS } from './schedules.js'
+import { TASK_CSS } from './task-workbench.js'
 import { STORAGE, migrateStorage } from './storage.js'
 import { noteLeft, setUnread, sharedMap, toggleReaction } from './shared-map.js'
 import { freePriority, groupsFor, readMode, surfaceGroups, writeMode } from './surface.js'
@@ -507,6 +508,8 @@ export function apply(ctx) {
     }
   }
   const actions = {
+    openTasks: () => ui.set(state => ({ ...state, tasksOpen: true, leftDrawer: false })),
+    closeTasks: () => ui.set(state => ({ ...state, tasksOpen: false })),
     ...teamActions({ call, after, partFor, roster, ui, live, cards, heldCards, turnClock, panelFolded }),
     learningAnswer: (id, approve) => after(call('learning-answer', { id, approve })),
     // The full-pane overlays sit above the conversation, so opening one must dismiss them
@@ -1078,6 +1081,7 @@ export function apply(ctx) {
     [MODEL_CSS + FOLDER_CSS + BOT_SETTINGS_CSS + AGENT_CARDS_CSS + GROUP_SETTINGS_CSS + AVATAR_LIBRARY_CSS, 'models'],
     [USAGE_CSS, 'usage'],
     [SCHEDULE_CSS, 'schedules'],
+    [TASK_CSS, 'task-workbench'],
     [FEEDBACK_CSS, 'feedback'],
     [ABOUT_CSS, 'about'],
     [MEMBER_CSS, 'members'],
