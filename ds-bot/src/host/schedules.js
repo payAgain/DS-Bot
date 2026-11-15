@@ -130,43 +130,6 @@ export function install(rt) {
 
   const endpoints = {
     schedules: () => schedulesView(),
-    async 'workbench-schedules'() {
-      return { ...await schedulesView(), manageable: service !== null && hostWide(service), sampledAt: new Date().toISOString() }
-    },
-    async 'workbench-schedule-edit'(body) {
-      if (service === null || !hostWide(service)) throw invalid('Schedule management is unavailable in this Host.')
-      if (!Object.hasOwn(body, 'expectedUpdatedAt') || (body.expectedUpdatedAt !== null && typeof body.expectedUpdatedAt !== 'string')) throw invalid('Read the schedule revision before changing it.')
-      // Reuse the exact user-visible team catalog. Never turn this endpoint into
-      // a Host-wide lookup of tasks the existing settings page cannot show.
-      const entry = (await schedulesView()).tasks.find(task => task.id === body.id)
-      if (entry === undefined) throw invalid('No such task')
-      let request
-      if (body.action === 'delete') request = { id: entry.id, action: 'delete', expectedUpdatedAt: body.expectedUpdatedAt }
-      else if (body.action === 'pause' || body.action === 'resume') request = { id: entry.id, action: 'update', expectedUpdatedAt: body.expectedUpdatedAt, patch: { active: body.action === 'resume' } }
-      else if (body.action === 'update') {
-        const fields = body.fields
-        if (!fields || typeof fields !== 'object' || Array.isArray(fields) || Object.keys(fields).some(key => !['title', 'prompt', 'rrule'].includes(key))) throw invalid('Only the schedule name, instruction and rule can be edited here.')
-        const patch = {}
-        if (fields.title !== undefined) {
-          if (typeof fields.title !== 'string' || !fields.title.trim() || fields.title.trim().length > MAX_TITLE) throw invalid('Give the task a name')
-          patch.title = fields.title.trim()
-        }
-        if (fields.prompt !== undefined) {
-          if (typeof fields.prompt !== 'string' || !fields.prompt.trim()) throw invalid('Say what the Bot should do')
-          patch.prompt = fields.prompt.trim()
-        }
-        if (fields.rrule !== undefined) {
-          if (entry.kind !== 'rrule' || typeof fields.rrule !== 'string' || fields.rrule.length > 4000) throw invalid('Edit this timing in the original schedule manager.')
-          patch.timing = { kind: 'rrule', rrule: fields.rrule }
-        }
-        if (Object.keys(patch).length === 0) throw invalid('No schedule changes were supplied.')
-        request = { id: entry.id, action: 'update', expectedUpdatedAt: body.expectedUpdatedAt, patch }
-      } else throw invalid('Unknown schedule operation.')
-      const result = await service.edit(request)
-      if (result.code === 'schedule_conflict') throw Object.assign(new Error('This schedule changed elsewhere. Reload before editing.'), { code: 'bot/stale' })
-      if (result.code === 'schedule_not_found') throw invalid('No such task')
-      return endpoints['workbench-schedules']()
-    },
     async 'schedule-create'(body) {
       if (service === null) throw invalid('Automation tasks are off in DSH')
       const bot = rt.botOf(body.target)

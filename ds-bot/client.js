@@ -12088,186 +12088,9 @@ var rows = [
 ];
 var CUSTOM_UI = Object.fromEntries(["ja", "ko", "es", "fr", "de"].map((language2, index) => [language2, Object.fromEntries(rows.map((row) => [row[0], row[index + 1]]))]));
 
-// src/client/locales/task-ui.js
-var rows2 = [
-  ["Waiting", "待機中", "대기 중", "En espera", "En attente", "Wartend"],
-  ["Completed", "完了", "완료", "Completada", "Terminée", "Abgeschlossen"],
-  ["Title", "タイトル", "제목", "Título", "Titre", "Titel"],
-  ["Status", "状態", "상태", "Estado", "Statut", "Status"],
-  ["Task workbench", "タスク管理", "작업 공간", "Panel de tareas", "Espace de tâches", "Aufgabenübersicht"],
-  ["Plan your time and keep Bot work in view.", "自分の予定と Bot の作業をまとめて確認。", "내 일정과 Bot 작업을 함께 관리하세요.", "Planifica tu tiempo y consulta el trabajo de los Bots.", "Planifiez votre temps et suivez le travail des Bots.", "Plane deine Zeit und behalte Bot-Aufgaben im Blick."],
-  ["Back to chats", "チャットに戻る", "대화로 돌아가기", "Volver a los chats", "Retour aux discussions", "Zurück zu Chats"],
-  ["Board", "ボード", "보드", "Tablero", "Tableau", "Board"],
-  ["Calendar", "カレンダー", "달력", "Calendario", "Calendrier", "Kalender"],
-  ["New task", "新しいタスク", "새 작업", "Nueva tarea", "Nouvelle tâche", "Neue Aufgabe"],
-  ["Edit task", "タスクを編集", "작업 편집", "Editar tarea", "Modifier la tâche", "Aufgabe bearbeiten"],
-  ["Save task", "タスクを保存", "작업 저장", "Guardar tarea", "Enregistrer la tâche", "Aufgabe speichern"],
-  ["Delete task", "タスクを削除", "작업 삭제", "Eliminar tarea", "Supprimer la tâche", "Aufgabe löschen"],
-  ["Confirm delete", "削除を確認", "삭제 확인", "Confirmar eliminación", "Confirmer la suppression", "Löschen bestätigen"],
-  ["Delete this task? This cannot be undone.", "このタスクを削除しますか？元に戻せません。", "이 작업을 삭제할까요? 되돌릴 수 없습니다.", "¿Eliminar esta tarea? No se puede deshacer.", "Supprimer cette tâche ? Cette action est irréversible.", "Diese Aufgabe löschen? Das kann nicht rückgängig gemacht werden."],
-  ["Search tasks, owners or results", "タスク、担当者、成果を検索", "작업, 담당자 또는 결과 검색", "Buscar tareas, responsables o resultados", "Rechercher tâches, responsables ou résultats", "Aufgaben, Zuständige oder Ergebnisse suchen"],
-  ["All owners", "すべての担当者", "모든 담당자", "Todos los responsables", "Tous les responsables", "Alle Zuständigen"],
-  ["All tasks", "すべてのタスク", "모든 작업", "Todas las tareas", "Toutes les tâches", "Alle Aufgaben"],
-  ["Task type", "タスクの種類", "작업 유형", "Tipo de tarea", "Type de tâche", "Aufgabentyp"],
-  ["Personal", "個人の予定", "개인 일정", "Personal", "Personnel", "Persönlich"],
-  ["Bot work", "Bot の作業", "Bot 작업", "Trabajo de Bot", "Travail de Bot", "Bot-Aufgabe"],
-  ["To plan", "予定待ち", "계획 대기", "Por planificar", "À planifier", "Zu planen"],
-  ["In progress", "進行中", "진행 중", "En curso", "En cours", "In Bearbeitung"],
-  ["To review", "確認待ち", "검토 대기", "Por revisar", "À vérifier", "Zur Prüfung"],
-  ["Waiting reason", "待機の理由", "대기 이유", "Motivo de espera", "Motif d’attente", "Grund der Wartezeit"],
-  ["Owner", "担当者", "담당자", "Responsable", "Responsable", "Zuständig"],
-  ["Choose a Bot", "Bot を選択", "Bot 선택", "Elegir un Bot", "Choisir un Bot", "Bot auswählen"],
-  ["Former Bot", "以前の Bot", "이전 Bot", "Bot anterior", "Ancien Bot", "Ehemaliger Bot"],
-  ["Me", "自分", "나", "Yo", "Moi", "Ich"],
-  ["Unscheduled", "未予定", "미예약", "Sin programar", "Non planifié", "Ungeplant"],
-  ["Unscheduled only", "未予定のみ", "미예약만", "Solo sin programar", "Non planifiés uniquement", "Nur ungeplante"],
-  ["Completed / cancelled", "完了 / キャンセル", "완료 / 취소", "Completadas / canceladas", "Terminées / annulées", "Abgeschlossen / abgebrochen"],
-  ["Planned time", "予定時間", "계획 시간", "Horario previsto", "Créneau prévu", "Geplanter Zeitraum"],
-  ["Time zone", "タイムゾーン", "시간대", "Zona horaria", "Fuseau horaire", "Zeitzone"],
-  ["Calendar time zone", "カレンダーのタイムゾーン", "달력 시간대", "Zona horaria del calendario", "Fuseau du calendrier", "Kalenderzeitzone"],
-  ["Clear time", "時間を解除", "시간 지우기", "Quitar horario", "Effacer le créneau", "Zeitraum entfernen"],
-  ["All day", "終日", "종일", "Todo el día", "Toute la journée", "Ganztägig"],
-  ["Start", "開始", "시작", "Inicio", "Début", "Beginn"],
-  ["End", "終了", "종료", "Fin", "Fin", "Ende"],
-  ["Last day (inclusive)", "最終日（当日を含む）", "마지막 날(당일 포함)", "Último día (incluido)", "Dernier jour (inclus)", "Letzter Tag (einschließlich)"],
-  ["Planned time reserves an interval. A deadline does not appear as booked time.", "予定時間は時間帯を表します。期限は予約時間として表示されません。", "계획 시간은 실제 구간입니다. 마감일은 예약 시간으로 표시되지 않습니다.", "El horario ocupa un intervalo. La fecha límite no reserva tiempo.", "Le créneau représente un intervalle. Une échéance ne réserve pas de temps.", "Der Zeitraum belegt Zeit. Eine Frist wird nicht als Termin angezeigt."],
-  ["Deadline (optional)", "期限（任意）", "마감일(선택)", "Fecha límite (opcional)", "Échéance (facultative)", "Frist (optional)"],
-  ["Original conversation", "元の会話", "원래 대화", "Conversación original", "Conversation d’origine", "Ursprüngliches Gespräch"],
-  ["No conversation", "関連する会話なし", "연결된 대화 없음", "Sin conversación", "Aucune conversation", "Kein Gespräch"],
-  ["Open original conversation", "元の会話を開く", "원래 대화 열기", "Abrir conversación original", "Ouvrir la conversation d’origine", "Ursprüngliches Gespräch öffnen"],
-  ["Results", "成果", "결과", "Resultados", "Résultats", "Ergebnisse"],
-  ["Result label", "成果の名前", "결과 이름", "Nombre del resultado", "Nom du résultat", "Ergebnisname"],
-  ["Result URL", "成果の URL", "결과 URL", "URL del resultado", "URL du résultat", "Ergebnis-URL"],
-  ["Add result link", "成果リンクを追加", "결과 링크 추가", "Añadir enlace de resultado", "Ajouter un lien de résultat", "Ergebnislink hinzufügen"],
-  ["Enter a label and an HTTP(S) URL.", "名前と HTTP(S) URL を入力してください。", "이름과 HTTP(S) URL을 입력하세요.", "Introduce un nombre y una URL HTTP(S).", "Saisissez un nom et une URL HTTP(S).", "Gib einen Namen und eine HTTP(S)-URL ein."],
-  ["Add or clear the result link before saving.", "保存する前に成果リンクを追加するか消去してください。", "저장하기 전에 결과 링크를 추가하거나 지우세요.", "Añade o borra el enlace antes de guardar.", "Ajoutez ou effacez le lien avant d’enregistrer.", "Füge den Ergebnislink hinzu oder leere ihn vor dem Speichern."],
-  ["Linked content", "関連する内容", "연결된 내용", "Contenido vinculado", "Contenu associé", "Verknüpfte Inhalte"],
-  ["Task details", "タスクの詳細", "작업 상세", "Detalles de la tarea", "Détails de la tâche", "Aufgabendetails"],
-  ["Close details", "詳細を閉じる", "상세 닫기", "Cerrar detalles", "Fermer les détails", "Details schließen"],
-  ["No description", "説明なし", "설명 없음", "Sin descripción", "Aucune description", "Keine Beschreibung"],
-  ["Task status is explicit. A Bot reply does not mark it complete.", "状態は明示的に更新します。Bot の返信だけで完了にはなりません。", "상태는 명시적으로 갱신합니다. Bot 답변만으로 완료되지 않습니다.", "El estado se actualiza explícitamente. Una respuesta del Bot no completa la tarea.", "Le statut est modifié explicitement. Une réponse du Bot ne termine pas la tâche.", "Der Status wird ausdrücklich geändert. Eine Bot-Antwort schließt die Aufgabe nicht ab."],
-  ["{count} tasks", "タスク {count} 件", "작업 {count}개", "{count} tareas", "{count} tâches", "{count} Aufgaben"],
-  ["{count} results", "成果 {count} 件", "결과 {count}개", "{count} resultados", "{count} résultats", "{count} Ergebnisse"],
-  ["Add task", "タスクを追加", "작업 추가", "Añadir tarea", "Ajouter une tâche", "Aufgabe hinzufügen"],
-  ["No tasks yet. Create your first task.", "タスクはまだありません。最初の予定を作成しましょう。", "아직 작업이 없습니다. 첫 일정을 만드세요.", "Aún no hay tareas. Crea la primera.", "Aucune tâche. Créez votre première tâche.", "Noch keine Aufgaben. Erstelle deine erste Aufgabe."],
-  ["Previous month", "前の月", "이전 달", "Mes anterior", "Mois précédent", "Vorheriger Monat"],
-  ["Next month", "次の月", "다음 달", "Mes siguiente", "Mois suivant", "Nächster Monat"],
-  ["Schedule a task", "タスクを予定", "작업 예약", "Programar una tarea", "Planifier une tâche", "Aufgabe planen"],
-  ["Nothing planned for this day.", "この日の予定はありません。", "이 날의 일정이 없습니다.", "No hay nada previsto para este día.", "Rien de prévu ce jour.", "Für diesen Tag ist nichts geplant."],
-  ["Planned intervals only · deadlines are shown in task details.", "予定時間のみ · 期限はタスク詳細に表示します。", "계획 구간만 표시 · 마감일은 상세에서 확인하세요.", "Solo intervalos previstos · las fechas límite están en los detalles.", "Créneaux prévus uniquement · les échéances sont dans les détails.", "Nur geplante Zeiträume · Fristen stehen in den Details."],
-  ["Save or cancel your task edit before closing.", "閉じる前に変更を保存するかキャンセルしてください。", "닫기 전에 편집을 저장하거나 취소하세요.", "Guarda o cancela la edición antes de cerrar.", "Enregistrez ou annulez la modification avant de fermer.", "Speichere die Änderung oder brich sie vor dem Schließen ab."],
-  ["Save or cancel your task edit first.", "先に編集を保存するかキャンセルしてください。", "먼저 편집을 저장하거나 취소하세요.", "Primero guarda o cancela la edición.", "Enregistrez ou annulez d’abord la modification.", "Speichere die Änderung zuerst oder brich sie ab."],
-  ["This task changed elsewhere. Cancel and reopen the editor.", "別の場所で変更されました。キャンセルして編集を開き直してください。", "다른 곳에서 변경되었습니다. 취소한 후 다시 여세요.", "La tarea cambió en otro lugar. Cancela y vuelve a abrir el editor.", "La tâche a changé ailleurs. Annulez et rouvrez l’éditeur.", "Die Aufgabe wurde andernorts geändert. Brich ab und öffne den Editor erneut."]
-];
-var TASK_UI = Object.fromEntries(["ja", "ko", "es", "fr", "de"].map((language2, index) => [language2, Object.fromEntries(rows2.map((row) => [row[0], row[index + 1]]))]));
-
-// src/client/schedule-copy.js
-var rows3 = [
-  ["Scheduled task", "定时任务", "定期タスク", "예약 작업", "Tarea programada", "Tâche planifiée", "Geplante Aufgabe"],
-  ["Ordinary tasks", "普通任务", "通常のタスク", "일반 작업", "Tareas normales", "Tâches ordinaires", "Normale Aufgaben"],
-  ["Scheduled tasks", "定时任务", "定期タスク", "예약 작업", "Tareas programadas", "Tâches planifiées", "Geplante Aufgaben"],
-  ["Enabled", "已启用", "有効", "활성", "Activa", "Activée", "Aktiv"],
-  ["Awaiting delivery", "等待投递", "配信待ち", "전달 대기", "Pendiente de entrega", "En attente de livraison", "Wartet auf Zustellung"],
-  ["Unknown schedule state", "调度状态未知", "状態不明", "알 수 없는 예약 상태", "Estado desconocido", "État inconnu", "Unbekannter Status"],
-  ["Next delivery", "下次执行", "次回の配信", "다음 실행", "Próxima ejecución", "Prochaine exécution", "Nächste Ausführung"],
-  ["Latest delivery", "最近投递", "最近の配信", "최근 전달", "Última entrega", "Dernière livraison", "Letzte Zustellung"],
-  ["Delivered; queued or running", "已投递，正在排队或执行", "配信済み・待機または実行中", "전달됨, 대기 또는 실행 중", "Entregada; en cola o ejecutándose", "Livrée ; en attente ou en cours", "Zugestellt; in Warteschlange oder aktiv"],
-  ["Delivered to the conversation", "已投递会话", "会話に配信済み", "대화에 전달됨", "Entregada a la conversación", "Livrée à la conversation", "An Gespräch zugestellt"],
-  ["No saved delivery receipt", "暂无已保存的投递回执", "保存済みの配信記録なし", "저장된 전달 기록 없음", "Sin recibo guardado", "Aucun reçu enregistré", "Kein gespeicherter Zustellbeleg"],
-  ["A delivery receipt does not mean the task finished.", "投递回执只表示已送入会话，不代表任务已完成。", "配信記録はタスクの完了を意味しません。", "전달 기록은 작업 완료를 뜻하지 않습니다.", "Un recibo de entrega no indica que la tarea haya terminado.", "Un reçu de livraison ne signifie pas que la tâche est terminée.", "Ein Zustellbeleg bedeutet nicht, dass die Aufgabe abgeschlossen ist."],
-  ["Scheduled tasks show only their next future delivery, not every recurrence or a booked duration.", "定时任务仅展示下一次未来执行，不展开全部重复，也不代表占用时长。", "定期タスクは次回の配信のみ表示し、全繰り返しや所要時間は示しません。", "예약 작업은 다음 실행만 표시하며 전체 반복이나 점유 시간은 표시하지 않습니다.", "Solo se muestra la próxima ejecución, no todas las repeticiones ni una duración reservada.", "Seule la prochaine exécution est affichée, pas toutes les répétitions ni une durée réservée.", "Gezeigt wird nur die nächste Ausführung, nicht jede Wiederholung oder eine belegte Dauer."],
-  ["Scheduled instruction", "执行内容", "実行内容", "실행 내용", "Instrucción programada", "Instruction planifiée", "Geplante Anweisung"],
-  ["Recurrence rule", "重复规则", "繰り返しルール", "반복 규칙", "Regla de repetición", "Règle de récurrence", "Wiederholungsregel"],
-  ["Advanced rule: keep one DTSTART and one RRULE line. The Host validates the change.", "高级规则：保留一行 DTSTART 和一行 RRULE，由宿主校验后保存。", "高度な設定：DTSTART と RRULE を各1行で指定します。ホストが検証します。", "고급 규칙: DTSTART와 RRULE을 한 줄씩 유지하세요. 호스트가 검증합니다.", "Regla avanzada: conserva una línea DTSTART y otra RRULE. El Host valida el cambio.", "Règle avancée : une ligne DTSTART et une ligne RRULE. Le Host valide la modification.", "Erweiterte Regel: je eine DTSTART- und RRULE-Zeile. Der Host prüft die Änderung."],
-  ["Save schedule", "保存定时任务", "定期タスクを保存", "예약 저장", "Guardar programación", "Enregistrer la planification", "Zeitplan speichern"],
-  ["Edit schedule", "编辑定时任务", "定期タスクを編集", "예약 편집", "Editar programación", "Modifier la planification", "Zeitplan bearbeiten"],
-  ["Pause schedule", "暂停定时任务", "定期タスクを一時停止", "예약 일시 중지", "Pausar programación", "Suspendre la planification", "Zeitplan pausieren"],
-  ["Resume schedule", "恢复定时任务", "定期タスクを再開", "예약 재개", "Reanudar programación", "Reprendre la planification", "Zeitplan fortsetzen"],
-  ["Delete schedule", "删除定时任务", "定期タスクを削除", "예약 삭제", "Eliminar programación", "Supprimer la planification", "Zeitplan löschen"],
-  ["Delete this scheduled task and its delivery history?", "删除这项定时任务及其投递历史？", "この定期タスクと配信履歴を削除しますか？", "이 예약 작업과 전달 기록을 삭제할까요?", "¿Eliminar esta tarea programada y su historial de entregas?", "Supprimer cette tâche planifiée et son historique ?", "Diese geplante Aufgabe und ihren Zustellverlauf löschen?"],
-  ["Schedule controls are unavailable in this view.", "当前视图无法修改定时任务。", "この画面では定期タスクを変更できません。", "이 보기에서는 예약을 변경할 수 없습니다.", "Los controles no están disponibles en esta vista.", "Les commandes sont indisponibles dans cette vue.", "In dieser Ansicht sind keine Änderungen möglich."],
-  ["Open original schedule manager", "进入原定时任务管理", "元の定期タスク管理を開く", "원래 예약 관리자 열기", "Abrir gestor original", "Ouvrir le gestionnaire d’origine", "Ursprüngliche Zeitplanverwaltung öffnen"],
-  ["Could not refresh scheduled tasks.", "无法刷新定时任务。", "定期タスクを更新できません。", "예약 작업을 새로 고칠 수 없습니다.", "No se pudieron actualizar las tareas programadas.", "Impossible d’actualiser les tâches planifiées.", "Geplante Aufgaben konnten nicht aktualisiert werden."],
-  ["Scheduled tasks are unavailable in this Host.", "当前宿主未提供定时任务。", "このホストでは定期タスクを利用できません。", "이 호스트에서는 예약 작업을 사용할 수 없습니다.", "Este Host no ofrece tareas programadas.", "Les tâches planifiées sont indisponibles sur ce Host.", "Dieser Host bietet keine geplanten Aufgaben an."],
-  ["No matching scheduled tasks.", "没有符合筛选的定时任务。", "一致する定期タスクはありません。", "일치하는 예약 작업이 없습니다.", "No hay tareas programadas coincidentes.", "Aucune tâche planifiée correspondante.", "Keine passenden geplanten Aufgaben."],
-  ["This schedule changed elsewhere. Reload before editing.", "定时任务已在其他位置修改，请取消编辑并重新打开。", "別の場所で変更されました。編集を開き直してください。", "다른 곳에서 변경되었습니다. 편집기를 다시 여세요.", "La programación cambió en otro lugar. Recarga antes de editar.", "La planification a changé ailleurs. Rechargez avant de modifier.", "Der Zeitplan wurde andernorts geändert. Lade ihn vor dem Bearbeiten neu."],
-  ["Schedule management is unavailable in this Host.", "当前宿主不支持在此管理定时任务。", "このホストでは管理できません。", "이 호스트에서는 예약을 관리할 수 없습니다.", "Este Host no permite gestionar la programación.", "Ce Host ne permet pas cette gestion.", "Dieser Host unterstützt diese Verwaltung nicht."]
-];
-var SCHEDULE_COPY = Object.fromEntries(["zh", "ja", "ko", "es", "fr", "de"].map((locale, index) => [locale, Object.fromEntries(rows3.map((row) => [row[0], row[index + 1]]))]));
-
 // src/client/i18n.js
 var NAMESPACE = "ds-bot";
 var ZH = {
-  ...SCHEDULE_COPY.zh,
-  "Choose a valid IANA time zone.": "请填写有效的 IANA 时区，例如 Asia/Shanghai。",
-  "Planned start and end are both required.": "计划开始和结束时间必须同时填写，或同时清空。",
-  "All-day end must be after start (exclusive end date).": "全天任务的结束日期必须晚于开始日期（接口结束日期不包含当天）。",
-  "Use ISO timestamps with an offset; planned end must be after start.": "请使用带时区偏移的 ISO 时间，结束时间必须晚于开始时间。",
-  "Invalid local date, time or time zone.": "本地日期、时间或时区无效。",
-  "This local time is skipped or repeated by daylight saving. Choose another time or use an explicit offset through the task API.": "此时间因夏令时跳过或重复，请选择其他时间，或通过任务接口明确指定偏移。",
-  "This task changed elsewhere. Reload before editing.": "任务已在其他位置修改，请取消编辑并重新打开。",
-  "A task title is required.": "请填写任务标题。",
-  "Choose a current Bot as owner.": "请选择当前团队的 Bot 作为负责人。",
-  "Waiting": "等待处理",
-  "Completed": "已完成",
-  "Title": "标题",
-  "Status": "状态",
-  "Task workbench": "任务工作台",
-  "Plan your time and keep Bot work in view.": "安排自己的事，也看清 Bot 正在推进的事。",
-  "Back to chats": "返回对话",
-  "Board": "看板",
-  "Calendar": "日历",
-  "Edit task": "编辑任务",
-  "Save task": "保存任务",
-  "Confirm delete": "确认删除",
-  "Delete this task? This cannot be undone.": "删除这项任务？此操作无法撤销。",
-  "Search tasks, owners or results": "搜索任务、负责人或成果",
-  "All owners": "所有负责人",
-  "All tasks": "全部任务",
-  "Task type": "任务类型",
-  "Personal": "个人安排",
-  "Bot work": "Bot 工作",
-  "To plan": "待安排",
-  "To review": "待验收",
-  "Waiting reason": "等待原因",
-  "Owner": "负责人",
-  "Choose a Bot": "选择 Bot",
-  "Former Bot": "原 Bot",
-  "Me": "我",
-  "Unscheduled": "未安排时间",
-  "Unscheduled only": "仅未安排",
-  "Completed / cancelled": "已完成 / 已取消",
-  "Planned time": "计划时段",
-  "Time zone": "时区",
-  "Calendar time zone": "日历显示时区",
-  "Clear time": "清空时间",
-  "All day": "全天",
-  "End": "结束",
-  "Last day (inclusive)": "最后一天（包含当天）",
-  "Planned time reserves an interval. A deadline does not appear as booked time.": "计划时段表示实际安排；截止日期不会作为占用时段显示。",
-  "Deadline (optional)": "截止日期（可选）",
-  "Original conversation": "关联原对话",
-  "No conversation": "未关联对话",
-  "Open original conversation": "进入原对话",
-  "Result label": "成果名称",
-  "Result URL": "成果链接",
-  "Add result link": "添加成果链接",
-  "Enter a label and an HTTP(S) URL.": "请填写名称和 HTTP(S) 链接。",
-  "Add or clear the result link before saving.": "请先添加或清空待填写的成果链接，再保存任务。",
-  "Linked content": "关联内容",
-  "Task details": "任务详情",
-  "No description": "暂无描述",
-  "Task status is explicit. A Bot reply does not mark it complete.": "任务状态由你或 Bot 明确更新，不会因一条回复自动完成。",
-  "{count} tasks": "{count} 项任务",
-  "{count} results": "{count} 份成果",
-  "Add task": "添加任务",
-  "No tasks yet. Create your first task.": "暂无任务，创建第一项安排吧。",
-  "Schedule a task": "安排任务",
-  "Nothing planned for this day.": "当天尚无安排。",
-  "Planned intervals only · deadlines are shown in task details.": "按计划时段展示 · 截止日期在任务详情中查看。",
-  "Save or cancel your task edit before closing.": "请先保存或取消编辑，再返回对话。",
-  "Save or cancel your task edit first.": "请先保存或取消当前编辑。",
-  "This task changed elsewhere. Cancel and reopen the editor.": "任务已被其他窗口或 Bot 修改，请取消编辑并重新打开。",
   "Waiting for your review": "等待你处理",
   "Review with {name}": "前往 {name} 处理",
   "Pending approvals and confirmations": "待处理的审批与确认",
@@ -14168,11 +13991,11 @@ var LANGUAGES = [
 var DICTIONARY = {
   zh: ZH,
   "zh-TW": ZH_TW,
-  ja: { ...SCHEDULE_COPY.ja, ...TASK_UI.ja, ...CUSTOM_UI.ja, ...JA },
-  ko: { ...SCHEDULE_COPY.ko, ...TASK_UI.ko, ...CUSTOM_UI.ko, ...KO },
-  es: { ...SCHEDULE_COPY.es, ...TASK_UI.es, ...CUSTOM_UI.es, ...ES },
-  fr: { ...SCHEDULE_COPY.fr, ...TASK_UI.fr, ...CUSTOM_UI.fr, ...FR },
-  de: { ...SCHEDULE_COPY.de, ...TASK_UI.de, ...CUSTOM_UI.de, ...DE }
+  ja: { ...CUSTOM_UI.ja, ...JA },
+  ko: { ...CUSTOM_UI.ko, ...KO },
+  es: { ...CUSTOM_UI.es, ...ES },
+  fr: { ...CUSTOM_UI.fr, ...FR },
+  de: { ...CUSTOM_UI.de, ...DE }
 };
 var HOST_ERROR_TABLE = {
   zh: HOST_ERRORS,
@@ -14539,8 +14362,8 @@ function bodyOf(def, paint, flat = false) {
     return "";
   }
 }
-var eyeMarkup = ([cx, cy, w, h75, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><rect class="bt-eye" x="${-w / 2}" y="${-h75 / 2}" width="${w}" height="${h75}" rx="${w / 2}"/></g>`;
-var happyEyeMarkup = ([cx, cy, w, h75, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><path class="bt-eye-happy" opacity="0" d="M${-w * 0.62} ${h75 * 0.14}Q0 ${-h75 * 0.42} ${w * 0.62} ${h75 * 0.14}" fill="none" stroke="#000" stroke-width="${w * 0.5}" stroke-linecap="round"/></g>`;
+var eyeMarkup = ([cx, cy, w, h73, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><rect class="bt-eye" x="${-w / 2}" y="${-h73 / 2}" width="${w}" height="${h73}" rx="${w / 2}"/></g>`;
+var happyEyeMarkup = ([cx, cy, w, h73, tilt]) => `<g transform="translate(${cx} ${cy}) rotate(${tilt})"><path class="bt-eye-happy" opacity="0" d="M${-w * 0.62} ${h73 * 0.14}Q0 ${-h73 * 0.42} ${w * 0.62} ${h73 * 0.14}" fill="none" stroke="#000" stroke-width="${w * 0.5}" stroke-linecap="round"/></g>`;
 var maskBox = (size) => `maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${size * 3}" height="${size * 3}"`;
 var holes = (def, eyes) => `<rect x="${-def.size}" y="${-def.size}" width="${def.size * 3}" height="${def.size * 3}" fill="#fff"/>${eyes}`;
 var MASK_ID = "%MASK%";
@@ -14818,7 +14641,7 @@ function teamActions({ call: call2, after, partFor, roster, ui: ui2, live, cards
     answerView: (sessionId, viewId, action, values) => after(call2("view-reply", { sessionId: partFor(sessionId), viewId, action, values })),
     dismissView: (sessionId, viewId) => after(call2("dismiss-view", { sessionId: partFor(sessionId), ...viewId === void 0 ? {} : { viewId } })),
     deleteBtw: (sessionId, cardId) => after(call2("btw-delete", { sessionId, cardId })),
-    answerApproval: (id, choice2) => after(call2("approval-answer", { id, choice: choice2 })),
+    answerApproval: (id, choice) => after(call2("approval-answer", { id, choice })),
     computerSetEnabled: (enabled) => after(call2("computer-set-enabled", { enabled })),
     computerSetLevel: (botId, level) => after(call2("computer-set-level", { botId, level })),
     computerRevokeApp: (botId, appKey) => after(call2("computer-revoke-app", { botId, appKey })),
@@ -14860,7 +14683,7 @@ function teamActions({ call: call2, after, partFor, roster, ui: ui2, live, cards
     connectedApps: (endpoint, payload = {}) => ["status", "catalog"].includes(endpoint) ? call2(`composio-${endpoint}`, payload) : after(call2(`composio-${endpoint}`, payload)),
     connectorDisconnect: (id) => after(call2("connector-disconnect", { id })),
     connectorRetry: (id) => after(call2("connector-retry", { id })),
-    connectorSignInCode: (id, input2) => after(call2("connector-sign-in-code", { id, input: input2 })),
+    connectorSignInCode: (id, input) => after(call2("connector-sign-in-code", { id, input })),
     connectorCancel: (id) => after(call2("connector-cancel", { id })),
     connectorClient: (id, clientId, clientSecret) => after(call2("connector-client", { id, clientId, clientSecret })),
     connectorSet: (id, patch) => after(call2("connector-set", { id, ...patch })),
@@ -14872,7 +14695,7 @@ function teamActions({ call: call2, after, partFor, roster, ui: ui2, live, cards
     mailAccountAdd: (payload) => after(call2("mail-account-add", payload)),
     mailAccountRemove: (id) => after(call2("mail-account-remove", { id })),
     mailRuleSet: (payload) => after(call2("mail-rule-set", payload)),
-    mailSendAnswer: (requestId, choice2, extra = {}) => after(call2("mail-send-answer", { requestId, choice: choice2, ...extra })),
+    mailSendAnswer: (requestId, choice, extra = {}) => after(call2("mail-send-answer", { requestId, choice, ...extra })),
     mailSignInCode: (payload) => after(call2("mail-sign-in-code", payload)),
     phoneSet: (settings) => after(call2("phone-set", settings)),
     phonePair: () => after(call2("phone-pair")),
@@ -15043,11 +14866,11 @@ var isPoint = (point) => Array.isArray(point) && point.length === 2 && point.eve
 function registerShape(id, shape) {
   if (typeof id !== "string" || !/^[a-z][\w-]{0,31}$/.test(id)) throw new Error("Shape ids are lowercase words");
   if (typeof shape?.body !== "function" || typeof shape.body("#000") !== "string") throw new Error("A shape needs body(paint) returning SVG markup");
-  const at2 = shape.eyes?.at;
-  if (!Array.isArray(at2) || at2.length !== 2 || !at2.every(isPoint)) throw new Error("A shape needs eyes.at: two [x, y] points");
+  const at = shape.eyes?.at;
+  if (!Array.isArray(at) || at.length !== 2 || !at.every(isPoint)) throw new Error("A shape needs eyes.at: two [x, y] points");
   const size = Number.isFinite(shape.size) && shape.size > 0 ? shape.size : 100;
   const pick2 = (key, fallback) => Number.isFinite(shape.eyes[key]) ? shape.eyes[key] : fallback;
-  const eyes = at2.map(([x, y]) => [x, y, pick2("w", size * 0.1), pick2("h", size * 0.23), pick2("tilt", -27)]);
+  const eyes = at.map(([x, y]) => [x, y, pick2("w", size * 0.1), pick2("h", size * 0.23), pick2("tilt", -27)]);
   const previous = SHAPES[id];
   SHAPES[id] = {
     label: String(shape.label ?? id),
@@ -15098,7 +14921,7 @@ var speakerOf = (line) => line.botId !== void 0 && USER_NAMES.includes(String(li
 var NAME_GOES_ON = /^(?:[a-z0-9_\-/\\]|\.[a-z0-9_-])/i;
 var ADDRESS_BEFORE = /[a-z0-9_./]/i;
 var LITERAL = /```[\s\S]*?(?:```|$)|`[^`\n]*`|\[[^\]\n]*\]\([^)\s]*(?:\s+(?:"[^"\n]*"|'[^'\n]*'))?\)/g;
-var fitsAt = (text, at2, word) => text.slice(at2, at2 + word.length).toLowerCase() === word.toLowerCase() && !NAME_GOES_ON.test(text.slice(at2 + word.length));
+var fitsAt = (text, at, word) => text.slice(at, at + word.length).toLowerCase() === word.toLowerCase() && !NAME_GOES_ON.test(text.slice(at + word.length));
 var overlaps = (spans, start, end) => spans.some((span) => start < span.end && span.start < end);
 function nameProblem(name) {
   const text = String(name ?? "").trim();
@@ -15112,10 +14935,10 @@ function referenceSpans(text, labels2 = []) {
   const spans = [];
   for (const label of [...labels2].sort((a, b) => b.length - a.length)) {
     const mention = `@${label}`;
-    for (let at2 = text.indexOf(mention); at2 !== -1; at2 = text.indexOf(mention, at2 + 1)) {
-      const end = at2 + mention.length;
-      if (at2 > 0 && ADDRESS_BEFORE.test(text[at2 - 1]) || NAME_GOES_ON.test(text.slice(end)) || overlaps(spans, at2, end)) continue;
-      spans.push({ start: at2, end, label });
+    for (let at = text.indexOf(mention); at !== -1; at = text.indexOf(mention, at + 1)) {
+      const end = at + mention.length;
+      if (at > 0 && ADDRESS_BEFORE.test(text[at - 1]) || NAME_GOES_ON.test(text.slice(end)) || overlaps(spans, at, end)) continue;
+      spans.push({ start: at, end, label });
       break;
     }
   }
@@ -15129,14 +14952,14 @@ function mentionSpans(text, bots, { references = [] } = {}) {
   ];
   const byLength = bots.filter((bot) => bot?.name).sort((a, b) => b.name.length - a.name.length);
   const spans = [];
-  for (let at2 = value.indexOf("@"); at2 !== -1; at2 = value.indexOf("@", at2 + 1)) {
-    if (at2 > 0 && ADDRESS_BEFORE.test(value[at2 - 1]) || overlaps(skip, at2, at2 + 1)) continue;
-    const bot = byLength.find((candidate) => fitsAt(value, at2 + 1, candidate.name));
-    const all = bot ? void 0 : ALL_WORDS.find((word) => fitsAt(value, at2 + 1, word));
+  for (let at = value.indexOf("@"); at !== -1; at = value.indexOf("@", at + 1)) {
+    if (at > 0 && ADDRESS_BEFORE.test(value[at - 1]) || overlaps(skip, at, at + 1)) continue;
+    const bot = byLength.find((candidate) => fitsAt(value, at + 1, candidate.name));
+    const all = bot ? void 0 : ALL_WORDS.find((word) => fitsAt(value, at + 1, word));
     if (!bot && !all) continue;
-    const end = at2 + 1 + (bot ? bot.name.length : all.length);
-    spans.push(bot ? { start: at2, end, bot } : { start: at2, end, all: true });
-    at2 = end - 1;
+    const end = at + 1 + (bot ? bot.name.length : all.length);
+    spans.push(bot ? { start: at, end, bot } : { start: at, end, all: true });
+    at = end - 1;
   }
   return spans;
 }
@@ -15209,8 +15032,8 @@ function reminderPrompts(text) {
 }
 var stripHeader = (text) => text.replace(HEADER, "");
 function latestMemoryChange(news, ids) {
-  const at2 = (id) => news?.[id]?.seen ? news[id].at ?? 0 : 0;
-  return ids.reduce((best, id) => at2(id) > at2(best) ? id : best, ids[0] ?? null);
+  const at = (id) => news?.[id]?.seen ? news[id].at ?? 0 : 0;
+  return ids.reduce((best, id) => at(id) > at(best) ? id : best, ids[0] ?? null);
 }
 function summaryBlocks(text) {
   const blocks = [];
@@ -15296,15 +15119,15 @@ function commRunOf(order, peers, turn, hiddenTurns = []) {
     if (hidden && peer === void 0) continue;
     turns.push({ turn: entry, peer, hidden });
   }
-  const at2 = turns.findIndex((entry) => entry.turn === turn);
-  if (at2 === -1 || turns[at2].peer === void 0) return null;
-  const previous = turns[at2 - 1];
+  const at = turns.findIndex((entry) => entry.turn === turn);
+  if (at === -1 || turns[at].peer === void 0) return null;
+  const previous = turns[at - 1];
   if (previous?.peer !== void 0 && previous.hidden) return "folded";
   let count = 0;
   const peerIds = [];
-  for (let index = at2; index < turns.length; index += 1) {
+  for (let index = at; index < turns.length; index += 1) {
     const entry = turns[index];
-    if (entry.peer === void 0 || index > at2 && !turns[index - 1].hidden) break;
+    if (entry.peer === void 0 || index > at && !turns[index - 1].hidden) break;
     count += entry.hidden ? 2 : 1;
     if (!peerIds.includes(entry.peer)) peerIds.push(entry.peer);
   }
@@ -15323,19 +15146,19 @@ function previewOf(list, id, hiddenTurns = []) {
 }
 var formatTokens = (count) => count >= 1e6 ? `${(count / 1e6).toFixed(1)}M` : count >= 1e3 ? `${(count / 1e3).toFixed(1)}K` : String(count);
 function usageOf(list, ids) {
-  let input2 = 0;
+  let input = 0;
   let cacheRead = 0;
   let output = 0;
   for (const id of ids) {
     const usage = list.projectionsBySession?.[id]?.values?.tokenUsage;
     if (!usage) continue;
-    input2 += (usage.uncachedInputTokens ?? 0) + (usage.cacheReadTokens ?? 0) + (usage.cacheWriteTokens ?? 0);
+    input += (usage.uncachedInputTokens ?? 0) + (usage.cacheReadTokens ?? 0) + (usage.cacheWriteTokens ?? 0);
     cacheRead += usage.cacheReadTokens ?? 0;
     output += usage.outputTokens ?? 0;
   }
-  if (input2 + output === 0) return "";
-  const hit = input2 > 0 ? Math.round(cacheRead / input2 * 100) : 0;
-  return t("{tokens} tok · Cache hit {hit}%", { tokens: formatTokens(input2 + output), hit });
+  if (input + output === 0) return "";
+  const hit = input > 0 ? Math.round(cacheRead / input * 100) : 0;
+  return t("{tokens} tok · Cache hit {hit}%", { tokens: formatTokens(input + output), hit });
 }
 function percentText(part, whole) {
   if (part >= whole) return "100";
@@ -15396,16 +15219,16 @@ function useViewport() {
 function springEasing(stiffness, damping) {
   const w0 = Math.sqrt(stiffness);
   const zeta = damping / (2 * w0);
-  const at2 = (t2) => {
+  const at = (t2) => {
     if (zeta >= 1) return 1 - (1 + w0 * t2) * Math.exp(-w0 * t2);
     const wd = w0 * Math.sqrt(1 - zeta * zeta);
     return 1 - Math.exp(-zeta * w0 * t2) * (Math.cos(wd * t2) + zeta * w0 / wd * Math.sin(wd * t2));
   };
   let end = 0.05;
-  while (end < 2 && Math.abs(1 - at2(end)) > 1e-3) end += 0.01;
-  const points = Array.from({ length: 25 }, (_, index) => (index === 24 ? 1 : at2(end * index / 24)).toFixed(4));
+  while (end < 2 && Math.abs(1 - at(end)) > 1e-3) end += 0.01;
+  const points = Array.from({ length: 25 }, (_, index) => (index === 24 ? 1 : at(end * index / 24)).toFixed(4));
   const duration = Math.round(end * 1e3);
-  const progress = (ms) => ms >= duration ? 1 : ms <= 0 ? 0 : at2(ms / 1e3);
+  const progress = (ms) => ms >= duration ? 1 : ms <= 0 ? 0 : at(ms / 1e3);
   return { duration, easing: `linear(${points.join(",")})`, stiffness, damping, progress };
 }
 var SPRING_SHAPE = springEasing(400, 31.2);
@@ -15427,12 +15250,12 @@ function liveSprings(apply2) {
     const dt = Math.min(0.5, Math.max(1e-3, (now - last) / 1e3));
     last = now;
     const steps = Math.ceil(dt * 240);
-    const h75 = dt / steps;
+    const h73 = dt / steps;
     let moving = false;
     for (const [key, value] of values) {
       for (let index = 0; index < steps; index += 1) {
-        value.v += (-value.k * (value.x - value.to) - value.c * value.v) * h75;
-        value.x += value.v * h75;
+        value.v += (-value.k * (value.x - value.to) - value.c * value.v) * h73;
+        value.x += value.v * h73;
       }
       if (Math.abs(value.x - value.to) < 0.05 && Math.abs(value.v) < 1) {
         value.x = value.to;
@@ -17858,12 +17681,12 @@ function goalView(goal, { roster = {}, roomWork = [] } = {}) {
   if (goal === null || goal === void 0) return null;
   const stages = goal.stages ?? [];
   const count = stages.length;
-  const at2 = goal.current;
-  const current = RUNNING.has(goal.status) ? stages[at2] : void 0;
+  const at = goal.current;
+  const current = RUNNING.has(goal.status) ? stages[at] : void 0;
   const checking = current !== void 0 && (current.tasks ?? []).every((task) => REPORTED.has(task.status));
-  const number = goal.status === "drafting" ? void 0 : goal.status === "stopped" ? stages.filter((stage) => stage.status === "passed").length : current !== void 0 ? at2 + 1 : count;
+  const number = goal.status === "drafting" ? void 0 : goal.status === "stopped" ? stages.filter((stage) => stage.status === "passed").length : current !== void 0 ? at + 1 : count;
   const barLabel = goal.status === "drafting" ? t("Aligning the goal with you") : goal.status === "stopped" ? t("Stopped") : goal.status === "complete" ? t("Goal reached") : goal.status === "paused" ? current ? t("Paused · {title}", { title: current.title }) : t("Paused") : goal.idle === true ? current ? t("Waiting for you · {title}", { title: current.title }) : t("Waiting for you") : current === void 0 ? t("Final check") : checking ? t("Checking · {title}", { title: current.title }) : current.title;
-  const segments = stages.map((stage, i) => stage.status === "passed" ? "done" : i === at2 && goal.status === "paused" ? "paused" : i === at2 && goal.status === "active" ? checking ? "checking" : "current" : "todo");
+  const segments = stages.map((stage, i) => stage.status === "passed" ? "done" : i === at && goal.status === "paused" ? "paused" : i === at && goal.status === "active" ? checking ? "checking" : "current" : "todo");
   const working = new Set((roomWork ?? []).map((entry) => entry.botId));
   const seen = /* @__PURE__ */ new Set();
   const faces = (current?.tasks ?? []).filter((task) => {
@@ -17876,7 +17699,7 @@ function goalView(goal, { roster = {}, roomWork = [] } = {}) {
     title: stage.title,
     acceptance: stage.acceptance,
     status: stage.status,
-    kind: stage.status === "passed" ? "passed" : i === at2 && RUNNING.has(goal.status) ? "current" : "upcoming",
+    kind: stage.status === "passed" ? "passed" : i === at && RUNNING.has(goal.status) ? "current" : "upcoming",
     tasks: (stage.tasks ?? []).map((task) => ({ bot: roster.byId?.[task.botId], task: task.task, status: task.status })),
     evidence: stage.evidence,
     reworks: stage.reworks ?? 0,
@@ -17976,8 +17799,8 @@ function TaskRow({ task, working }) {
 }
 var STOP_ARM_MS = 3e3;
 function GoalPanel({ goal, view, room: room2, roster, actions, working }) {
-  const at2 = RUNNING.has(view.status) && goal.current < view.stages.length ? goal.current : -1;
-  const [selected, setSelected] = (0, import_react7.useState)(at2);
+  const at = RUNNING.has(view.status) && goal.current < view.stages.length ? goal.current : -1;
+  const [selected, setSelected] = (0, import_react7.useState)(at);
   const [checks, setChecks] = (0, import_react7.useState)(false);
   const [armed, setArmed] = (0, import_react7.useState)(false);
   (0, import_react7.useEffect)(() => setSelected(RUNNING.has(view.status) && goal.current < view.stages.length ? goal.current : -1), [view.status, goal.current]);
@@ -18025,7 +17848,7 @@ function GoalPanel({ goal, view, room: room2, roster, actions, working }) {
           "data-sel": i === selected || void 0,
           title: t("Stage {n}: {title}", { n: stageView.n, title: stageView.title }),
           "aria-label": t("Stage {n}: {title}", { n: stageView.n, title: stageView.title }),
-          "aria-current": i === at2 ? "step" : void 0,
+          "aria-current": i === at ? "step" : void 0,
           onClick: () => setSelected(i)
         }, (0, import_react7.createElement)("span", { className: "bt-goal-node" }, stageView.status === "passed" ? (0, import_react7.createElement)(CheckIcon) : stageView.n)))
       ),
@@ -18045,10 +17868,10 @@ function GoalPanel({ goal, view, room: room2, roster, actions, working }) {
             "div",
             { className: "bt-goal-bline" },
             (0, import_react7.createElement)("span", { className: "bt-goal-btitle" }, stage.title),
-            selected !== at2 && at2 >= 0 ? (0, import_react7.createElement)("button", { type: "button", className: "bt-goal-back", onClick: () => setSelected(at2) }, t("Back to current stage")) : null
+            selected !== at && at >= 0 ? (0, import_react7.createElement)("button", { type: "button", className: "bt-goal-back", onClick: () => setSelected(at) }, t("Back to current stage")) : null
           ),
           stage.acceptance ? (0, import_react7.createElement)("div", { className: "bt-goal-line" }, t("Done when: {text}", { text: stage.acceptance })) : null,
-          selected === at2 && stage.reworks > 0 && stage.feedback ? (0, import_react7.createElement)("div", { className: "bt-goal-rw" }, stage.reworks > 1 ? t("Sent back {n} times by {admin}. Last time: {feedback}", { n: stage.reworks, admin, feedback: stage.feedback }) : t("Sent back by {admin}: {feedback}", { admin, feedback: stage.feedback })) : null,
+          selected === at && stage.reworks > 0 && stage.feedback ? (0, import_react7.createElement)("div", { className: "bt-goal-rw" }, stage.reworks > 1 ? t("Sent back {n} times by {admin}. Last time: {feedback}", { n: stage.reworks, admin, feedback: stage.feedback }) : t("Sent back by {admin}: {feedback}", { admin, feedback: stage.feedback })) : null,
           stage.evidence !== void 0 && stage.status === "passed" ? (0, import_react7.createElement)("div", { className: "bt-goal-evi" }, t("Evidence: {text}", { text: stage.evidence })) : null,
           stage.tasks.length > 0 ? (0, import_react7.createElement)("div", { className: "bt-goal-tasks" }, stage.tasks.map((task, i) => (0, import_react7.createElement)(TaskRow, { key: i, task, working }))) : null
         )
@@ -18413,7 +18236,7 @@ function QuestionView({ question, onAnswer, onDismiss, onInteract, busy = false,
   };
   const hints = useOptionKeys(busy ? 0 : options.length, (index) => choose(options[index].label), ownRef);
   const ownLetter = options.length > 0 ? keyLetter(options.length) : void 0;
-  const field2 = ownAnswer ? (0, import_react10.createElement)("textarea", {
+  const field = ownAnswer ? (0, import_react10.createElement)("textarea", {
     ref: ownRef,
     rows: 1,
     value: own,
@@ -18436,7 +18259,7 @@ function QuestionView({ question, onAnswer, onDismiss, onInteract, busy = false,
       submit();
     }
   }) : null;
-  const rows5 = options.map((option, optionIndex) => {
+  const rows3 = options.map((option, optionIndex) => {
     const selected = multi && picked.includes(option.label);
     return (0, import_react10.createElement)(
       "button",
@@ -18459,12 +18282,12 @@ function QuestionView({ question, onAnswer, onDismiss, onInteract, busy = false,
       selected && !raised ? (0, import_react10.createElement)("span", { className: "bt-q-check", title: t("Selected") }, (0, import_react10.createElement)(CheckIcon)) : null
     );
   });
-  if (raised && field2) {
-    rows5.push((0, import_react10.createElement)(
+  if (raised && field) {
+    rows3.push((0, import_react10.createElement)(
       "label",
       { key: "own", className: "bt-q-opt bt-q-ownrow", "data-filled": custom !== "" ? "" : void 0 },
       hints && ownLetter ? (0, import_react10.createElement)("span", { className: "bt-key", "aria-hidden": true }, ownLetter) : null,
-      (0, import_react10.createElement)("span", { className: "bt-q-body" }, field2)
+      (0, import_react10.createElement)("span", { className: "bt-q-body" }, field)
     ));
   }
   let foot = null;
@@ -18503,11 +18326,11 @@ function QuestionView({ question, onAnswer, onDismiss, onInteract, busy = false,
       ),
       (0, import_react10.createElement)("button", { type: "button", className: "bt-q-x", "aria-label": t("Dismiss question"), title: t("Dismiss"), onClick: onDismiss, disabled: busy }, (0, import_react10.createElement)(CloseIcon))
     ),
-    rows5.length > 0 ? (0, import_react10.createElement)("div", { className: "bt-q-list", role: "group" }, rows5) : null,
-    field2 && !raised ? (0, import_react10.createElement)(
+    rows3.length > 0 ? (0, import_react10.createElement)("div", { className: "bt-q-list", role: "group" }, rows3) : null,
+    field && !raised ? (0, import_react10.createElement)(
       "div",
       { className: "bt-q-custom" },
-      (0, import_react10.createElement)("label", { className: "bt-q-field" }, field2),
+      (0, import_react10.createElement)("label", { className: "bt-q-field" }, field),
       !multi && canSubmit ? (0, import_react10.createElement)("button", { type: "submit", className: "bt-q-submit", disabled: busy }, t("Submit")) : null
     ) : null,
     foot
@@ -18533,10 +18356,10 @@ function SettledQuestion({ question, answer, closed }) {
       (0, import_react10.createElement)("div", { className: "bt-q-text" }, prompt ? (0, import_react10.createElement)("p", { className: "bt-q-title" }, prompt) : null),
       answered ? null : (0, import_react10.createElement)("span", { className: "bt-q-badge" }, closedLabel(closed))
     ),
-    chosen.length > 0 ? (0, import_react10.createElement)("div", { className: "bt-q-list", role: "group", "aria-label": t("Your answer") }, chosen.map(({ label, at: at2 }, index) => (0, import_react10.createElement)(
+    chosen.length > 0 ? (0, import_react10.createElement)("div", { className: "bt-q-list", role: "group", "aria-label": t("Your answer") }, chosen.map(({ label, at }, index) => (0, import_react10.createElement)(
       "div",
       { key: `${label}-${index}`, className: "bt-q-opt", title: t("Selected") },
-      at2 >= 0 ? (0, import_react10.createElement)("span", { className: "bt-key", "aria-hidden": true }, keyLetter(at2)) : null,
+      at >= 0 ? (0, import_react10.createElement)("span", { className: "bt-key", "aria-hidden": true }, keyLetter(at)) : null,
       (0, import_react10.createElement)("span", { className: "bt-q-body" }, (0, import_react10.createElement)("span", { className: "bt-q-label" }, label))
     ))) : null
   );
@@ -18767,7 +18590,7 @@ function pendingReviewSources(roster, work = {}, browserHolds = {}, computer = {
   return (roster.bots ?? []).map((bot) => {
     const sessionId = currentPart(bot);
     const approvals = unique((work.approvals ?? []).filter((entry) => entry.botId === bot.id));
-    const pending = (field2) => unique((roster[field2]?.[bot.id] ?? []).filter((entry) => entry.status === "pending"));
+    const pending = (field) => unique((roster[field]?.[bot.id] ?? []).filter((entry) => entry.status === "pending"));
     const learning = unique(roster.learning?.[bot.id] ?? []);
     const secret = pending("secretRequests"), connector = pending("connectorRequests"), mail = pending("mailRequests");
     const live = (entry) => active(entry) ? entry : void 0;
@@ -18964,12 +18787,12 @@ function PendingAppAccess({ ask, actions, inline, compact: compact2 = false }) {
   const busyRef = (0, import_react12.useRef)(false);
   const titleId = (0, import_react12.useId)();
   const keep = useDockHold(ask.sessionId, "computer-app", ask.id, actions, inline);
-  const answer = (choice2) => {
+  const answer = (choice) => {
     if (busyRef.current) return;
     busyRef.current = true;
     keep();
     setClosed(true);
-    void Promise.resolve().then(() => actions.computerAppAnswer(ask.id, choice2)).catch((error) => {
+    void Promise.resolve().then(() => actions.computerAppAnswer(ask.id, choice)).catch((error) => {
       setClosed(false);
       actions.reportError?.(error, "computer");
     }).finally(() => {
@@ -19368,27 +19191,27 @@ var isName = (value) => typeof value === "string" && IDENT.test(value);
 var OPERATORS = ["==", "!=", "<=", ">=", "&&", "||", "+", "-", "*", "/", "%", "<", ">", "!", "?", ":", "(", ")", ","];
 function tokenize(source) {
   const tokens = [];
-  let at2 = 0;
-  while (at2 < source.length) {
-    const char = source[at2];
+  let at = 0;
+  while (at < source.length) {
+    const char = source[at];
     if (/\s/.test(char)) {
-      at2 += 1;
+      at += 1;
       continue;
     }
-    const number = /^(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/.exec(source.slice(at2));
+    const number = /^(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/.exec(source.slice(at));
     if (number) {
-      tokens.push({ kind: "number", value: Number(number[0]), at: at2 });
-      at2 += number[0].length;
+      tokens.push({ kind: "number", value: Number(number[0]), at });
+      at += number[0].length;
       continue;
     }
-    const name = /^[A-Za-z_][A-Za-z0-9_]*/.exec(source.slice(at2));
+    const name = /^[A-Za-z_][A-Za-z0-9_]*/.exec(source.slice(at));
     if (name) {
-      tokens.push({ kind: "name", value: name[0], at: at2 });
-      at2 += name[0].length;
+      tokens.push({ kind: "name", value: name[0], at });
+      at += name[0].length;
       continue;
     }
     if (char === '"' || char === "'") {
-      let end = at2 + 1;
+      let end = at + 1;
       let text = "";
       while (end < source.length && source[end] !== char) {
         if (source[end] === "\\" && end + 1 < source.length) {
@@ -19399,15 +19222,15 @@ function tokenize(source) {
         text += source[end];
         end += 1;
       }
-      if (end >= source.length) fail(`unclosed string at ${at2 + 1}`);
-      tokens.push({ kind: "string", value: text, at: at2 });
-      at2 = end + 1;
+      if (end >= source.length) fail(`unclosed string at ${at + 1}`);
+      tokens.push({ kind: "string", value: text, at });
+      at = end + 1;
       continue;
     }
-    const operator = OPERATORS.find((op) => source.startsWith(op, at2));
-    if (operator === void 0) fail(`unexpected ${JSON.stringify(char)} at ${at2 + 1}`);
-    tokens.push({ kind: "op", value: operator, at: at2 });
-    at2 += operator.length;
+    const operator = OPERATORS.find((op) => source.startsWith(op, at));
+    if (operator === void 0) fail(`unexpected ${JSON.stringify(char)} at ${at + 1}`);
+    tokens.push({ kind: "op", value: operator, at });
+    at += operator.length;
   }
   return tokens;
 }
@@ -19666,7 +19489,7 @@ function normalizeView(value, inFormFields = false) {
   }
   const out = {};
   for (const key of keys) Object.defineProperty(out, key, { value: normalizeView(value[key], inFormFields || key === "fields"), writable: true, enumerable: true, configurable: true });
-  for (const field2 of NUMERIC) if ((field2 !== "value" || !inFormFields) && Object.hasOwn(out, field2)) out[field2] = numeric(out[field2]);
+  for (const field of NUMERIC) if ((field !== "value" || !inFormFields) && Object.hasOwn(out, field)) out[field] = numeric(out[field]);
   if (Array.isArray(out.values)) out.values = out.values.map(numeric);
   return out;
 }
@@ -19760,19 +19583,19 @@ function checkLayout(node, path2, depth, ctx) {
 }
 function checkValue(node, key, path2, ctx, kind, { required = false, max = MAX_TEXT } = {}) {
   const value = node[key];
-  const at2 = `${path2}.${key}`;
-  if (value === void 0) return required ? `${at2}: ${expected(kind)}` : void 0;
+  const at = `${path2}.${key}`;
+  if (value === void 0) return required ? `${at}: ${expected(kind)}` : void 0;
   if (isFormula(value)) {
-    ctx.formulas.push({ source: value["="], path: at2, kind });
+    ctx.formulas.push({ source: value["="], path: at, kind });
     return void 0;
   }
-  if (kind === "number") return isNumber(value) ? void 0 : `${at2}: ${expected(kind)}`;
-  if (Array.isArray(kind)) return kind.includes(value) ? void 0 : `${at2}: unknown tone ${quoted(value)}; allowed: ${allowed(kind)}`;
+  if (kind === "number") return isNumber(value) ? void 0 : `${at}: ${expected(kind)}`;
+  if (Array.isArray(kind)) return kind.includes(value) ? void 0 : `${at}: unknown tone ${quoted(value)}; allowed: ${allowed(kind)}`;
   if (kind === "string") {
-    if (typeof value !== "string") return `${at2}: ${expected(kind)}`;
-    return value.length > max ? `${at2}: ${value.length} characters exceeds the limit of ${max}` : void 0;
+    if (typeof value !== "string") return `${at}: ${expected(kind)}`;
+    return value.length > max ? `${at}: ${value.length} characters exceeds the limit of ${max}` : void 0;
   }
-  if (!isScalar(value)) return `${at2}: ${expected(kind)}`;
+  if (!isScalar(value)) return `${at}: ${expected(kind)}`;
   return void 0;
 }
 var expected = (kind) => kind === "number" ? "expected a number" : kind === "string" ? "expected a string" : Array.isArray(kind) ? `expected one of ${allowed(kind)}` : "expected a string or a number";
@@ -19790,13 +19613,13 @@ function checkTable(node, path2, ctx) {
   if (node.columns.length > MAX_COLUMNS) return `${path2}.columns: ${node.columns.length} columns exceeds the limit of ${MAX_COLUMNS}`;
   for (let index = 0; index < node.columns.length; index += 1) {
     const column = node.columns[index];
-    const at2 = `${path2}.columns[${index}]`;
-    if (!isRecord(column)) return `${at2}: expected a column object`;
+    const at = `${path2}.columns[${index}]`;
+    if (!isRecord(column)) return `${at}: expected a column object`;
     for (const key of Object.keys(column)) {
-      if (key !== "key" && key !== "label") return `${at2}.${key}: unknown property ${quoted(key)}; allowed: key, label`;
+      if (key !== "key" && key !== "label") return `${at}.${key}: unknown property ${quoted(key)}; allowed: key, label`;
     }
-    if (typeof column.key !== "string" || column.key === "") return `${at2}.key: expected a non-empty string`;
-    if (typeof column.label !== "string") return `${at2}.label: expected a string`;
+    if (typeof column.key !== "string" || column.key === "") return `${at}.key: expected a non-empty string`;
+    if (typeof column.label !== "string") return `${at}.label: expected a string`;
   }
   if (!Array.isArray(node.rows)) return `${path2}.rows: expected an array of at most ${MAX_ROWS} rows`;
   if (node.rows.length > MAX_ROWS) return `${path2}.rows: ${node.rows.length} rows exceeds the limit of ${MAX_ROWS}`;
@@ -19804,13 +19627,13 @@ function checkTable(node, path2, ctx) {
     const cells = node.rows[row];
     if (!Array.isArray(cells)) return `${path2}.rows[${row}]: expected an array of cells`;
     for (let column = 0; column < cells.length; column += 1) {
-      const at2 = `${path2}.rows[${row}][${column}]`;
+      const at = `${path2}.rows[${row}][${column}]`;
       if (isFormula(cells[column])) {
-        ctx.formulas.push({ source: cells[column]["="], path: at2, kind: "scalar" });
+        ctx.formulas.push({ source: cells[column]["="], path: at, kind: "scalar" });
         continue;
       }
       const text = cellText(cells[column]);
-      if (text.length > MAX_CELL) return `${at2}: ${text.length} characters exceeds the limit of ${MAX_CELL}`;
+      if (text.length > MAX_CELL) return `${at}: ${text.length} characters exceeds the limit of ${MAX_CELL}`;
     }
   }
   return void 0;
@@ -19826,18 +19649,18 @@ function checkChart(node, path2, ctx) {
   if (node.kind === "donut" && node.series.length > 1) return `${path2}.series: a donut takes one series; got ${node.series.length}`;
   for (let index = 0; index < node.series.length; index += 1) {
     const series = node.series[index];
-    const at2 = `${path2}.series[${index}]`;
-    if (!isRecord(series)) return `${at2}: expected a series object`;
+    const at = `${path2}.series[${index}]`;
+    if (!isRecord(series)) return `${at}: expected a series object`;
     for (const key of Object.keys(series)) {
-      if (key !== "name" && key !== "values") return `${at2}.${key}: unknown property ${quoted(key)}; allowed: name, values`;
+      if (key !== "name" && key !== "values") return `${at}.${key}: unknown property ${quoted(key)}; allowed: name, values`;
     }
-    if (series.name !== void 0 && typeof series.name !== "string") return `${at2}.name: expected a string`;
-    if (!Array.isArray(series.values)) return `${at2}.values: expected an array of numbers`;
-    if (series.values.length !== node.categories.length) return `${at2}.values: ${series.values.length} values for ${node.categories.length} categories`;
+    if (series.name !== void 0 && typeof series.name !== "string") return `${at}.name: expected a string`;
+    if (!Array.isArray(series.values)) return `${at}.values: expected an array of numbers`;
+    if (series.values.length !== node.categories.length) return `${at}.values: ${series.values.length} values for ${node.categories.length} categories`;
     for (let item = 0; item < series.values.length; item += 1) {
       const value = series.values[item];
-      if (isFormula(value)) ctx.formulas.push({ source: value["="], path: `${at2}.values[${item}]`, kind: "number" });
-      else if (!isNumber(value)) return `${at2}.values[${item}]: expected a number`;
+      if (isFormula(value)) ctx.formulas.push({ source: value["="], path: `${at}.values[${item}]`, kind: "number" });
+      else if (!isNumber(value)) return `${at}.values[${item}]: expected a number`;
     }
   }
   if (node.unit !== void 0 && typeof node.unit !== "string") return `${path2}.unit: expected a string`;
@@ -19861,13 +19684,13 @@ function checkSources(node, path2) {
   if (!Array.isArray(node.items) || node.items.length === 0) return `${path2}.items: expected a non-empty array of { label, url }`;
   for (let index = 0; index < node.items.length; index += 1) {
     const item = node.items[index];
-    const at2 = `${path2}.items[${index}]`;
-    if (!isRecord(item)) return `${at2}: expected a { label, url } object`;
+    const at = `${path2}.items[${index}]`;
+    if (!isRecord(item)) return `${at}: expected a { label, url } object`;
     for (const key of Object.keys(item)) {
-      if (key !== "label" && key !== "url") return `${at2}.${key}: unknown property ${quoted(key)}; allowed: label, url`;
+      if (key !== "label" && key !== "url") return `${at}.${key}: unknown property ${quoted(key)}; allowed: label, url`;
     }
-    if (typeof item.label !== "string" || item.label.trim() === "") return `${at2}.label: expected a non-empty string`;
-    if (typeof item.url !== "string" || !/^https?:\/\/[^\s]+$/i.test(item.url)) return `${at2}.url: expected an http(s) address`;
+    if (typeof item.label !== "string" || item.label.trim() === "") return `${at}.label: expected a non-empty string`;
+    if (typeof item.url !== "string" || !/^https?:\/\/[^\s]+$/i.test(item.url)) return `${at}.url: expected an http(s) address`;
   }
   return void 0;
 }
@@ -19907,17 +19730,17 @@ function checkChoice(node, path2, ctx) {
   const values = /* @__PURE__ */ new Set();
   for (let index = 0; index < node.options.length; index += 1) {
     const option = node.options[index];
-    const at2 = `${path2}.options[${index}]`;
-    if (!isRecord(option)) return `${at2}: expected a { label, value } object`;
+    const at = `${path2}.options[${index}]`;
+    if (!isRecord(option)) return `${at}: expected a { label, value } object`;
     for (const key of Object.keys(option)) {
-      if (key !== "label" && key !== "value") return `${at2}.${key}: unknown property ${quoted(key)}; allowed: label, value`;
+      if (key !== "label" && key !== "value") return `${at}.${key}: unknown property ${quoted(key)}; allowed: label, value`;
     }
-    if (typeof option.label !== "string" || option.label.trim() === "") return `${at2}.label: expected a non-empty string`;
-    if (labels2.has(option.label)) return `${at2}.label: duplicate label ${quoted(option.label)}`;
+    if (typeof option.label !== "string" || option.label.trim() === "") return `${at}.label: expected a non-empty string`;
+    if (labels2.has(option.label)) return `${at}.label: duplicate label ${quoted(option.label)}`;
     labels2.add(option.label);
     const value = option.value ?? option.label;
-    if (!isScalar(value)) return `${at2}.value: expected a string, a number or true/false`;
-    if (values.has(value)) return `${at2}.value: duplicate value ${quoted(value)}`;
+    if (!isScalar(value)) return `${at}.value: expected a string, a number or true/false`;
+    if (values.has(value)) return `${at}.value: duplicate value ${quoted(value)}`;
     values.add(value);
   }
   const chosen = node.value ?? choiceValue(node.options[0]);
@@ -19941,15 +19764,15 @@ function checkOptions(node, path2, ctx) {
   const labels2 = /* @__PURE__ */ new Set();
   for (let index = 0; index < node.options.length; index += 1) {
     const option = node.options[index];
-    const at2 = `${path2}.options[${index}]`;
-    if (!isRecord(option)) return `${at2}: expected an option object`;
+    const at = `${path2}.options[${index}]`;
+    if (!isRecord(option)) return `${at}: expected an option object`;
     for (const key of Object.keys(option)) {
-      if (key !== "label" && key !== "description") return `${at2}.${key}: unknown property ${quoted(key)}; allowed: label, description`;
+      if (key !== "label" && key !== "description") return `${at}.${key}: unknown property ${quoted(key)}; allowed: label, description`;
     }
-    if (typeof option.label !== "string" || option.label.trim() === "") return `${at2}.label: expected a non-empty string`;
-    if (labels2.has(option.label)) return `${at2}.label: duplicate label ${quoted(option.label)}`;
+    if (typeof option.label !== "string" || option.label.trim() === "") return `${at}.label: expected a non-empty string`;
+    if (labels2.has(option.label)) return `${at}.label: duplicate label ${quoted(option.label)}`;
     labels2.add(option.label);
-    if (option.description !== void 0 && typeof option.description !== "string") return `${at2}.description: expected a string`;
+    if (option.description !== void 0 && typeof option.description !== "string") return `${at}.description: expected a string`;
   }
   return void 0;
 }
@@ -19969,24 +19792,24 @@ function checkForm(node, path2, ctx) {
   if (node.fields.length > MAX_FIELDS) return `${path2}.fields: ${node.fields.length} fields exceeds the limit of ${MAX_FIELDS}`;
   const seen = /* @__PURE__ */ new Set();
   for (let index = 0; index < node.fields.length; index += 1) {
-    const field2 = node.fields[index];
-    const at2 = `${path2}.fields[${index}]`;
-    if (!isRecord(field2)) return `${at2}: expected a field object`;
-    for (const key of Object.keys(field2)) {
-      if (!FIELD_PROPS.includes(key)) return `${at2}.${key}: unknown property ${quoted(key)}; allowed: ${allowed(FIELD_PROPS)}`;
+    const field = node.fields[index];
+    const at = `${path2}.fields[${index}]`;
+    if (!isRecord(field)) return `${at}: expected a field object`;
+    for (const key of Object.keys(field)) {
+      if (!FIELD_PROPS.includes(key)) return `${at}.${key}: unknown property ${quoted(key)}; allowed: ${allowed(FIELD_PROPS)}`;
     }
-    if (typeof field2.id !== "string" || field2.id === "") return `${at2}.id: expected a non-empty string`;
-    if (field2.id === "__proto__") return `${at2}.id: "__proto__" cannot be an id`;
-    if (seen.has(field2.id)) return `${at2}.id: duplicate field id ${quoted(field2.id)}`;
-    seen.add(field2.id);
-    if (typeof field2.label !== "string") return `${at2}.label: expected a string`;
-    if (field2.placeholder !== void 0 && typeof field2.placeholder !== "string") return `${at2}.placeholder: expected a string`;
-    if (field2.value !== void 0) {
-      if (typeof field2.value !== "string") return `${at2}.value: expected a string`;
-      if (field2.value.length > MAX_TEXT) return `${at2}.value: ${field2.value.length} characters exceeds the limit of ${MAX_TEXT}`;
+    if (typeof field.id !== "string" || field.id === "") return `${at}.id: expected a non-empty string`;
+    if (field.id === "__proto__") return `${at}.id: "__proto__" cannot be an id`;
+    if (seen.has(field.id)) return `${at}.id: duplicate field id ${quoted(field.id)}`;
+    seen.add(field.id);
+    if (typeof field.label !== "string") return `${at}.label: expected a string`;
+    if (field.placeholder !== void 0 && typeof field.placeholder !== "string") return `${at}.placeholder: expected a string`;
+    if (field.value !== void 0) {
+      if (typeof field.value !== "string") return `${at}.value: expected a string`;
+      if (field.value.length > MAX_TEXT) return `${at}.value: ${field.value.length} characters exceeds the limit of ${MAX_TEXT}`;
     }
-    if (field2.multiline !== void 0 && typeof field2.multiline !== "boolean") return `${at2}.multiline: expected a boolean`;
-    if (field2.readOnly !== void 0 && typeof field2.readOnly !== "boolean") return `${at2}.readOnly: expected a boolean`;
+    if (field.multiline !== void 0 && typeof field.multiline !== "boolean") return `${at}.multiline: expected a boolean`;
+    if (field.readOnly !== void 0 && typeof field.readOnly !== "boolean") return `${at}.readOnly: expected a boolean`;
   }
   return void 0;
 }
@@ -20136,7 +19959,7 @@ function componentSummary(node, lookup) {
     case "confirm":
       return "confirm";
     case "form":
-      return `form: ${(Array.isArray(node.fields) ? node.fields : []).map((field2) => field2?.label || field2?.id).filter(Boolean).join("/")}`;
+      return `form: ${(Array.isArray(node.fields) ? node.fields : []).map((field) => field?.label || field?.id).filter(Boolean).join("/")}`;
     case "submit":
       return `submit: ${node.label ?? "Send"}`;
     default:
@@ -20190,12 +20013,12 @@ function validateInputs(view, sent) {
   const inputs = {};
   for (const node of nodes) {
     const value = Object.hasOwn(given, node.id) ? given[node.id] : inputDefault(node);
-    const at2 = `values.inputs.${node.id}`;
-    if (node.type === "toggle" && typeof value !== "boolean") return { error: `${at2}: expected true or false` };
-    if (node.type === "choice" && !(Array.isArray(node.options) ? node.options : []).some((option) => choiceValue(option) === value)) return { error: `${at2}: expected one of the options' values` };
+    const at = `values.inputs.${node.id}`;
+    if (node.type === "toggle" && typeof value !== "boolean") return { error: `${at}: expected true or false` };
+    if (node.type === "choice" && !(Array.isArray(node.options) ? node.options : []).some((option) => choiceValue(option) === value)) return { error: `${at}: expected one of the options' values` };
     if (node.type === "slider" || node.type === "number") {
-      if (!isNumber(value)) return { error: `${at2}: expected a number` };
-      if (node.min !== void 0 && value < node.min || node.max !== void 0 && value > node.max) return { error: `${at2}: expected a number from ${node.min ?? "-∞"} to ${node.max ?? "∞"}` };
+      if (!isNumber(value)) return { error: `${at}: expected a number` };
+      if (node.min !== void 0 && value < node.min || node.max !== void 0 && value > node.max) return { error: `${at}: expected a number from ${node.min ?? "-∞"} to ${node.max ?? "∞"}` };
     }
     inputs[node.id] = value;
   }
@@ -20216,9 +20039,9 @@ function validateConfirm(values) {
 function validateForm(node, values) {
   if (values.canceled === true) return { canceled: true };
   if (!isRecord(values.fields)) return { error: "values.fields: expected an object of field ids to strings" };
-  const declaredFields = (node.fields ?? []).filter((field2) => typeof field2?.id === "string");
-  const declared = declaredFields.map((field2) => field2.id);
-  const byId = new Map(declaredFields.map((field2) => [field2.id, field2]));
+  const declaredFields = (node.fields ?? []).filter((field) => typeof field?.id === "string");
+  const declared = declaredFields.map((field) => field.id);
+  const byId = new Map(declaredFields.map((field) => [field.id, field]));
   const allowedIds = new Set(declared);
   const fields = {};
   for (const [key, value] of Object.entries(values.fields)) {
@@ -20276,8 +20099,8 @@ function chartData(node, lookup) {
   const series = (Array.isArray(node.series) ? node.series : []).map((item, index) => ({
     name: typeof item?.name === "string" ? item.name : "",
     color: colorAt(index),
-    values: categories.map((_, at2) => {
-      const value = Number(resolve(Array.isArray(item?.values) ? item.values[at2] : void 0, lookup, 0));
+    values: categories.map((_, at) => {
+      const value = Number(resolve(Array.isArray(item?.values) ? item.values[at] : void 0, lookup, 0));
       return Number.isFinite(value) ? value : 0;
     })
   }));
@@ -20286,8 +20109,8 @@ function chartData(node, lookup) {
 var csvCell = (value) => /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 function chartCsv({ categories, series, unit }, t2 = (key) => key) {
   const head = ["", ...series.map((item, index) => item.name || (series.length === 1 ? unit || t2("Value") : `${t2("Series")} ${index + 1}`))];
-  const rows5 = categories.map((label, at2) => [label, ...series.map((item) => String(item.values[at2]))]);
-  return [head, ...rows5].map((row) => row.map((cell) => csvCell(String(cell))).join(",")).join("\n");
+  const rows3 = categories.map((label, at) => [label, ...series.map((item) => String(item.values[at]))]);
+  return [head, ...rows3].map((row) => row.map((cell) => csvCell(String(cell))).join(",")).join("\n");
 }
 function valueAxis(values, zero) {
   const finite = values.length > 0 ? values : [0];
@@ -20315,47 +20138,47 @@ function columns({ categories, series, unit, kind }, width, active2, shown) {
     parts.push((0, import_react14.createElement)("text", { key: `t${tick}`, className: "dv-chart-tick", x: plot.x - 8, y: y(tick) + 3, textAnchor: "end" }, withUnit(tick, unit)));
   }
   const points = [];
-  categories.forEach((label, at2) => {
-    const cx = plot.x + band * at2 + band / 2;
-    parts.push((0, import_react14.createElement)("text", { key: `c${at2}`, className: "dv-chart-label", x: cx, y: height - 7, textAnchor: "middle" }, fit(label, band - 4, LABEL)));
-    points.push({ x: cx, y: y(Math.max(...visible.map((item) => item.values[at2]), lo)) });
+  categories.forEach((label, at) => {
+    const cx = plot.x + band * at + band / 2;
+    parts.push((0, import_react14.createElement)("text", { key: `c${at}`, className: "dv-chart-label", x: cx, y: height - 7, textAnchor: "middle" }, fit(label, band - 4, LABEL)));
+    points.push({ x: cx, y: y(Math.max(...visible.map((item) => item.values[at]), lo)) });
   });
   if (kind === "bar") {
     const group = band * 0.72;
     const gap = visible.length > 1 ? 2 : 0;
     const barW = Math.max(2, (group - gap * (visible.length - 1)) / visible.length);
     const zero = y(Math.max(lo, Math.min(0, hi)));
-    categories.forEach((_, at2) => {
+    categories.forEach((_, at) => {
       visible.forEach((item, row) => {
-        const value = item.values[at2];
-        const x = plot.x + band * at2 + (band - group) / 2 + row * (barW + gap);
+        const value = item.values[at];
+        const x = plot.x + band * at + (band - group) / 2 + row * (barW + gap);
         const top2 = Math.min(y(value), zero);
         const tall = Math.max(1, Math.abs(y(value) - zero));
         const r = Math.min(4, barW / 2, tall);
         const up = value >= 0;
         const d = up ? `M${x},${top2 + tall}V${top2 + r}q0,-${r} ${r},-${r}h${barW - 2 * r}q${r},0 ${r},${r}V${top2 + tall}z` : `M${x},${top2}V${top2 + tall - r}q0,${r} ${r},${r}h${barW - 2 * r}q${r},0 ${r},-${r}V${top2}z`;
-        parts.push((0, import_react14.createElement)("path", { key: `b${at2}-${row}`, className: "dv-chart-mark", "data-dim": active2 !== null && active2 !== at2 ? "" : void 0, d, style: { fill: item.color } }));
+        parts.push((0, import_react14.createElement)("path", { key: `b${at}-${row}`, className: "dv-chart-mark", "data-dim": active2 !== null && active2 !== at ? "" : void 0, d, style: { fill: item.color } }));
       });
     });
   } else {
-    const xs = categories.map((_, at2) => plot.x + band * at2 + band / 2);
+    const xs = categories.map((_, at) => plot.x + band * at + band / 2);
     visible.forEach((item, row) => {
-      const line = item.values.map((value, at2) => `${at2 === 0 ? "M" : "L"}${xs[at2]},${y(value)}`).join("");
+      const line = item.values.map((value, at) => `${at === 0 ? "M" : "L"}${xs[at]},${y(value)}`).join("");
       if (kind === "area") {
         const base = y(Math.max(lo, Math.min(0, hi)));
         parts.push((0, import_react14.createElement)("path", { key: `a${row}`, className: "dv-chart-area", d: `${line}L${xs.at(-1)},${base}L${xs[0]},${base}z`, style: { fill: item.color } }));
       }
       parts.push((0, import_react14.createElement)("path", { key: `l${row}`, className: "dv-chart-line", d: line, style: { stroke: item.color } }));
-      item.values.forEach((value, at2) => {
-        parts.push((0, import_react14.createElement)("circle", { key: `p${row}-${at2}`, className: "dv-chart-dot", cx: xs[at2], cy: y(value), r: active2 === at2 ? 4 : 2.5, style: { fill: item.color } }));
+      item.values.forEach((value, at) => {
+        parts.push((0, import_react14.createElement)("circle", { key: `p${row}-${at}`, className: "dv-chart-dot", cx: xs[at], cy: y(value), r: active2 === at ? 4 : 2.5, style: { fill: item.color } }));
       });
     });
     if (active2 !== null) parts.unshift((0, import_react14.createElement)("line", { key: "guide", className: "dv-chart-guide", x1: xs[active2], x2: xs[active2], y1: plot.y, y2: plot.y + plot.h }));
   }
-  const hits = categories.map((_, at2) => ({ x: plot.x + band * at2, y: plot.y, w: band, h: plot.h }));
+  const hits = categories.map((_, at) => ({ x: plot.x + band * at, y: plot.y, w: band, h: plot.h }));
   return { parts, height, points, hits };
 }
-function rows4({ categories, series, unit }, width, active2, shown) {
+function rows2({ categories, series, unit }, width, active2, shown) {
   const visible = series.filter((_, index) => shown[index]);
   const ticks = valueAxis(visible.flatMap((item) => item.values), true);
   const lo = ticks[0];
@@ -20375,20 +20198,20 @@ function rows4({ categories, series, unit }, width, active2, shown) {
   }
   const points = [];
   const zero = x(Math.max(lo, Math.min(0, hi)));
-  categories.forEach((label, at2) => {
-    const rowY = plot.y + rowH * at2 + 5;
-    parts.push((0, import_react14.createElement)("text", { key: `c${at2}`, className: "dv-chart-label", x: labelW - 10, y: rowY + (rowH - 10) / 2 + 4, textAnchor: "end" }, fit(label, labelW - 12, LABEL)));
+  categories.forEach((label, at) => {
+    const rowY = plot.y + rowH * at + 5;
+    parts.push((0, import_react14.createElement)("text", { key: `c${at}`, className: "dv-chart-label", x: labelW - 10, y: rowY + (rowH - 10) / 2 + 4, textAnchor: "end" }, fit(label, labelW - 12, LABEL)));
     visible.forEach((item, row) => {
-      const value = item.values[at2];
+      const value = item.values[at];
       const by = rowY + row * (barH + 2);
       const left = Math.min(x(value), zero);
       const long = Math.max(1, Math.abs(x(value) - zero));
-      parts.push((0, import_react14.createElement)("rect", { key: `b${at2}-${row}`, className: "dv-chart-mark", "data-dim": active2 !== null && active2 !== at2 ? "" : void 0, x: left, y: by, width: long, height: barH, rx: Math.min(4, long / 2), style: { fill: item.color } }));
-      parts.push((0, import_react14.createElement)("text", { key: `v${at2}-${row}`, className: "dv-chart-value", x: left + long + 6, y: by + barH - 3 }, withUnit(value, unit)));
+      parts.push((0, import_react14.createElement)("rect", { key: `b${at}-${row}`, className: "dv-chart-mark", "data-dim": active2 !== null && active2 !== at ? "" : void 0, x: left, y: by, width: long, height: barH, rx: Math.min(4, long / 2), style: { fill: item.color } }));
+      parts.push((0, import_react14.createElement)("text", { key: `v${at}-${row}`, className: "dv-chart-value", x: left + long + 6, y: by + barH - 3 }, withUnit(value, unit)));
     });
-    points.push({ x: Math.max(...visible.map((item) => x(item.values[at2])), zero), y: rowY });
+    points.push({ x: Math.max(...visible.map((item) => x(item.values[at])), zero), y: rowY });
   });
-  const hits = categories.map((_, at2) => ({ x: 0, y: plot.y + rowH * at2, w: width, h: rowH }));
+  const hits = categories.map((_, at) => ({ x: 0, y: plot.y + rowH * at, w: width, h: rowH }));
   return { parts, height, points, hits };
 }
 function donut({ categories, series }, width, active2, hover) {
@@ -20402,7 +20225,7 @@ function donut({ categories, series }, width, active2, hover) {
   const parts = [];
   const points = [];
   let angle = -Math.PI / 2;
-  values.forEach((value, at2) => {
+  values.forEach((value, at) => {
     const sweep = total > 0 ? value / total * Math.PI * 2 : 0;
     const end = angle + sweep;
     const mid = angle + sweep / 2;
@@ -20412,7 +20235,7 @@ function donut({ categories, series }, width, active2, hover) {
       const full2 = sweep >= Math.PI * 2 - 1e-6;
       const p = (radius, theta) => `${cx + Math.cos(theta) * radius},${cy + Math.sin(theta) * radius}`;
       const d = full2 ? `M${p(r, angle)}A${r},${r} 0 1 1 ${p(r, angle + Math.PI)}A${r},${r} 0 1 1 ${p(r, angle)}M${p(inner, angle)}A${inner},${inner} 0 1 0 ${p(inner, angle + Math.PI)}A${inner},${inner} 0 1 0 ${p(inner, angle)}z` : `M${p(r, angle)}A${r},${r} 0 ${large} 1 ${p(r, end)}L${p(inner, end)}A${inner},${inner} 0 ${large} 0 ${p(inner, angle)}z`;
-      parts.push((0, import_react14.createElement)("path", { key: `s${at2}`, className: "dv-chart-mark", "data-dim": active2 !== null && active2 !== at2 ? "" : void 0, d, fillRule: "evenodd", style: { fill: colorAt(at2) }, onPointerEnter: () => hover(at2) }));
+      parts.push((0, import_react14.createElement)("path", { key: `s${at}`, className: "dv-chart-mark", "data-dim": active2 !== null && active2 !== at ? "" : void 0, d, fillRule: "evenodd", style: { fill: colorAt(at) }, onPointerEnter: () => hover(at) }));
     }
     angle = end;
   });
@@ -20491,11 +20314,11 @@ function ChartTable({ data }) {
       "table",
       null,
       (0, import_react14.createElement)("thead", null, (0, import_react14.createElement)("tr", null, (0, import_react14.createElement)("th", { scope: "col" }), heads.map((head, index) => (0, import_react14.createElement)("th", { key: index, scope: "col", className: "dv-num" }, head)))),
-      (0, import_react14.createElement)("tbody", null, categories.map((label, at2) => (0, import_react14.createElement)(
+      (0, import_react14.createElement)("tbody", null, categories.map((label, at) => (0, import_react14.createElement)(
         "tr",
-        { key: at2 },
+        { key: at },
         (0, import_react14.createElement)("th", { scope: "row" }, label),
-        series.map((item, index) => (0, import_react14.createElement)("td", { key: index, className: "dv-num" }, withUnit(item.values[at2], series.length === 1 && !item.name ? "" : unit)))
+        series.map((item, index) => (0, import_react14.createElement)("td", { key: index, className: "dv-num" }, withUnit(item.values[at], series.length === 1 && !item.name ? "" : unit)))
       )))
     )
   );
@@ -20523,7 +20346,7 @@ function WidgetChart({ node, lookup, registerChart, refreshCharts }) {
   const label = typeof node.caption === "string" && node.caption !== "" ? node.caption : ui2.t("Chart");
   const isDonut = kind === "donut";
   const legendBeside = isDonut && width >= 360;
-  const drawn = isDonut ? donut(data, legendBeside ? width - 200 : width, active2, setActive) : kind === "hbar" ? rows4(data, width, active2, shown) : columns(data, width, active2, shown);
+  const drawn = isDonut ? donut(data, legendBeside ? width - 200 : width, active2, setActive) : kind === "hbar" ? rows2(data, width, active2, shown) : columns(data, width, active2, shown);
   const svgWidth = isDonut ? drawn.size : width;
   const move = (event) => {
     const keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
@@ -20536,7 +20359,7 @@ function WidgetChart({ node, lookup, registerChart, refreshCharts }) {
     setActive((current) => current === null ? 0 : (current + keys[event.key] + categories.length) % categories.length);
   };
   const point = active2 === null ? null : drawn.points[active2];
-  const share = (at2) => unit === "%" ? withUnit(drawn.values[at2], unit) : `${withUnit(drawn.values[at2], unit)} · ${drawn.total > 0 ? Math.round(drawn.values[at2] / drawn.total * 100) : 0}%`;
+  const share = (at) => unit === "%" ? withUnit(drawn.values[at], unit) : `${withUnit(drawn.values[at], unit)} · ${drawn.total > 0 ? Math.round(drawn.values[at] / drawn.total * 100) : 0}%`;
   const tipRows = active2 === null || isDonut ? [] : series.filter((_, index) => shown[index]).map((item) => ({ color: item.color, name: item.name, value: withUnit(item.values[active2], unit) }));
   const copy2 = () => {
     void navigator.clipboard?.writeText(chartCsv(data, ui2.t)).then(() => {
@@ -20565,18 +20388,18 @@ function WidgetChart({ node, lookup, registerChart, refreshCharts }) {
     save: () => action.current.save()
   }), [registerChart, menuKey]);
   (0, import_react14.useEffect)(() => refreshCharts?.(), [refreshCharts, asTable, menuLabel]);
-  const legend = isDonut ? (0, import_react14.createElement)("div", { className: "dv-chart-legend dv-chart-legend-list" }, categories.map((name, at2) => (0, import_react14.createElement)(
+  const legend = isDonut ? (0, import_react14.createElement)("div", { className: "dv-chart-legend dv-chart-legend-list" }, categories.map((name, at) => (0, import_react14.createElement)(
     "div",
     {
-      key: at2,
+      key: at,
       className: "dv-chart-key",
-      "data-dim": active2 !== null && active2 !== at2 ? "" : void 0,
-      onPointerEnter: () => setActive(at2),
+      "data-dim": active2 !== null && active2 !== at ? "" : void 0,
+      onPointerEnter: () => setActive(at),
       onPointerLeave: () => setActive(null)
     },
-    (0, import_react14.createElement)("i", { style: { background: colorAt(at2) } }),
+    (0, import_react14.createElement)("i", { style: { background: colorAt(at) } }),
     (0, import_react14.createElement)("span", { className: "dv-chart-key-name" }, name),
-    (0, import_react14.createElement)("span", { className: "dv-chart-key-value" }, share(at2))
+    (0, import_react14.createElement)("span", { className: "dv-chart-key-value" }, share(at))
   ))) : series.length > 1 ? (0, import_react14.createElement)("div", { className: "dv-chart-legend" }, series.map((item, index) => (0, import_react14.createElement)("button", {
     key: index,
     type: "button",
@@ -20608,7 +20431,7 @@ function WidgetChart({ node, lookup, registerChart, refreshCharts }) {
         null,
         (0, import_react14.createElement)("text", { className: "dv-chart-center-name", x: svgWidth / 2, y: drawn.height / 2 - 4, textAnchor: "middle" }, fit(categories[active2], drawn.size * 0.56, LABEL)),
         (0, import_react14.createElement)("text", { className: "dv-chart-center", x: svgWidth / 2, y: drawn.height / 2 + 14, textAnchor: "middle" }, share(active2))
-      ) : drawn.hits.map((hit, at2) => (0, import_react14.createElement)("rect", { key: `h${at2}`, className: "dv-chart-hit", x: hit.x, y: hit.y, width: hit.w, height: hit.h, onPointerEnter: () => setActive(at2) }))
+      ) : drawn.hits.map((hit, at) => (0, import_react14.createElement)("rect", { key: `h${at}`, className: "dv-chart-hit", x: hit.x, y: hit.y, width: hit.w, height: hit.h, onPointerEnter: () => setActive(at) }))
     ),
     point && !asTable && !isDonut ? (0, import_react14.createElement)(
       "div",
@@ -20758,7 +20581,7 @@ var mdLabels2 = (ui2) => ({ code: { copyLabel: ui2.t("Copy"), copiedLabel: ui2.t
 var TONES2 = ["good", "warn", "bad"];
 var CALLOUT_TONES2 = ["info", "good", "warn", "bad"];
 var optionsOf2 = (node) => (Array.isArray(node?.options) ? node.options : []).map((option) => typeof option === "string" ? { label: option } : option).filter((option) => option !== null && typeof option === "object" && option.label !== void 0);
-var fieldsOf = (node) => (Array.isArray(node?.fields) ? node.fields : []).filter((field2) => field2 !== null && typeof field2 === "object" && field2.id !== void 0);
+var fieldsOf = (node) => (Array.isArray(node?.fields) ? node.fields : []).filter((field) => field !== null && typeof field === "object" && field.id !== void 0);
 var cellText2 = (value) => value === null || value === void 0 ? "" : typeof value === "object" ? JSON.stringify(value) : asText(value);
 var NUMERIC_CELL = /^[-+]?[\d.,]+\s?(%|[a-zA-Z]{1,4})?$/;
 var countType = (node, type) => {
@@ -20871,9 +20694,9 @@ function SettledConfirm({ node, answer }) {
 function FormInput({ node, onSubmit, busy = false, footStart = null }) {
   const ui2 = useViewUi();
   const fields = fieldsOf(node);
-  const [draft, setDraft] = (0, import_react16.useState)(() => Object.fromEntries(fields.map((field2) => [field2.id, field2.value ?? ""])));
+  const [draft, setDraft] = (0, import_react16.useState)(() => Object.fromEntries(fields.map((field) => [field.id, field.value ?? ""])));
   const submit = () => {
-    if (!busy) onSubmit?.(node.id, { fields: Object.fromEntries(fields.map((field2) => [field2.id, field2.readOnly === true ? field2.value ?? "" : draft[field2.id] ?? ""])) });
+    if (!busy) onSubmit?.(node.id, { fields: Object.fromEntries(fields.map((field) => [field.id, field.readOnly === true ? field.value ?? "" : draft[field.id] ?? ""])) });
   };
   const cancel = () => {
     if (!busy) onSubmit?.(node.id, { canceled: true });
@@ -20887,24 +20710,24 @@ function FormInput({ node, onSubmit, busy = false, footStart = null }) {
         submit();
       }
     },
-    fields.map((field2) => {
-      const val = field2.readOnly === true ? field2.value ?? "" : draft[field2.id] ?? "";
-      const hasLabel = typeof field2.label === "string" && field2.label.trim() !== "";
-      const multiline = field2.multiline === true;
-      const readOnly = field2.readOnly === true;
+    fields.map((field) => {
+      const val = field.readOnly === true ? field.value ?? "" : draft[field.id] ?? "";
+      const hasLabel = typeof field.label === "string" && field.label.trim() !== "";
+      const multiline = field.multiline === true;
+      const readOnly = field.readOnly === true;
       const heading = !multiline && !hasLabel;
-      const labelText = hasLabel ? field2.label : field2.placeholder ?? field2.id;
+      const labelText = hasLabel ? field.label : field.placeholder ?? field.id;
       return (0, import_react16.createElement)(
         "label",
         {
-          key: field2.id,
+          key: field.id,
           className: "dv-widget-field",
           "data-inline": !multiline && hasLabel ? "" : void 0,
           "data-heading": heading ? "" : void 0,
           "data-multiline": multiline ? "" : void 0,
           "data-readonly": readOnly ? "" : void 0
         },
-        hasLabel ? (0, import_react16.createElement)("span", { className: "dv-widget-field-label" }, field2.label) : null,
+        hasLabel ? (0, import_react16.createElement)("span", { className: "dv-widget-field-label" }, field.label) : null,
         (0, import_react16.createElement)(
           "span",
           { className: "dv-q-field" },
@@ -20916,9 +20739,9 @@ function FormInput({ node, onSubmit, busy = false, footStart = null }) {
             spellCheck: false,
             readOnly: busy || readOnly,
             "aria-label": labelText,
-            placeholder: field2.placeholder ?? void 0,
+            placeholder: field.placeholder ?? void 0,
             onChange: (event) => {
-              if (!busy && !readOnly) setDraft((current) => ({ ...current, [field2.id]: event.target.value }));
+              if (!busy && !readOnly) setDraft((current) => ({ ...current, [field.id]: event.target.value }));
             },
             onKeyDown: (event) => {
               if (event.key !== "Enter" || !event.metaKey && !event.ctrlKey || event.nativeEvent?.isComposing) return;
@@ -20933,9 +20756,9 @@ function FormInput({ node, onSubmit, busy = false, footStart = null }) {
             spellCheck: false,
             readOnly: busy || readOnly,
             "aria-label": labelText,
-            placeholder: field2.placeholder ?? void 0,
+            placeholder: field.placeholder ?? void 0,
             onChange: (event) => {
-              if (!busy && !readOnly) setDraft((current) => ({ ...current, [field2.id]: event.target.value }));
+              if (!busy && !readOnly) setDraft((current) => ({ ...current, [field.id]: event.target.value }));
             },
             onKeyDown: (event) => {
               if (event.key !== "Enter" || event.nativeEvent?.isComposing) return;
@@ -20965,23 +20788,23 @@ function SettledForm({ node, answer }) {
   return (0, import_react16.createElement)(
     "div",
     { className: "dv-widget-form" },
-    fieldsOf(node).map((field2) => {
-      const val = values[field2.id] ?? field2.value ?? "";
-      const hasLabel = typeof field2.label === "string" && field2.label.trim() !== "";
-      const multiline = field2.multiline === true;
+    fieldsOf(node).map((field) => {
+      const val = values[field.id] ?? field.value ?? "";
+      const hasLabel = typeof field.label === "string" && field.label.trim() !== "";
+      const multiline = field.multiline === true;
       const heading = !multiline && !hasLabel;
-      const labelText = hasLabel ? field2.label : field2.placeholder ?? field2.id;
+      const labelText = hasLabel ? field.label : field.placeholder ?? field.id;
       return (0, import_react16.createElement)(
         "label",
         {
-          key: field2.id,
+          key: field.id,
           className: "dv-widget-field",
           "data-inline": !multiline && hasLabel ? "" : void 0,
           "data-heading": heading ? "" : void 0,
           "data-multiline": multiline ? "" : void 0,
-          "data-readonly": field2.readOnly === true ? "" : void 0
+          "data-readonly": field.readOnly === true ? "" : void 0
         },
-        hasLabel ? (0, import_react16.createElement)("span", { className: "dv-widget-field-label" }, field2.label) : null,
+        hasLabel ? (0, import_react16.createElement)("span", { className: "dv-widget-field-label" }, field.label) : null,
         (0, import_react16.createElement)(
           "span",
           { className: "dv-q-field" },
@@ -21003,9 +20826,9 @@ function SubmitInput({ node, ctx }) {
 }
 function WidgetTable({ node, lookup }) {
   const columns2 = (Array.isArray(node.columns) ? node.columns : []).filter((column) => column !== null && typeof column === "object");
-  const rows5 = (Array.isArray(node.rows) ? node.rows : []).map((row) => (Array.isArray(row) ? row : []).map((cell) => resolve(cell, lookup, "")));
+  const rows3 = (Array.isArray(node.rows) ? node.rows : []).map((row) => (Array.isArray(row) ? row : []).map((cell) => resolve(cell, lookup, "")));
   const numeric2 = columns2.map((_, index) => {
-    const cells = rows5.map((row) => row[index]).filter((cell) => cell !== void 0 && cell !== "");
+    const cells = rows3.map((row) => row[index]).filter((cell) => cell !== void 0 && cell !== "");
     return cells.length > 0 && cells.every((cell) => typeof cell === "number" || typeof cell === "string" && NUMERIC_CELL.test(cell.trim()));
   });
   return (0, import_react16.createElement)(
@@ -21015,7 +20838,7 @@ function WidgetTable({ node, lookup }) {
       "table",
       null,
       (0, import_react16.createElement)("thead", null, (0, import_react16.createElement)("tr", null, columns2.map((column, index) => (0, import_react16.createElement)("th", { key: column.key ?? index, scope: "col", className: numeric2[index] ? "dv-num" : void 0 }, column.label)))),
-      (0, import_react16.createElement)("tbody", null, rows5.map((row, rowIndex) => (0, import_react16.createElement)(
+      (0, import_react16.createElement)("tbody", null, rows3.map((row, rowIndex) => (0, import_react16.createElement)(
         "tr",
         { key: rowIndex },
         columns2.map((column, columnIndex) => (0, import_react16.createElement)("td", { key: column.key ?? columnIndex, className: numeric2[columnIndex] ? "dv-num" : void 0 }, cellText2(row[columnIndex])))
@@ -21661,7 +21484,7 @@ function viewAnswerText(view, answer) {
   } else if (isRecord2(values.fields)) {
     const labels2 = /* @__PURE__ */ new Map();
     eachNode(view, (node) => {
-      for (const field2 of Array.isArray(node.fields) ? node.fields : []) labels2.set(field2?.id, field2?.label || field2?.id);
+      for (const field of Array.isArray(node.fields) ? node.fields : []) labels2.set(field?.id, field?.label || field?.id);
     });
     parts.push(...Object.entries(values.fields).map(([key, value]) => `${labels2.get(key) ?? key}: ${value}`));
   }
@@ -22224,7 +22047,7 @@ function SecretStoreCard({ store, actions, run: run2, Section: Section2 }) {
       if (ok) reset();
     }).finally(() => setBusy(false));
   };
-  const field2 = (label, value, onChange, autoFocus) => (0, import_react19.createElement)(
+  const field = (label, value, onChange, autoFocus) => (0, import_react19.createElement)(
     "label",
     { className: "bt-q-field bt-secret-field" },
     (0, import_react19.createElement)(MaskedInput, { value, onChange, label, autoFocus })
@@ -22246,7 +22069,7 @@ function SecretStoreCard({ store, actions, run: run2, Section: Section2 }) {
           (0, import_react19.createElement)("span", { className: "bt-bs-label" }, t("Secrets are locked")),
           (0, import_react19.createElement)("span", { className: "bt-set-hint" }, why)
         ),
-        field2(t("Passphrase"), passphrase, setPassphrase, true),
+        field(t("Passphrase"), passphrase, setPassphrase, true),
         row((0, import_react19.createElement)("button", { type: "button", className: "bt-send bt-soft-sm", disabled: busy || passphrase.length < 8, onClick: () => submit(actions.secretUnlock) }, t("Unlock")))
       )
     );
@@ -22259,7 +22082,7 @@ function SecretStoreCard({ store, actions, run: run2, Section: Section2 }) {
       form === "decrypt" ? (0, import_react19.createElement)(
         "div",
         { className: "bt-set-row bt-bs-stack" },
-        field2(t("Passphrase"), passphrase, setPassphrase, true),
+        field(t("Passphrase"), passphrase, setPassphrase, true),
         row([
           (0, import_react19.createElement)("button", { key: "cancel", type: "button", className: "bt-soft bt-soft-sm", onClick: reset }, t("Cancel")),
           (0, import_react19.createElement)("button", { key: "off", type: "button", className: "bt-soft bt-soft-sm", disabled: busy || passphrase.length < 8, onClick: () => submit(actions.secretDecrypt) }, t("Turn off encryption"))
@@ -22281,8 +22104,8 @@ function SecretStoreCard({ store, actions, run: run2, Section: Section2 }) {
     form === "encrypt" ? (0, import_react19.createElement)(
       "div",
       { className: "bt-set-row bt-bs-stack" },
-      field2(t("Passphrase (at least 8 characters)"), passphrase, setPassphrase, true),
-      field2(t("Repeat the passphrase"), confirm, setConfirm),
+      field(t("Passphrase (at least 8 characters)"), passphrase, setPassphrase, true),
+      field(t("Repeat the passphrase"), confirm, setConfirm),
       confirm !== "" && confirm !== passphrase ? (0, import_react19.createElement)("div", { className: "bt-set-hint" }, t("The passphrases do not match.")) : null,
       row([
         (0, import_react19.createElement)("button", { key: "cancel", type: "button", className: "bt-soft bt-soft-sm", onClick: reset }, t("Cancel")),
@@ -22714,7 +22537,7 @@ function useAnchoredMenu() {
   const [anchor, setAnchor] = (0, import_react20.useState)(null);
   const [place, setPlace] = (0, import_react20.useState)(null);
   const [shownPlace, leaving] = useLinger(place, MENU_EXIT_MS);
-  const button3 = (0, import_react20.useRef)(null);
+  const button = (0, import_react20.useRef)(null);
   const menu = (0, import_react20.useRef)(null);
   const tick = useViewport();
   const close = () => {
@@ -22724,15 +22547,15 @@ function useAnchoredMenu() {
   (0, import_react20.useEffect)(() => {
     if (place === null) return void 0;
     const onDown = (event) => {
-      if (menu.current?.contains(event.target) || button3.current?.contains(event.target)) return;
+      if (menu.current?.contains(event.target) || button.current?.contains(event.target)) return;
       close();
     };
     const onKey = (event) => {
-      if (stepMenuFocus(menu.current, event, button3.current)) return;
+      if (stepMenuFocus(menu.current, event, button.current)) return;
       if (event.key === "Escape") {
         event.stopPropagation();
         close();
-        button3.current?.focus();
+        button.current?.focus();
       }
     };
     const onScroll = (event) => {
@@ -22749,19 +22572,19 @@ function useAnchoredMenu() {
   }, [place]);
   const open = () => setAnchor({});
   (0, import_react20.useLayoutEffect)(() => {
-    if (anchor === null || !button3.current) return;
-    const rect = button3.current.getBoundingClientRect();
+    if (anchor === null || !button.current) return;
+    const rect = button.current.getBoundingClientRect();
     const width = Math.max(240, rect.width);
     const left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
     const below = viewBottom() - rect.bottom;
     setPlace(below >= 260 || below >= rect.top ? { left, width, top: rect.bottom + 4, maxHeight: below - 16, "--bt-origin": "top right" } : { left, width, bottom: viewBottom() - rect.top + 4, maxHeight: rect.top - 16, "--bt-origin": "bottom right" });
   }, [anchor, tick]);
-  return { isOpen: place !== null, shownPlace, leaving, button: button3, menu, open, close };
+  return { isOpen: place !== null, shownPlace, leaving, button, menu, open, close };
 }
 function useInlineMenu() {
   const [isOpen, setOpen] = (0, import_react20.useState)(false);
   const root = (0, import_react20.useRef)(null);
-  const button3 = (0, import_react20.useRef)(null);
+  const button = (0, import_react20.useRef)(null);
   const menu = (0, import_react20.useRef)(null);
   const close = () => setOpen(false);
   (0, import_react20.useEffect)(() => {
@@ -22770,11 +22593,11 @@ function useInlineMenu() {
       if (!root.current?.contains(event.target)) close();
     };
     const onKey = (event) => {
-      if (stepMenuFocus(menu.current, event, button3.current)) return;
+      if (stepMenuFocus(menu.current, event, button.current)) return;
       if (event.key === "Escape") {
         event.stopPropagation();
         close();
-        button3.current?.focus();
+        button.current?.focus();
       }
     };
     window.addEventListener("mousedown", onDown);
@@ -22784,7 +22607,7 @@ function useInlineMenu() {
       window.removeEventListener("keydown", onKey, true);
     };
   }, [isOpen]);
-  return { isOpen, root, button: button3, menu, open: () => setOpen(true), close };
+  return { isOpen, root, button, menu, open: () => setOpen(true), close };
 }
 function Collapse({ open, children }) {
   const [shown] = useLinger(open, SPRING_SHAPE.duration);
@@ -22853,12 +22676,12 @@ function useModelPicker({ bot, roster, actions, run: run2, onPick, onPickEffort,
     chooseEffort: (effort) => onPickEffort ? onPickEffort(effort) : run2(actions.updateBot(bot.id, { effort: effort ?? null }))
   };
 }
-var modelTrigger = (picker, { wide, button: button3, isOpen, onClick }) => {
+var modelTrigger = (picker, { wide, button, isOpen, onClick }) => {
   const { shown, models, withEfforts, effortLabel } = picker;
   return (0, import_react20.createElement)(
     "button",
     {
-      ref: button3,
+      ref: button,
       type: "button",
       className: "bt-model-trigger",
       "data-wide": wide || void 0,
@@ -22897,7 +22720,7 @@ function ModelMenu(props) {
   return props.inline ? (0, import_react20.createElement)(InlineModelMenu, props) : (0, import_react20.createElement)(PopupModelMenu, props);
 }
 function PopupModelMenu({ bot, roster, actions, run: run2, wide = false, onPick, onPickEffort, withEfforts = true }) {
-  const { isOpen, shownPlace, leaving, button: button3, menu, open, close } = useAnchoredMenu();
+  const { isOpen, shownPlace, leaving, button, menu, open, close } = useAnchoredMenu();
   const picker = useModelPicker({ bot, roster, actions, run: run2, onPick, onPickEffort, withEfforts });
   const { manage, hasEfforts } = picker;
   const toggle = () => {
@@ -22915,7 +22738,7 @@ function PopupModelMenu({ bot, roster, actions, run: run2, wide = false, onPick,
   return (0, import_react20.createElement)(
     import_react20.Fragment,
     null,
-    modelTrigger(picker, { wide, button: button3, isOpen, onClick: toggle }),
+    modelTrigger(picker, { wide, button, isOpen, onClick: toggle }),
     shownPlace ? (0, import_react_dom.createPortal)((0, import_react20.createElement)(
       "div",
       { ref: menu, className: `bt-menu bt-model-menu${shownPlace.bottom !== void 0 ? " bt-menu-up" : ""}`, role: "menu", "aria-label": modelMenuLabel(bot), style: shownPlace, "data-leaving": leaving || void 0 },
@@ -22931,7 +22754,7 @@ function PopupModelMenu({ bot, roster, actions, run: run2, wide = false, onPick,
   );
 }
 function InlineModelMenu({ bot, roster, actions, run: run2, wide = false, onPick, onPickEffort, withEfforts = true }) {
-  const { isOpen, root, button: button3, menu, open, close } = useInlineMenu();
+  const { isOpen, root, button, menu, open, close } = useInlineMenu();
   const picker = useModelPicker({ bot, roster, actions, run: run2, onPick, onPickEffort, withEfforts });
   const { manage, hasEfforts } = picker;
   const toggle = () => {
@@ -22944,13 +22767,13 @@ function InlineModelMenu({ bot, roster, actions, run: run2, wide = false, onPick
   };
   const pick2 = (ref) => {
     close();
-    button3.current?.focus();
+    button.current?.focus();
     picker.choose(ref);
   };
   return (0, import_react20.createElement)(
     "div",
     { ref: root, className: "bt-model-inline" },
-    modelTrigger(picker, { wide, button: button3, isOpen, onClick: toggle }),
+    modelTrigger(picker, { wide, button, isOpen, onClick: toggle }),
     (0, import_react20.createElement)(
       Collapse,
       { open: isOpen },
@@ -23419,7 +23242,7 @@ var import_react_dom2 = require("react-dom");
 var folderName = (path2) => String(path2).replace(/[\\/]+$/, "").split(/[\\/]/).pop() || String(path2);
 var Tick = ({ on }) => (0, import_react22.createElement)("span", { className: "bt-model-tick", "aria-hidden": true }, on ? (0, import_react22.createElement)(CheckIcon) : null);
 function FolderMenu({ value, group = false, team = false, actions, run: run2, onPick, wide = false, disabled = false }) {
-  const { isOpen, shownPlace, leaving, button: button3, menu, open, close } = useAnchoredMenu();
+  const { isOpen, shownPlace, leaving, button, menu, open, close } = useAnchoredMenu();
   const [info, setInfo] = (0, import_react22.useState)(null);
   const [view, setView] = (0, import_react22.useState)("list");
   const [draft, setDraft] = (0, import_react22.useState)("");
@@ -23526,7 +23349,7 @@ function FolderMenu({ value, group = false, team = false, actions, run: run2, on
     (0, import_react22.createElement)(
       "button",
       {
-        ref: button3,
+        ref: button,
         type: "button",
         className: "bt-model-trigger",
         "data-wide": wide || void 0,
@@ -23702,7 +23525,7 @@ function TaskForm({ roster, actions, start, onDone, onCancel }) {
   const [title, setTitle] = (0, import_react23.useState)("");
   const [prompt, setPrompt] = (0, import_react23.useState)("");
   const [kind, setKind] = (0, import_react23.useState)("daily");
-  const [at2, setAt] = (0, import_react23.useState)(inAnHour);
+  const [at, setAt] = (0, import_react23.useState)(inAnHour);
   const [time, setTime] = (0, import_react23.useState)("09:00");
   const [weekdays, setWeekdays] = (0, import_react23.useState)([1, 2, 3, 4, 5]);
   const [count, setCount] = (0, import_react23.useState)(1);
@@ -23710,7 +23533,7 @@ function TaskForm({ roster, actions, start, onDone, onCancel }) {
   const [busy, setBusy] = (0, import_react23.useState)(false);
   const [error, setError] = (0, import_react23.useState)("");
   const timing = () => {
-    if (kind === "at") return { kind, at: new Date(at2).toISOString() };
+    if (kind === "at") return { kind, at: new Date(at).toISOString() };
     if (kind === "every") return { kind, minutes: Math.round(Number(count) * UNITS.find(([id]) => id === unit)[1]) };
     return { kind, time, timeZone: localZone(), ...kind === "weekly" ? { weekdays } : {} };
   };
@@ -23767,7 +23590,7 @@ function TaskForm({ roster, actions, start, onDone, onCancel }) {
       (0, import_react23.createElement)(
         "div",
         { key: kind, className: "bt-task-when bt-veil" },
-        kind === "at" ? (0, import_react23.createElement)("input", { className: "bt-input", type: "datetime-local", value: at2, "aria-label": t("Date and time"), onChange: (event) => setAt(event.target.value) }) : null,
+        kind === "at" ? (0, import_react23.createElement)("input", { className: "bt-input", type: "datetime-local", value: at, "aria-label": t("Date and time"), onChange: (event) => setAt(event.target.value) }) : null,
         kind === "weekly" ? (0, import_react23.createElement)("div", { className: "bt-task-days", role: "group", "aria-label": t("Days") }, [1, 2, 3, 4, 5, 6, 7].map((day) => (0, import_react23.createElement)("button", {
           key: day,
           type: "button",
@@ -24399,8 +24222,8 @@ function MemoryRow({ owner, actions }) {
     )
   );
 }
-function ago(at2, now) {
-  const seconds = Math.max(0, Math.round((now - at2) / 1e3));
+function ago(at, now) {
+  const seconds = Math.max(0, Math.round((now - at) / 1e3));
   if (seconds < 60) return null;
   const format = new Intl.RelativeTimeFormat(dateLocale(), { numeric: "auto" });
   const minutes = Math.round(seconds / 60);
@@ -24556,7 +24379,7 @@ function TidyNote({ tidy, undo }) {
         setBusy(false);
       } }, t("Undo"))
     ),
-    (0, import_react26.createElement)("ul", null, tidy.items.map((item, at2) => (0, import_react26.createElement)("li", { key: at2 }, item.text)))
+    (0, import_react26.createElement)("ul", null, tidy.items.map((item, at) => (0, import_react26.createElement)("li", { key: at }, item.text)))
   );
 }
 function Entries({ owner, view, remove, pin, layer, openMove, undoTidy }) {
@@ -24640,14 +24463,14 @@ function HistoryRow({ row, undo, now }) {
   );
 }
 function History({ owner, actions, undo, now }) {
-  const [rows5, setRows] = (0, import_react26.useState)(null);
+  const [rows3, setRows] = (0, import_react26.useState)(null);
   const [more, setMore] = (0, import_react26.useState)(null);
   const [paging, setPaging] = (0, import_react26.useState)(false);
   const load = (0, import_react26.useCallback)(async (before) => {
     const page = await actions.memoryHistory(owner.id, before);
-    setRows(before === void 0 ? page.rows : [...rows5 ?? [], ...page.rows]);
+    setRows(before === void 0 ? page.rows : [...rows3 ?? [], ...page.rows]);
     setMore(page.more);
-  }, [owner.id, rows5]);
+  }, [owner.id, rows3]);
   (0, import_react26.useEffect)(() => {
     void load();
   }, [owner.id]);
@@ -24665,12 +24488,12 @@ function History({ owner, actions, undo, now }) {
       setPaging(false);
     }
   };
-  if (rows5 === null) return (0, import_react26.createElement)(Skeleton);
-  if (rows5.length === 0) return (0, import_react26.createElement)("div", { className: "bt-mem-none" }, t("No changes yet"));
+  if (rows3 === null) return (0, import_react26.createElement)(Skeleton);
+  if (rows3.length === 0) return (0, import_react26.createElement)("div", { className: "bt-mem-none" }, t("No changes yet"));
   return (0, import_react26.createElement)(
     "div",
     { className: "bt-mem-entries" },
-    (0, import_react26.createElement)("ul", { className: "bt-mem-list" }, rows5.map((row) => (0, import_react26.createElement)(HistoryRow, { key: row.id, row, undo: undoRow, now }))),
+    (0, import_react26.createElement)("ul", { className: "bt-mem-list" }, rows3.map((row) => (0, import_react26.createElement)(HistoryRow, { key: row.id, row, undo: undoRow, now }))),
     more ? (0, import_react26.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: paging, onClick: () => void moreClick() }, t("Load more")) : null
   );
 }
@@ -24766,13 +24589,13 @@ function MemoryDialog({ owner, actions, leaving = false }) {
     window.addEventListener("scroll", onScroll, true);
     return () => window.removeEventListener("scroll", onScroll, true);
   }, [moveOpen]);
-  const openMove = (entry, button3) => {
-    if (moveOpen && moveAnchor.current === button3) {
+  const openMove = (entry, button) => {
+    if (moveOpen && moveAnchor.current === button) {
       setMoveOpen(false);
       return;
     }
-    moveAnchor.current = button3;
-    const rect = button3.getBoundingClientRect();
+    moveAnchor.current = button;
+    const rect = button.getBoundingClientRect();
     const below = window.innerHeight - rect.bottom - MOVE_MENU_GAP;
     const above = rect.top - MOVE_MENU_GAP;
     const right = Math.max(MOVE_MENU_GAP, window.innerWidth - rect.right);
@@ -25130,9 +24953,9 @@ var capitalize = (word) => word[0].toUpperCase() + word.slice(1);
 function InlineText({ label, value, placeholder, required = false, maxLength, multiline = false, className, autoFocus = false, onSave, onDone }) {
   const [draft, setDraft] = (0, import_react28.useState)(null);
   const reverting = (0, import_react28.useRef)(false);
-  const field2 = (0, import_react28.useRef)(null);
+  const field = (0, import_react28.useRef)(null);
   (0, import_react28.useEffect)(() => {
-    const node = field2.current;
+    const node = field.current;
     if (!autoFocus || !node) return;
     node.focus();
     node.setSelectionRange(node.value.length, node.value.length);
@@ -25164,7 +24987,7 @@ function InlineText({ label, value, placeholder, required = false, maxLength, mu
     }
   };
   return (0, import_react28.createElement)(multiline ? "textarea" : "input", {
-    ref: field2,
+    ref: field,
     className: className ?? (multiline ? "bt-bs-input bt-bs-area" : "bt-bs-input"),
     value: draft ?? value ?? "",
     placeholder,
@@ -25228,12 +25051,12 @@ function ShapeRing({ shape, size }) {
 function CharacterGrid({ look, hasPhoto = false, onShape, onColor }) {
   const shapes = [...PICKER_SHAPES, ...Object.keys(SHAPES).filter((id) => !Object.hasOwn(CHARACTERS, id))];
   if (!shapes.includes(look.shape)) shapes.push(look.shape);
-  const rows5 = [];
-  for (let index = 0; index < shapes.length; index += PICKER_COLUMNS) rows5.push(shapes.slice(index, index + PICKER_COLUMNS));
+  const rows3 = [];
+  for (let index = 0; index < shapes.length; index += PICKER_COLUMNS) rows3.push(shapes.slice(index, index + PICKER_COLUMNS));
   return (0, import_react28.createElement)(
     import_react28.Fragment,
     null,
-    (0, import_react28.createElement)("div", { className: "bt-shapes", role: "group", "aria-label": t("Character shape") }, rows5.map((row, index) => (0, import_react28.createElement)("div", { key: index, className: "bt-shape-row" }, row.map((id) => (0, import_react28.createElement)("button", {
+    (0, import_react28.createElement)("div", { className: "bt-shapes", role: "group", "aria-label": t("Character shape") }, rows3.map((row, index) => (0, import_react28.createElement)("div", { key: index, className: "bt-shape-row" }, row.map((id) => (0, import_react28.createElement)("button", {
       key: id,
       type: "button",
       className: "bt-shape",
@@ -25772,7 +25595,7 @@ function statusText2(connector) {
 }
 function BrowserPanel({ connector, actions, run: run2 }) {
   const [pasting, setPasting] = (0, import_react30.useState)(false);
-  const [input2, setInput] = (0, import_react30.useState)("");
+  const [input, setInput] = (0, import_react30.useState)("");
   return (0, import_react30.createElement)(
     "div",
     { className: "bt-connector-form" },
@@ -25786,8 +25609,8 @@ function BrowserPanel({ connector, actions, run: run2 }) {
     pasting ? (0, import_react30.createElement)(
       "div",
       { className: "bt-connector-form-row" },
-      (0, import_react30.createElement)("input", { className: "bt-input", "aria-label": t("Paste the address you land on"), placeholder: t("Paste the address you land on"), value: input2, spellCheck: false, autoComplete: "off", autoFocus: true, onChange: (e) => setInput(e.target.value) }),
-      (0, import_react30.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: input2.trim() === "", onClick: () => void run2(actions.connectorSignInCode(connector.id, input2.trim())) }, t("Finish sign-in"))
+      (0, import_react30.createElement)("input", { className: "bt-input", "aria-label": t("Paste the address you land on"), placeholder: t("Paste the address you land on"), value: input, spellCheck: false, autoComplete: "off", autoFocus: true, onChange: (e) => setInput(e.target.value) }),
+      (0, import_react30.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: input.trim() === "", onClick: () => void run2(actions.connectorSignInCode(connector.id, input.trim())) }, t("Finish sign-in"))
     ) : (0, import_react30.createElement)("button", { type: "button", className: "bt-connector-link bt-connector-aside", onClick: () => setPasting(true) }, t("Did not come back here?"))
   );
 }
@@ -25910,12 +25733,12 @@ function ConnectorRow({ connector, actions }) {
     if (connector.auth?.kind === "oauth") return connector.auth.client?.id || !connector.auth.token ? signIn() : setForm("token");
     return void 0;
   };
-  const button3 = (label, onClick) => (0, import_react30.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick }, label);
+  const button = (label, onClick) => (0, import_react30.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", disabled: busy, onClick }, label);
   let actionsNode = null;
   if (pending || form) actionsNode = null;
-  else if (connector.state === "needs-sign-in") actionsNode = [button3(t("Sign in again"), signIn), button3(t("Disconnect"), () => void run2(actions.connectorDisconnect(connector.id)))];
-  else if (connector.state === "error") actionsNode = [button3(t("Try again"), () => void run2(actions.connectorRetry(connector.id))), button3(connector.custom ? t("Remove") : t("Disconnect"), () => void run2(actions.connectorDisconnect(connector.id)))];
-  else if (on) actionsNode = button3(connector.custom ? t("Remove") : t("Disconnect"), () => void run2(actions.connectorDisconnect(connector.id)));
+  else if (connector.state === "needs-sign-in") actionsNode = [button(t("Sign in again"), signIn), button(t("Disconnect"), () => void run2(actions.connectorDisconnect(connector.id)))];
+  else if (connector.state === "error") actionsNode = [button(t("Try again"), () => void run2(actions.connectorRetry(connector.id))), button(connector.custom ? t("Remove") : t("Disconnect"), () => void run2(actions.connectorDisconnect(connector.id)))];
+  else if (on) actionsNode = button(connector.custom ? t("Remove") : t("Disconnect"), () => void run2(actions.connectorDisconnect(connector.id)));
   else {
     actionsNode = [
       connector.auth?.kind === "oauth" && connector.auth.token === true && connector.auth.client?.id ? (0, import_react30.createElement)("button", { key: "token", type: "button", className: "bt-connector-link", disabled: busy, onClick: () => setForm("token") }, t("Use a token instead")) : null,
@@ -26111,7 +25934,7 @@ function MailForm({ mail, actions, onClose }) {
       onClose();
     });
   };
-  const input2 = (key, label, extra = {}) => (0, import_react30.createElement)("input", { className: "bt-input", "aria-label": label, placeholder: label, value: fields[key], autoComplete: "off", spellCheck: false, disabled: busy, onChange: (e) => set(key, e.target.value), ...extra });
+  const input = (key, label, extra = {}) => (0, import_react30.createElement)("input", { className: "bt-input", "aria-label": label, placeholder: label, value: fields[key], autoComplete: "off", spellCheck: false, disabled: busy, onChange: (e) => set(key, e.target.value), ...extra });
   return (0, import_react30.createElement)(
     "div",
     { className: "bt-connector-form bt-mail-form" },
@@ -26131,9 +25954,9 @@ function MailForm({ mail, actions, onClose }) {
         (0, import_react30.createElement)("button", { type: "button", className: "bt-connector-link", onClick: () => openPage(guide.help) }, t("Official help"))
       )
     ) : null,
-    input2("address", t("Email address"), { type: "email" }),
+    input("address", t("Email address"), { type: "email" }),
     (0, import_react30.createElement)("label", { className: "bt-q-field bt-secret-field" }, (0, import_react30.createElement)(MaskedInput, { value: fields.password, onChange: (value) => set("password", value), onEnter: add, label: t(guide?.label ?? "Password or app password"), disabled: busy })),
-    chosen === "other" ? (0, import_react30.createElement)("div", { className: "bt-provider-pair" }, input2("imapHost", t("IMAP host")), input2("smtpHost", t("SMTP host"))) : null,
+    chosen === "other" ? (0, import_react30.createElement)("div", { className: "bt-provider-pair" }, input("imapHost", t("IMAP host")), input("smtpHost", t("SMTP host"))) : null,
     error ? (0, import_react30.createElement)("div", { className: "bt-mail-error", role: "alert" }, hostText(error)) : null,
     (0, import_react30.createElement)(
       "div",
@@ -26245,12 +26068,12 @@ function BotConnectors({ bot, roster, actions, run: run2 }) {
   const list = (data?.connectors ?? []).filter((c) => c.state === "ready");
   const mailOn = (data?.mail?.accounts ?? []).length > 0;
   if (list.length === 0 && !mailOn) return null;
-  const rows5 = [...list, ...mailOn ? [{ id: "mail", name: t("Mailbox"), offFor: data.mail?.offFor ?? [] }] : []];
+  const rows3 = [...list, ...mailOn ? [{ id: "mail", name: t("Mailbox"), offFor: data.mail?.offFor ?? [] }] : []];
   return (0, import_react30.createElement)(
     "div",
     { className: "bt-drawer-model" },
     (0, import_react30.createElement)("div", { key: "t", className: "bt-section-title" }, t("Connectors")),
-    rows5.map((connector) => {
+    rows3.map((connector) => {
       const off = (connector.offFor ?? []).includes(bot.id);
       return (0, import_react30.createElement)(SwitchRow, { key: connector.id, label: connector.name, on: !off, onChange: (checked) => {
         const next = checked ? (connector.offFor ?? []).filter((id) => id !== bot.id) : [...connector.offFor ?? [], bot.id];
@@ -26662,7 +26485,7 @@ function cutAt(text, end) {
 }
 function moreLines(text, max) {
   let lines = 1;
-  for (let at2 = text.indexOf("\n"); at2 !== -1; at2 = text.indexOf("\n", at2 + 1)) {
+  for (let at = text.indexOf("\n"); at !== -1; at = text.indexOf("\n", at + 1)) {
     if (++lines > max) return true;
   }
   return false;
@@ -26814,9 +26637,9 @@ function owningTurn(card, turns) {
   if (!turns || typeof turns.values !== "function") return void 0;
   const anchor = anchorOf(card);
   if (anchor !== void 0) return turnContaining(anchor, turns);
-  const at2 = seqNum(card?.atSeq);
-  if (at2 === void 0) return void 0;
-  return turnStartedBy(at2, turns);
+  const at = seqNum(card?.atSeq);
+  if (at === void 0) return void 0;
+  return turnStartedBy(at, turns);
 }
 function sameTurn(owner, turn) {
   if (!owner || !turn) return false;
@@ -26918,9 +26741,9 @@ function ownerSegment(card, content) {
   if (turn !== void 0) return segmentByTurn(turn, content);
   const anchor = anchorOf(card);
   if (anchor !== void 0) return segmentAt(anchor, content);
-  const at2 = seqNum(card?.atSeq);
-  if (at2 === void 0) return void 0;
-  return segmentStartedBy(at2, content);
+  const at = seqNum(card?.atSeq);
+  if (at === void 0) return void 0;
+  return segmentStartedBy(at, content);
 }
 var btwRow = (card) => ({ kind: "btw", card });
 function withBtwRows(items, cards) {
@@ -26948,8 +26771,8 @@ function withBtwRows(items, cards) {
       aside.push(card);
       continue;
     }
-    const at2 = seqNum(card?.atSeq);
-    if (floor !== void 0 && at2 !== void 0 && at2 < floor) continue;
+    const at = seqNum(card?.atSeq);
+    if (floor !== void 0 && at !== void 0 && at < floor) continue;
     aside.push(card);
   }
   if (content.length === 0) return [...list, ...aside.map(btwRow)];
@@ -27498,7 +27321,7 @@ function useThinkingMs({ sessionId, turn, settledSteps, skip }) {
   return ms;
 }
 var rowViews = /* @__PURE__ */ new Map();
-function ThinkingRow({ text, live, at: at2, ms, viewKey, textInteractionSource }) {
+function ThinkingRow({ text, live, at, ms, viewKey, textInteractionSource }) {
   const box = (0, import_react34.useRef)(null);
   const view = (0, import_react34.useRef)(rowViews.get(viewKey));
   const atEnd = (0, import_react34.useRef)(view.current?.atEnd ?? true);
@@ -27537,7 +27360,7 @@ function ThinkingRow({ text, live, at: at2, ms, viewKey, textInteractionSource }
       "summary",
       null,
       title,
-      live && at2 !== void 0 ? (0, import_react34.createElement)(Elapsed, { at: at2, className: "bt-think-time" }) : null,
+      live && at !== void 0 ? (0, import_react34.createElement)(Elapsed, { at, className: "bt-think-time" }) : null,
       !live && ms !== void 0 ? (0, import_react34.createElement)("span", { className: "bt-think-time" }, `· ${elapsedLabel(Math.max(1e3, ms))}`) : null
     ),
     (0, import_react34.createElement)("div", { ref: box, className: "bt-think-text", role: "region", "aria-label": title, tabIndex: 0, "data-fade": fade, "data-text-interaction-source": textInteractionSource && !live ? "" : void 0, onScroll: measure }, text)
@@ -27790,8 +27613,8 @@ function PartLine({ time }) {
   return (0, import_react34.createElement)("div", { className: "bt-part-line", role: "separator" }, Number.isFinite(time) ? (0, import_react34.createElement)("span", null, dayLabel(time)) : null);
 }
 var scrollParent = (node) => {
-  for (let at2 = node.parentElement; at2; at2 = at2.parentElement) {
-    if (/(auto|scroll)/.test(getComputedStyle(at2).overflowY)) return at2;
+  for (let at = node.parentElement; at; at = at.parentElement) {
+    if (/(auto|scroll)/.test(getComputedStyle(at).overflowY)) return at;
   }
   return null;
 };
@@ -27834,9 +27657,9 @@ function EarlierParts({ sessionId, roster, actions }) {
       const incoming = Array.isArray(page.items) ? page.items : [];
       setView((current) => {
         const pages = current.pages.slice();
-        const at2 = pages.findIndex((entry) => entry.partIndex === partIndex);
-        const btw = Array.isArray(page.btw) ? page.btw : at2 >= 0 ? pages[at2].btw : [];
-        if (at2 >= 0) pages[at2] = { partIndex, items: [...incoming, ...pages[at2].items], btw };
+        const at = pages.findIndex((entry) => entry.partIndex === partIndex);
+        const btw = Array.isArray(page.btw) ? page.btw : at >= 0 ? pages[at].btw : [];
+        if (at >= 0) pages[at] = { partIndex, items: [...incoming, ...pages[at].items], btw };
         else pages.push({ partIndex, items: incoming, btw });
         pages.sort((a, b) => a.partIndex - b.partIndex);
         return { pages, cursor: page.cursor, loading: false, failed: false, startedAt: page.startedAt ?? current.startedAt };
@@ -27891,17 +27714,17 @@ function EarlierParts({ sessionId, roster, actions }) {
 }
 function ChatRows({ items, sessionId, roster, actions, useUi, clock: clock4 = false, onBtwDelete }) {
   const selfId = roster.byId[sessionId]?.id;
-  const rows5 = [];
+  const rows3 = [];
   for (const item of items) {
-    const last = rows5.at(-1);
+    const last = rows3.at(-1);
     if (item.kind === "bot" && last?.kind === "bot") {
       last.texts.push(item.text);
       last.end = item.time;
-    } else rows5.push(item.kind === "bot" ? { kind: "bot", texts: [item.text], time: item.time, end: item.time } : item);
+    } else rows3.push(item.kind === "bot" ? { kind: "bot", texts: [item.text], time: item.time, end: item.time } : item);
   }
   let before;
-  return rows5.flatMap((row, index) => {
-    const key = rows5.length - index;
+  return rows3.flatMap((row, index) => {
+    const key = rows3.length - index;
     const shown = chatRow(row, key, { sessionId, selfId, roster, actions, useUi, onBtwDelete });
     if (row.kind === "divider") {
       before = void 0;
@@ -28129,19 +27952,19 @@ function TurnTailCell({ turn: location2, sessionId, useTurnClock, useUi, actions
 function Shimmer({ children }) {
   return (0, import_react34.createElement)("span", { className: "bt-shimmer" }, children);
 }
-function Elapsed({ at: at2, className }) {
+function Elapsed({ at, className }) {
   const [now, setNow] = (0, import_react34.useState)(Date.now);
   (0, import_react34.useEffect)(() => {
     let timer = 0;
     const tick = () => {
       const time = Date.now();
       setNow(time);
-      timer = setTimeout(tick, 1e3 - ((time - at2) % 1e3 + 1e3) % 1e3);
+      timer = setTimeout(tick, 1e3 - ((time - at) % 1e3 + 1e3) % 1e3);
     };
     tick();
     return () => clearTimeout(timer);
-  }, [at2]);
-  return (0, import_react34.createElement)("span", { className }, `· ${elapsedLabel(Math.max(1e3, now - at2))}`);
+  }, [at]);
+  return (0, import_react34.createElement)("span", { className }, `· ${elapsedLabel(Math.max(1e3, now - at))}`);
 }
 var PHRASES2 = {
   thinking: ["Thinking about it", "Weighing the options", "Working out a plan", "Sorting out the details"],
@@ -28409,10 +28232,10 @@ function GroupReplies({ sessionId, callId, done, content, roster, actions, useUi
       }
       return (0, import_react34.createElement)(GroupMessage, { key: `${reply.botId}-${index}`, bot, texts: texts2, room: room2, sessionId, roster, actions, msgKey: callId ? `${sessionId}:${callId}:${index}` : void 0, useUi, time, duration, claims, changes });
     }),
-    pending.map((id, at2) => {
+    pending.map((id, at) => {
       const bot = roster.byId[id];
       if (!bot) return null;
-      const [tool, phrase] = doing[at2] ?? [];
+      const [tool, phrase] = doing[at] ?? [];
       return (0, import_react34.createElement)(
         "div",
         { key: `pending-${id}`, className: "bt-activity" },
@@ -29019,15 +28842,15 @@ function RoomRow({ room: room2, roster, actions, useSessions, useSessionStatus, 
 }
 var agentSessionTitle = (session) => session.title === "" ? t("New session") : session.title;
 function AgentSessionRow({ session, agent, actions, renaming, index }) {
-  const input2 = (0, import_react36.useRef)(null);
+  const input = (0, import_react36.useRef)(null);
   (0, import_react36.useLayoutEffect)(() => {
     if (!renaming) return;
-    input2.current?.focus();
-    input2.current?.select();
+    input.current?.focus();
+    input.current?.select();
   }, [renaming]);
   if (renaming) {
     const commit = (keep) => {
-      const value = input2.current?.value ?? "";
+      const value = input.current?.value ?? "";
       if (!keep || value.trim() === "" || value.trim() === session.title) {
         actions.endAgentRename();
         return;
@@ -29045,7 +28868,7 @@ function AgentSessionRow({ session, agent, actions, renaming, index }) {
       "div",
       { className: "bt-agent-sub-row bt-agent-edit", style: { "--i": index } },
       (0, import_react36.createElement)("input", {
-        ref: input2,
+        ref: input,
         defaultValue: session.title,
         "aria-label": t("Rename"),
         onKeyDown: (event) => {
@@ -29170,11 +28993,11 @@ function renderSidebarEntry(entry, rowProps, markedUnread, onDragStart) {
 }
 function SectionBlock({ section, entries: entries2, rowProps, markedUnread, renaming, dropTarget, onDragStart, onDragOverSec, onDropSec }) {
   const { roster, actions, useSessions, useSessionStatus, useWork, wide } = rowProps;
-  const input2 = (0, import_react36.useRef)(null);
+  const input = (0, import_react36.useRef)(null);
   (0, import_react36.useLayoutEffect)(() => {
     if (!renaming) return;
-    input2.current?.focus();
-    input2.current?.select();
+    input.current?.focus();
+    input.current?.select();
   }, [renaming]);
   const visibleEntries = entries2.filter((entry) => !entry.item.hidden || entry.kind === "bot" && isMainOf(roster, entry.item.id));
   const botsInSec = (0, import_react36.useMemo)(() => {
@@ -29269,7 +29092,7 @@ function SectionBlock({ section, entries: entries2, rowProps, markedUnread, rena
     );
   }
   const commitRename = (keep) => {
-    const value = input2.current?.value ?? "";
+    const value = input.current?.value ?? "";
     actions.endSectionRename();
     if (!keep || value.trim() === "" || value.trim() === section.name) return;
     void Promise.resolve(actions.saveSection({ id: section.id, name: value.trim() })).catch((error) => actions.reportError(error, "section-rename"));
@@ -29288,7 +29111,7 @@ function SectionBlock({ section, entries: entries2, rowProps, markedUnread, rena
       "div",
       { className: "bt-sec-edit" },
       (0, import_react36.createElement)("input", {
-        ref: input2,
+        ref: input,
         defaultValue: section.name,
         maxLength: 32,
         "aria-label": t("Rename section"),
@@ -29543,11 +29366,11 @@ function TeamSidebar(props) {
     let last = null;
     let liveLeft = mode;
     let done = false;
-    const write = (at2) => {
-      const width = at2.left === "rail" ? RAIL_WIDTH : at2.width;
+    const write = (at) => {
+      const width = at.left === "rail" ? RAIL_WIDTH : at.width;
       column.style.width = `${width}px`;
       column.style.setProperty("--bt-lc-w", `${width}px`);
-      const occupied = at2.left === "open" ? width : RAIL_WIDTH;
+      const occupied = at.left === "open" ? width : RAIL_WIDTH;
       const push = Math.max(0, occupied - offLeft);
       for (const col of columns2) col.style.setProperty("margin-left", `${push}px`, "important");
       for (const pane of panes) pane.style.left = `${occupied}px`;
@@ -29740,7 +29563,6 @@ function TeamSidebar(props) {
     "div",
     { className: wideContent ? "bt-side" : "bt-side bt-rail", onKeyDown: typeToSearch },
     top,
-    (0, import_react36.createElement)("button", { type: "button", className: "bt-wb-entry", title: t("Task workbench"), "aria-label": t("Task workbench"), onClick: () => actions.openTasks?.() }, (0, import_react36.createElement)(ClockIcon), wideContent ? t("Task workbench") : null),
     wideContent && roster.readOnly ? (0, import_react36.createElement)("div", { className: "bt-hint bt-read-only", role: "status" }, hostText(roster.readOnly)) : null,
     (0, import_react36.createElement)(
       "div",
@@ -29794,18 +29616,18 @@ function UpdateButton({ useUpdate, actions }) {
   const [box, setBox] = (0, import_react36.useState)(null);
   const [error, setError] = (0, import_react36.useState)("");
   const [dshError, setDshError] = (0, import_react36.useState)("");
-  const button3 = (0, import_react36.useRef)(null);
+  const button = (0, import_react36.useRef)(null);
   (0, import_react36.useEffect)(() => {
     if (!open) return void 0;
     const onDown = (event) => {
-      if (event.target instanceof Element && (event.target.closest(".bt-update-pop") || button3.current?.contains(event.target))) return;
+      if (event.target instanceof Element && (event.target.closest(".bt-update-pop") || button.current?.contains(event.target))) return;
       setOpen(false);
     };
     const onKey = (event) => {
       if (event.key === "Escape") {
         event.stopPropagation();
         setOpen(false);
-        button3.current?.focus();
+        button.current?.focus();
       }
     };
     window.addEventListener("mousedown", onDown);
@@ -29822,7 +29644,7 @@ function UpdateButton({ useUpdate, actions }) {
   const tick = useViewport();
   (0, import_react36.useLayoutEffect)(() => {
     if (!open) return;
-    const rect = button3.current?.getBoundingClientRect();
+    const rect = button.current?.getBoundingClientRect();
     if (rect) setBox({ left: Math.max(8, Math.min(rect.left, window.innerWidth - 288)), top: rect.bottom + 6 });
   }, [open, tick]);
   if (!update?.available && !dshRow && phase === "idle" && dshPhase === "idle") return null;
@@ -29844,7 +29666,7 @@ function UpdateButton({ useUpdate, actions }) {
     import_react36.Fragment,
     null,
     (0, import_react36.createElement)("button", {
-      ref: button3,
+      ref: button,
       type: "button",
       className: "bt-round bt-update",
       "data-phase": cloudPhase,
@@ -29928,7 +29750,7 @@ function AccountLauncher({ seat = true, settingsOpen, actions }) {
     return () => actions.seatAccount(false);
   }, [seat]);
   const [box, setBox] = (0, import_react36.useState)(null);
-  const button3 = (0, import_react36.useRef)(null);
+  const button = (0, import_react36.useRef)(null);
   const menuRef = (0, import_react36.useRef)(null);
   (0, import_react36.useEffect)(() => {
     if (settingsOpen) setOpen(false);
@@ -29936,15 +29758,15 @@ function AccountLauncher({ seat = true, settingsOpen, actions }) {
   (0, import_react36.useEffect)(() => {
     if (!open) return void 0;
     const onDown = (event) => {
-      if (event.target instanceof Element && (event.target.closest(".bt-account-menu") || button3.current?.contains(event.target))) return;
+      if (event.target instanceof Element && (event.target.closest(".bt-account-menu") || button.current?.contains(event.target))) return;
       setOpen(false);
     };
     const onKey = (event) => {
-      if (stepMenuFocus(menuRef.current, event, button3.current)) return;
+      if (stepMenuFocus(menuRef.current, event, button.current)) return;
       if (event.key === "Escape") {
         event.stopPropagation();
         setOpen(false);
-        button3.current?.focus();
+        button.current?.focus();
       }
     };
     window.addEventListener("mousedown", onDown);
@@ -29993,7 +29815,7 @@ function AccountLauncher({ seat = true, settingsOpen, actions }) {
   };
   const tick = useViewport();
   const anchor = () => {
-    const rect = button3.current?.getBoundingClientRect();
+    const rect = button.current?.getBoundingClientRect();
     if (rect) setBox({ left: rect.left, bottom: viewBottom() - rect.top + 5 });
   };
   (0, import_react36.useLayoutEffect)(() => {
@@ -30027,7 +29849,7 @@ function AccountLauncher({ seat = true, settingsOpen, actions }) {
     null,
     (0, import_react36.createElement)(
       "button",
-      { ref: button3, type: "button", className: "bt-account", "aria-label": t("Account"), "aria-haspopup": "menu", "aria-expanded": open, onClick: toggle },
+      { ref: button, type: "button", className: "bt-account", "aria-label": t("Account"), "aria-haspopup": "menu", "aria-expanded": open, onClick: toggle },
       (0, import_react36.createElement)("span", { className: "bt-you", "aria-hidden": true }, (0, import_react36.createElement)(GearIcon))
     ),
     open && box ? (0, import_react_dom5.createPortal)((0, import_react36.createElement)(
@@ -31020,7 +30842,7 @@ function addTo(map, key, row) {
 }
 function summarize(view, range, keep = () => true, seriesOf = () => "all") {
   const { buckets, from, to, before } = spanOf(range, view.now);
-  const index = new Map(buckets.map((bucket, at2) => [bucket.key, at2]));
+  const index = new Map(buckets.map((bucket, at) => [bucket.key, at]));
   const weeks = /* @__PURE__ */ new Map();
   const keyOf = (hour) => {
     if (range.unit === "hour") return hour;
@@ -31040,9 +30862,9 @@ function summarize(view, range, keep = () => true, seriesOf = () => "all") {
       result.previous += tokensOf(row);
       continue;
     }
-    const at2 = index.get(keyOf(hour));
-    if (at2 === void 0) continue;
-    const bucket = current[at2];
+    const at = index.get(keyOf(hour));
+    if (at === void 0) continue;
+    const bucket = current[at];
     addRow(bucket.sum, row);
     addRow(result.total, row);
     const series = seriesOf(row);
@@ -31258,14 +31080,14 @@ function Chart({ range, columns: columns2, series, tipSeries, by, onBy, onPick }
         (0, import_react41.createElement)(
           "div",
           { className: "bt-us-cols" },
-          columns2.map((column, at2) => (0, import_react41.createElement)("div", {
+          columns2.map((column, at) => (0, import_react41.createElement)("div", {
             key: `${range.from ? `${range.from}~${range.to}` : range.id}:${column.key}`,
             className: "bt-us-col",
-            "data-on": hover === at2 ? "" : void 0,
-            onMouseEnter: () => setHover(at2)
+            "data-on": hover === at ? "" : void 0,
+            onMouseEnter: () => setHover(at)
           }, column.total > 0 ? (0, import_react41.createElement)(
             "div",
-            { className: "bt-us-stack", style: { height: `${column.total / top * 100}%`, "--i": at2 } },
+            { className: "bt-us-stack", style: { height: `${column.total / top * 100}%`, "--i": at } },
             column.parts.map(([key, value]) => value > 0 ? (0, import_react41.createElement)("i", { key, style: { flexGrow: value, background: fillOf.get(key) } }) : null)
           ) : (0, import_react41.createElement)("div", { className: "bt-us-stub" })))
         ),
@@ -31287,10 +31109,10 @@ function Chart({ range, columns: columns2, series, tipSeries, by, onBy, onPick }
         "div",
         { className: "bt-us-ticks", "aria-hidden": true },
         // A preset counts its labels back from now; a picked span forward from its first day.
-        columns2.map((column, at2) => (0, import_react41.createElement)(
+        columns2.map((column, at) => (0, import_react41.createElement)(
           "span",
-          { key: column.key, "data-now": at2 === count - 1 && range.ends !== false ? "" : void 0 },
-          (range.from ? at2 : count - 1 - at2) % range.stride === 0 ? column.tick : ""
+          { key: column.key, "data-now": at === count - 1 && range.ends !== false ? "" : void 0 },
+          (range.from ? at : count - 1 - at) % range.stride === 0 ? column.tick : ""
         ))
       )
     ),
@@ -31404,11 +31226,11 @@ function SpanPicker({ span, today, oldest, active: active2, near, onPick, onClos
     const [from, to] = [anchor, key].sort();
     onPick(from, to);
   };
-  const weekdays = (0, import_react41.useMemo)(() => Array.from({ length: 7 }, (_, at2) => dates({ weekday: "narrow" }).format(Date.UTC(2024, 0, 1 + at2))), []);
+  const weekdays = (0, import_react41.useMemo)(() => Array.from({ length: 7 }, (_, at) => dates({ weekday: "narrow" }).format(Date.UTC(2024, 0, 1 + at))), []);
   const month = (start, side) => {
     const length = new Date(addMonths(start, 1) - DAY_MS).getUTCDate();
     const lead = (new Date(start).getUTCDay() + 6) % 7;
-    const cells = Array.from({ length: lead }, (_, at2) => (0, import_react41.createElement)("span", { key: `b${at2}` }));
+    const cells = Array.from({ length: lead }, (_, at) => (0, import_react41.createElement)("span", { key: `b${at}` }));
     for (let day = 1; day <= length; day += 1) {
       const ms = start + (day - 1) * DAY_MS;
       const key = dayKey(ms);
@@ -31437,7 +31259,7 @@ function SpanPicker({ span, today, oldest, active: active2, near, onPick, onClos
       "div",
       { key: start, className: "bt-us-month" },
       (0, import_react41.createElement)("div", { className: "bt-us-month-head" }, nav, (0, import_react41.createElement)("span", null, dates({ year: "numeric", month: "long" }).format(start))),
-      (0, import_react41.createElement)("div", { className: "bt-us-weekdays", "aria-hidden": true }, weekdays.map((name, at2) => (0, import_react41.createElement)("span", { key: at2 }, name))),
+      (0, import_react41.createElement)("div", { className: "bt-us-weekdays", "aria-hidden": true }, weekdays.map((name, at) => (0, import_react41.createElement)("span", { key: at }, name))),
       (0, import_react41.createElement)("div", { className: "bt-us-days", onMouseLeave: () => setHover(null) }, cells)
     );
   };
@@ -31593,14 +31415,14 @@ function UsagePage({ roster, actions, focusId }) {
     const lifetime = /* @__PURE__ */ new Map();
     for (const row of view.rows) lifetime.set(row[MODEL], (lifetime.get(row[MODEL]) ?? 0) + tokensOf(row));
     const modelPaint = new Map([...lifetime].sort((a, b) => b[1] - a[1]).map(([model], rank) => [model, `var(--bt-ink-${MODEL_INKS[rank % MODEL_INKS.length]})`]));
-    const models2 = view.models.map((model, at2) => {
+    const models2 = view.models.map((model, at) => {
       const name = model.name || model.model || t("Unknown model");
-      const paint = modelPaint.get(at2) ?? "var(--bt-us-rest)";
+      const paint = modelPaint.get(at) ?? "var(--bt-us-rest)";
       return { kind: "model", name, sub: model.providerName ?? model.provider, paint, glyph: (size) => (0, import_react41.createElement)(ModelGlyph, { name, paint, size }) };
     });
     const ownerAt2 = focus?.kind === "owner" ? view.owners.findIndex((owner) => owner.key === focus.key) : -1;
     const modelAt = focus?.kind === "model" ? view.models.findIndex((model) => model.key === focus.key) : -1;
-    const isBot2 = (at2) => ["bot", "agent"].includes(view.owners[at2]?.kind);
+    const isBot2 = (at) => ["bot", "agent"].includes(view.owners[at]?.kind);
     const all2 = summarize(view, range, void 0, (row) => by === "bot" ? isBot2(row[OWNER]) ? `o${row[OWNER]}` : "rest" : `m${row[MODEL]}`);
     const keep2 = ownerAt2 >= 0 ? (row) => row[OWNER] === ownerAt2 : modelAt >= 0 ? (row) => row[MODEL] === modelAt : () => true;
     const face2 = ownerAt2 >= 0 ? faces2[ownerAt2] : modelAt >= 0 ? models2[modelAt] : null;
@@ -31618,13 +31440,13 @@ function UsagePage({ roster, actions, focusId }) {
       series2 = [{ key: "all", name: face2.name, fill: soften(face2.paint) }];
     } else {
       if (by === "bot") {
-        const bots = ranked2(all2.owners).filter(([at2]) => isBot2(at2));
-        series2 = bots.slice(0, TOP_SERIES).map(([at2]) => ({ key: `o${at2}`, name: faces2[at2].name, paint: faces2[at2].paint, pick: { kind: "owner", key: view.owners[at2].key } }));
+        const bots = ranked2(all2.owners).filter(([at]) => isBot2(at));
+        series2 = bots.slice(0, TOP_SERIES).map(([at]) => ({ key: `o${at}`, name: faces2[at].name, paint: faces2[at].paint, pick: { kind: "owner", key: view.owners[at].key } }));
         if (bots.length > TOP_SERIES) series2.push({ key: "more", name: t("More Bots"), paint: "var(--bt-us-more)" });
-        if (ranked2(all2.owners).some(([at2]) => !isBot2(at2))) series2.push({ key: "rest", name: t("Other"), paint: "var(--bt-us-rest)" });
+        if (ranked2(all2.owners).some(([at]) => !isBot2(at))) series2.push({ key: "rest", name: t("Other"), paint: "var(--bt-us-rest)" });
       } else {
         const used = ranked2(all2.models);
-        series2 = used.slice(0, TOP_SERIES).map(([at2]) => ({ key: `m${at2}`, name: models2[at2].name, paint: models2[at2].paint, pick: { kind: "model", key: view.models[at2].key } }));
+        series2 = used.slice(0, TOP_SERIES).map(([at]) => ({ key: `m${at}`, name: models2[at].name, paint: models2[at].paint, pick: { kind: "model", key: view.models[at].key } }));
         if (used.length > TOP_SERIES) series2.push({ key: "more", name: t("More models"), paint: "var(--bt-us-more)" });
       }
       const repeats = /* @__PURE__ */ new Map();
@@ -31685,29 +31507,29 @@ function UsagePage({ roster, actions, focusId }) {
     ["custom", rangeId === "custom" && span ? spanText(span.from, span.to) : t("Custom"), CalendarIcon]
   ];
   const whole = part.total.total;
-  const ownerRow = ([at2, sum], index, total = whole) => (0, import_react41.createElement)(Row2, {
-    key: `o${at2}`,
-    kind: faces[at2].kind,
-    glyph: faces[at2].glyph(32),
-    name: faces[at2].name,
-    sub: faces[at2].sub,
+  const ownerRow = ([at, sum], index, total = whole) => (0, import_react41.createElement)(Row2, {
+    key: `o${at}`,
+    kind: faces[at].kind,
+    glyph: faces[at].glyph(32),
+    name: faces[at].name,
+    sub: faces[at].sub,
     sum,
     whole: total,
     index,
-    fill: face ? soften(face.paint, 0.8) : fillOf.get(`o${at2}`) ?? soften(faces[at2].paint),
-    onClick: () => pick2({ kind: "owner", key: view.owners[at2].key })
+    fill: face ? soften(face.paint, 0.8) : fillOf.get(`o${at}`) ?? soften(faces[at].paint),
+    onClick: () => pick2({ kind: "owner", key: view.owners[at].key })
   });
-  const modelRow = ([at2, sum], index) => (0, import_react41.createElement)(Row2, {
-    key: `m${at2}`,
+  const modelRow = ([at, sum], index) => (0, import_react41.createElement)(Row2, {
+    key: `m${at}`,
     kind: "model",
-    glyph: models[at2].glyph(32),
-    name: models[at2].name,
-    sub: models[at2].sub,
+    glyph: models[at].glyph(32),
+    name: models[at].name,
+    sub: models[at].sub,
     sum,
     whole,
     index,
-    fill: face ? soften(face.paint, 0.8) : fillOf.get(`m${at2}`) ?? soften(models[at2].paint),
-    onClick: () => pick2({ kind: "model", key: view.models[at2].key })
+    fill: face ? soften(face.paint, 0.8) : fillOf.get(`m${at}`) ?? soften(models[at].paint),
+    onClick: () => pick2({ kind: "model", key: view.models[at].key })
   });
   const nothing = (0, import_react41.createElement)("div", { className: "bt-us-none" }, t("Nothing in this range."));
   let body;
@@ -31729,7 +31551,7 @@ function UsagePage({ roster, actions, focusId }) {
           (0, import_react41.createElement)(
             ListCard,
             { title: t("What for"), index: 3 },
-            kinds.length > 0 ? kinds.map(([at2, sum], index) => (0, import_react41.createElement)(Row2, { key: at2, name: kindLabel(view.kinds[at2], ownerAt >= 0 && isBot(ownerAt)), sum, whole, index, fill: soften(face.paint, 0.8) })) : nothing
+            kinds.length > 0 ? kinds.map(([at, sum], index) => (0, import_react41.createElement)(Row2, { key: at, name: kindLabel(view.kinds[at], ownerAt >= 0 && isBot(ownerAt)), sum, whole, index, fill: soften(face.paint, 0.8) })) : nothing
           )
         ),
         (0, import_react41.createElement)(Heat, { key: "heat", view, keep, paint: face.paint, index: 4 })
@@ -31737,8 +31559,8 @@ function UsagePage({ roster, actions, focusId }) {
     ];
   } else {
     const owners = ranked(all.owners);
-    const bots = owners.filter(([at2]) => isBot(at2));
-    const rest = owners.filter(([at2]) => !isBot(at2));
+    const bots = owners.filter(([at]) => isBot(at));
+    const rest = owners.filter(([at]) => !isBot(at));
     const usedModels = ranked(all.models);
     body = [
       (0, import_react41.createElement)(
@@ -32573,7 +32395,7 @@ function ConnectorsPage({ roster, actions }) {
     );
   }
   if (view === "connected") {
-    const rows5 = connected.filter((app) => app.id !== "mail");
+    const rows3 = connected.filter((app) => app.id !== "mail");
     return (0, import_react43.createElement)(
       Subview,
       { title: t("Connected"), onBack: back },
@@ -32582,7 +32404,7 @@ function ConnectorsPage({ roster, actions }) {
         "div",
         { className: "bt-set-card bt-connectors-card" },
         count === 0 ? (0, import_react43.createElement)("div", { className: "bt-set-row" }, (0, import_react43.createElement)("span", { className: "bt-set-hint" }, t("No connectors connected"))) : null,
-        rows5.map((app) => (0, import_react43.createElement)(ConnectorRow, { key: app.id, connector: app, actions })),
+        rows3.map((app) => (0, import_react43.createElement)(ConnectorRow, { key: app.id, connector: app, actions })),
         accounts.map((account) => (0, import_react43.createElement)(MailAccount, { key: account.id, account, actions, run: run2 })),
         (mail.pending ?? []).map((p) => (0, import_react43.createElement)(MailPending, { key: p.address ?? "google", pending: p })),
         (0, import_react43.createElement)(MailRules, { mail, bots: roster?.bots, actions, run: run2 })
@@ -34525,7 +34347,7 @@ function stateText(conn, status) {
 var Dot = ({ state }) => (0, import_react45.createElement)("span", { className: "bt-im-dot", "data-state": state, "aria-hidden": true });
 var Tick2 = ({ on }) => (0, import_react45.createElement)("span", { className: "bt-model-tick", "aria-hidden": true }, on ? (0, import_react45.createElement)(CheckIcon) : null);
 function TargetMenu({ value, roster, rooms = false, label, onPick, disabled = false }) {
-  const { isOpen, shownPlace, leaving, button: button3, menu, open, close } = useAnchoredMenu();
+  const { isOpen, shownPlace, leaving, button, menu, open, close } = useAnchoredMenu();
   const bot = value?.botId !== void 0 ? roster.bots.find((entry) => entry.id === value.botId) : void 0;
   const room2 = value?.roomId !== void 0 ? roster.rooms.find((entry) => entry.id === value.roomId) : void 0;
   const pick2 = (next) => {
@@ -34538,7 +34360,7 @@ function TargetMenu({ value, roster, rooms = false, label, onPick, disabled = fa
     null,
     (0, import_react45.createElement)(
       "button",
-      { ref: button3, type: "button", className: "bt-model-trigger bt-im-target", "aria-haspopup": "menu", "aria-expanded": isOpen, "aria-label": label, disabled, onClick: () => isOpen ? close() : open() },
+      { ref: button, type: "button", className: "bt-model-trigger bt-im-target", "aria-haspopup": "menu", "aria-expanded": isOpen, "aria-label": label, disabled, onClick: () => isOpen ? close() : open() },
       shown,
       (0, import_react45.createElement)("span", { className: "bt-model-name" }, bot?.name ?? room2?.name ?? t("Not bound")),
       (0, import_react45.createElement)(Caret)
@@ -34671,31 +34493,31 @@ function AddView({ platform, roster, actions, onBack }) {
   const [busy, setBusy] = (0, import_react45.useState)(false);
   const [error, setError] = (0, import_react45.useState)(null);
   const set = (key, value) => setFields((current) => ({ ...current, [key]: value }));
-  const missing = shown.fields.some((field2) => !field2.options && String(fields[field2.key] ?? "").trim() === "");
+  const missing = shown.fields.some((field) => !field.options && String(fields[field.key] ?? "").trim() === "");
   const add = () => {
     if (busy || botId === "" || missing) return;
     setBusy(true);
     setError(null);
     void Promise.resolve(actions.imAdd({ platform, botId, fields })).then(() => onBack()).catch((failure) => setError(failure?.message ?? String(failure))).finally(() => setBusy(false));
   };
-  const fieldRow = (field2) => {
-    if (field2.options) {
-      const value = fields[field2.key] ?? field2.options[0][0];
+  const fieldRow = (field) => {
+    if (field.options) {
+      const value = fields[field.key] ?? field.options[0][0];
       return (0, import_react45.createElement)(
         Row3,
-        { key: field2.key, label: t(field2.label) },
+        { key: field.key, label: t(field.label) },
         (0, import_react45.createElement)(
           Segmented,
-          { label: t(field2.label), value },
-          field2.options.map(([id, label2]) => (0, import_react45.createElement)("button", { key: id, type: "button", "aria-pressed": value === id, onClick: () => set(field2.key, id) }, t(label2)))
+          { label: t(field.label), value },
+          field.options.map(([id, label2]) => (0, import_react45.createElement)("button", { key: id, type: "button", "aria-pressed": value === id, onClick: () => set(field.key, id) }, t(label2)))
         )
       );
     }
-    const label = t(field2.label);
+    const label = t(field.label);
     return (0, import_react45.createElement)(
       Row3,
-      { key: field2.key, label, className: "bt-im-field" },
-      field2.secret ? (0, import_react45.createElement)("span", { className: "bt-q-field bt-secret-field bt-im-secret" }, (0, import_react45.createElement)(MaskedInput, { value: fields[field2.key] ?? "", onChange: (value) => set(field2.key, value), onEnter: add, label: field2.hint ? `${field2.hint}…` : label })) : (0, import_react45.createElement)("input", { className: "bt-input", "aria-label": label, placeholder: label, spellCheck: false, autoComplete: "off", value: fields[field2.key] ?? "", onChange: (event) => set(field2.key, event.target.value), onKeyDown: (event) => {
+      { key: field.key, label, className: "bt-im-field" },
+      field.secret ? (0, import_react45.createElement)("span", { className: "bt-q-field bt-secret-field bt-im-secret" }, (0, import_react45.createElement)(MaskedInput, { value: fields[field.key] ?? "", onChange: (value) => set(field.key, value), onEnter: add, label: field.hint ? `${field.hint}…` : label })) : (0, import_react45.createElement)("input", { className: "bt-input", "aria-label": label, placeholder: label, spellCheck: false, autoComplete: "off", value: fields[field.key] ?? "", onChange: (event) => set(field.key, event.target.value), onKeyDown: (event) => {
         if (event.key === "Enter" && !event.nativeEvent.isComposing) add();
       } })
     );
@@ -35711,7 +35533,7 @@ function CustomForm({ view, apply: apply2, actions, onDone }) {
   const [found, setFound] = (0, import_react49.useState)(null);
   const [picked, setPicked] = (0, import_react49.useState)([]);
   const [asking, setAsking] = (0, import_react49.useState)(false);
-  const set = (field2, value) => setDraft((current) => ({ ...current, [field2]: value }));
+  const set = (field, value) => setDraft((current) => ({ ...current, [field]: value }));
   const typed = draft.typed.split(/[\s,]+/).map((id) => id.trim()).filter(Boolean);
   const models = [...(found ?? []).filter((model) => picked.includes(model.id)), ...typed.filter((id) => !picked.includes(id)).map((id) => ({ id }))];
   const missing = [];
@@ -35740,14 +35562,14 @@ function CustomForm({ view, apply: apply2, actions, onDone }) {
       if (ok) onDone();
     });
   };
-  const input2 = (field2, label, placeholder) => (0, import_react49.createElement)("input", {
+  const input = (field, label, placeholder) => (0, import_react49.createElement)("input", {
     className: "bt-input",
     "aria-label": label,
     placeholder,
-    value: draft[field2],
+    value: draft[field],
     spellCheck: false,
     autoComplete: "off",
-    onChange: (event) => set(field2, event.target.value)
+    onChange: (event) => set(field, event.target.value)
   });
   return (0, import_react49.createElement)(
     "div",
@@ -35755,13 +35577,13 @@ function CustomForm({ view, apply: apply2, actions, onDone }) {
     (0, import_react49.createElement)(
       "div",
       { className: "bt-provider-pair" },
-      input2("provider", t("Provider ID"), t("Provider ID, e.g. my-gateway")),
-      input2("name", t("Name"), t("Name (optional)"))
+      input("provider", t("Provider ID"), t("Provider ID, e.g. my-gateway")),
+      input("name", t("Name"), t("Name (optional)"))
     ),
     (0, import_react49.createElement)(
       "div",
       { className: "bt-provider-pair" },
-      input2("baseURL", t("Endpoint"), ENDPOINT_HINTS[draft.api] ?? "https://gateway.example/v1"),
+      input("baseURL", t("Endpoint"), ENDPOINT_HINTS[draft.api] ?? "https://gateway.example/v1"),
       (0, import_react49.createElement)(
         "select",
         { className: "bt-select", "aria-label": t("Protocol"), value: draft.api, onChange: (event) => set("api", event.target.value) },
@@ -35787,7 +35609,7 @@ function CustomForm({ view, apply: apply2, actions, onDone }) {
         title: model.name && model.name !== model.id ? model.name : void 0,
         onClick: () => toggle(model.id)
       }, (0, import_react49.createElement)("code", null, model.id), picked.includes(model.id) ? (0, import_react49.createElement)(CheckIcon) : null))) : null,
-      input2("typed", t("Model ids"), t("Model ids, separated by commas"))
+      input("typed", t("Model ids"), t("Model ids, separated by commas"))
     ),
     missingHint,
     (0, import_react49.createElement)(FormActions, { onCancel: onDone, onAdd: add, ready })
@@ -36499,7 +36321,7 @@ var labelOf = (label) => (typeof label === "function" ? label() : label) ?? "";
 function ledgerSource(slots, localeOf, name, project) {
   let version = -1;
   let revision = -1;
-  let rows5 = [];
+  let rows3 = [];
   return {
     getSnapshot: () => {
       const nextVersion = slots.getVersion(name);
@@ -36507,9 +36329,9 @@ function ledgerSource(slots, localeOf, name, project) {
       if (nextVersion !== version || nextRevision !== revision) {
         version = nextVersion;
         revision = nextRevision;
-        rows5 = project(slots.entries(name));
+        rows3 = project(slots.entries(name));
       }
-      return rows5;
+      return rows3;
     },
     subscribe: (listener) => {
       const offs = [slots.subscribe(name, listener)];
@@ -36694,9 +36516,9 @@ function SettingsShell(props) {
   } = props;
   const settings = useUi((state) => state.settings);
   const roster = useRoster((value) => value);
-  const sections = useSections((rows5) => rows5);
-  const items = useGeneralItems((rows5) => rows5);
-  const steps = useOnboardingSteps((rows5) => rows5);
+  const sections = useSections((rows3) => rows3);
+  const items = useGeneralItems((rows3) => rows3);
+  const steps = useOnboardingSteps((rows3) => rows3);
   const requested = useOnboardingRequest((value) => value);
   const connection = useConnectionState((value) => value);
   const update = useDesktopUpdate((value) => value);
@@ -36788,8 +36610,8 @@ function settingsPlace(id) {
   return ["dsh", id];
 }
 function transitionText(from, to, unknown) {
-  const field2 = from?.version !== to?.version ? "version" : "commit";
-  return [from?.[field2] ?? unknown, to?.[field2] ?? unknown];
+  const field = from?.version !== to?.version ? "version" : "commit";
+  return [from?.[field] ?? unknown, to?.[field] ?? unknown];
 }
 function Transition({ label, from, to, done }) {
   return (0, import_react52.createElement)(
@@ -37234,8 +37056,8 @@ function useTranscriptView() {
       const sep = scroller.querySelector(".bt-new-sep");
       let divider = null;
       if (sep) {
-        const at2 = sep.getBoundingClientRect();
-        divider = at2.bottom <= headerBottom ? "above" : at2.top >= box.bottom ? "below" : "in-view";
+        const at = sep.getBoundingClientRect();
+        divider = at.bottom <= headerBottom ? "above" : at.top >= box.bottom ? "below" : "in-view";
       }
       const composer = parseFloat(getComputedStyle(scroller).getPropertyValue("--dsh-composer-height")) || 152;
       const next = {
@@ -37339,8 +37161,8 @@ function NewMessagePills({ sessionId, useSessions, useUi, useTurnClock }) {
 }
 
 // src/client/enter-steer.js
-var steerable = (input2) => input2 !== void 0 && input2.phase === "plain" && input2.draft.trim() === "" && input2.attachmentIds.length === 0 && input2.queue.some((message) => message.source?.kind === "user");
-var enterSteers = (event, input2) => event.key === "Enter" && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && !event.getModifierState?.("AltGraph") && !event.isComposing && event.keyCode !== 229 && !event.repeat && steerable(input2);
+var steerable = (input) => input !== void 0 && input.phase === "plain" && input.draft.trim() === "" && input.attachmentIds.length === 0 && input.queue.some((message) => message.source?.kind === "user");
+var enterSteers = (event, input) => event.key === "Enter" && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && !event.getModifierState?.("AltGraph") && !event.isComposing && event.keyCode !== 229 && !event.repeat && steerable(input);
 var steerQueued = async (session) => {
   try {
     const queued = session.projections.faceOf("inbox").getSnapshot()?.["next-turn"] ?? [];
@@ -37485,7 +37307,7 @@ function ComposerPlus({ sessionId, inputActions, useInput, useRoster, actions })
   const roster = useRoster((value) => value);
   const [open, setOpen] = (0, import_react54.useState)(null);
   const [shown, leaving] = useLinger(open, 120);
-  const button3 = (0, import_react54.useRef)(null);
+  const button = (0, import_react54.useRef)(null);
   const menu = (0, import_react54.useRef)(null);
   const tick = useViewport();
   const inputNow = (0, import_react54.useRef)(void 0);
@@ -37496,10 +37318,10 @@ function ComposerPlus({ sessionId, inputActions, useInput, useRoster, actions })
   (0, import_react54.useEffect)(() => {
     if (!open) return void 0;
     const onDown = (event) => {
-      if (![button3.current, menu.current].some((node) => node?.contains(event.target))) setOpen(null);
+      if (![button.current, menu.current].some((node) => node?.contains(event.target))) setOpen(null);
     };
     const onKey = (event) => {
-      if (stepMenuFocus(menu.current, event, button3.current)) return;
+      if (stepMenuFocus(menu.current, event, button.current)) return;
       if (event.key === "Escape") {
         event.stopPropagation();
         setOpen(null);
@@ -37513,7 +37335,7 @@ function ComposerPlus({ sessionId, inputActions, useInput, useRoster, actions })
     };
   }, [open]);
   (0, import_react54.useEffect)(() => {
-    const card = button3.current?.closest("[data-composer-card]");
+    const card = button.current?.closest("[data-composer-card]");
     if (!ready || card === null || card === void 0) return void 0;
     card.style.setProperty("--bt-placeholder", JSON.stringify(t("Press Enter to steer queued messages")));
     return () => card.style.removeProperty("--bt-placeholder");
@@ -37524,7 +37346,7 @@ function ComposerPlus({ sessionId, inputActions, useInput, useRoster, actions })
       if (steering || event.defaultPrevented || open) return;
       const target2 = event.target;
       if (typeof target2?.closest !== "function") return;
-      const card = button3.current?.closest("[data-composer-card]");
+      const card = button.current?.closest("[data-composer-card]");
       if (card === null || card === void 0 || target2.closest("[data-composer-card]") !== card) return;
       if (target2.closest("[contenteditable=true]") === null) return;
       if (target2.closest("[data-composer-composing]")) return;
@@ -37541,13 +37363,13 @@ function ComposerPlus({ sessionId, inputActions, useInput, useRoster, actions })
     return () => window.removeEventListener("keydown", onKey, true);
   }, [open, sessionId]);
   const place = (0, import_react54.useMemo)(() => {
-    if (!shown || !button3.current) return null;
-    const rect = button3.current.getBoundingClientRect();
+    if (!shown || !button.current) return null;
+    const rect = button.current.getBoundingClientRect();
     return { left: rect.left, bottom: viewBottom() - rect.top + 8 };
   }, [shown, open, tick]);
   const target = roster.byId?.[sessionId]?.id ?? roster.roomsById?.[sessionId]?.id;
   if (sessionId === void 0 || target === void 0) return null;
-  const fileInput = () => button3.current?.closest("[data-composer-card]")?.querySelector("input[type=file]");
+  const fileInput = () => button.current?.closest("[data-composer-card]")?.querySelector("input[type=file]");
   const toggle = () => {
     if (open) {
       setOpen(null);
@@ -37577,7 +37399,7 @@ function ComposerPlus({ sessionId, inputActions, useInput, useRoster, actions })
     import_react54.Fragment,
     null,
     (0, import_react54.createElement)("button", {
-      ref: button3,
+      ref: button,
       type: "button",
       className: "bt-plus",
       "aria-label": t("Add"),
@@ -37622,12 +37444,12 @@ function mentionRows(roster, sessionId, query = "") {
   if (here === null) return null;
   const bots = here.room ? here.room.members.map((id) => roster.byId[id]).filter(Boolean) : roster.bots.filter((bot) => bot.id !== here.self.id);
   const needle = query.trim().toLowerCase();
-  const rows5 = bots.filter((bot) => bot.name.toLowerCase().includes(needle)).map((bot) => ({ bot, text: `@${bot.name} ` }));
+  const rows3 = bots.filter((bot) => bot.name.toLowerCase().includes(needle)).map((bot) => ({ bot, text: `@${bot.name} ` }));
   const everyone = t("Everyone");
   if (here.room && bots.length > 1 && [everyone, ...ROOM_ALL].some((word) => word.toLowerCase().startsWith(needle))) {
-    rows5.push({ room: here.room, text: `@${everyone} ` });
+    rows3.push({ room: here.room, text: `@${everyone} ` });
   }
-  return rows5;
+  return rows3;
 }
 function chatRows(roster, list, sessionId) {
   const here = conversationOf(roster, sessionId);
@@ -38032,8 +37854,8 @@ function preparationStep(catalog) {
 function waveBytes(samples, rate = 16e3) {
   const bytes = new Uint8Array(44 + samples.length * 2);
   const view = new DataView(bytes.buffer);
-  const ascii = (at2, text) => {
-    for (let index = 0; index < text.length; index += 1) bytes[at2 + index] = text.charCodeAt(index);
+  const ascii = (at, text) => {
+    for (let index = 0; index < text.length; index += 1) bytes[at + index] = text.charCodeAt(index);
   };
   ascii(0, "RIFF");
   view.setUint32(4, 36 + samples.length * 2, true);
@@ -38560,7 +38382,7 @@ function FailureCell({ node, sessionId, useRoster, useTurnClock, actions }) {
       setError(hostText(failure?.message ?? String(failure)));
     });
   };
-  const button3 = (fix, primary) => {
+  const button = (fix, primary) => {
     const className = primary ? "bt-send bt-fail-go" : "bt-soft bt-soft-sm";
     if (fix === "top-up") {
       return (0, import_react57.createElement)("a", { key: fix, className: `${className} bt-fail-link`, href: data.code === "ACCOUNT_QUOTA" ? topUp : TOP_UP_URL, target: "_blank", rel: "noopener noreferrer" }, FIX_LABELS[fix]());
@@ -38569,7 +38391,7 @@ function FailureCell({ node, sessionId, useRoster, useTurnClock, actions }) {
     return (0, import_react57.createElement)("button", { key: fix, type: "button", className, "aria-expanded": toggles ? keying : void 0, onClick: () => runs[fix]() }, FIX_LABELS[fix](signedIn));
   };
   const retryButton = (primary) => (0, import_react57.createElement)("button", { key: "retry", type: "button", className: primary ? "bt-send bt-fail-go" : "bt-soft bt-soft-sm", disabled: retry !== "idle", onClick: resume }, retry === "idle" ? t("Retry") : t("Retrying…"));
-  const row = retryFirst ? [retryButton(true), ...fixes.map((fix) => button3(fix, false))] : [...fixes.map((fix, index) => button3(fix, index === 0)), retrying ? retryButton(false) : null];
+  const row = retryFirst ? [retryButton(true), ...fixes.map((fix) => button(fix, false))] : [...fixes.map((fix, index) => button(fix, index === 0)), retrying ? retryButton(false) : null];
   if (!row.some(Boolean)) return settled();
   return (0, import_react57.createElement)(
     "div",
@@ -38631,17 +38453,17 @@ function CommandPalette({ start, token, roster, actions, useSessions }) {
         if (hidden.includes(entry.turn)) continue;
         for (const raw of [entry.response, entry.prompt]) {
           const text = stripHeader(raw ?? "").replace(/\s+/g, " ").trim();
-          const at2 = text.toLowerCase().indexOf(wanted);
-          if (at2 < 0) continue;
-          const from = Math.max(0, at2 - 24);
-          hits.push([id, entry.turn, (from > 0 ? "…" : "") + text.slice(from, at2 + wanted.length + 60)]);
+          const at = text.toLowerCase().indexOf(wanted);
+          if (at < 0) continue;
+          const from = Math.max(0, at - 24);
+          hits.push([id, entry.turn, (from > 0 ? "…" : "") + text.slice(from, at + wanted.length + 60)]);
           break;
         }
       }
     }
     return JSON.stringify(hits);
   });
-  const matchesName = (...fields) => wanted === "" || fields.some((field2) => (field2 ?? "").toLowerCase().includes(wanted));
+  const matchesName = (...fields) => wanted === "" || fields.some((field) => (field ?? "").toLowerCase().includes(wanted));
   const sections = [];
   const people = [
     ...roster.bots.filter((bot) => matchesName(bot.name, bot.role)).map((bot) => ({
@@ -38695,9 +38517,9 @@ function CommandPalette({ start, token, roster, actions, useSessions }) {
     { key: "cmd:settings", icon: (0, import_react58.createElement)(GearIcon), title: t("Settings"), run: () => actions.openSettings("general") }
   ].filter((command) => matchesName(command.title));
   if (commands.length) sections.push([t("Commands"), commands]);
-  const rows5 = sections.flatMap(([, items]) => items);
-  const active2 = Math.min(cursor, Math.max(rows5.length - 1, 0));
-  const shown = rows5.map((row) => row.key).join("\n");
+  const rows3 = sections.flatMap(([, items]) => items);
+  const active2 = Math.min(cursor, Math.max(rows3.length - 1, 0));
+  const shown = rows3.map((row) => row.key).join("\n");
   const glide = useGlide(`${active2}
 ${shown}`, { axis: "y", ...QUICK_EDGES });
   const listRef = glide.box;
@@ -38738,13 +38560,13 @@ ${shown}`, { axis: "y", ...QUICK_EDGES });
             if (event.nativeEvent.isComposing) return;
             if (event.key === "ArrowDown") {
               event.preventDefault();
-              setCursor(Math.min(active2 + 1, rows5.length - 1));
+              setCursor(Math.min(active2 + 1, rows3.length - 1));
             } else if (event.key === "ArrowUp") {
               event.preventDefault();
               setCursor(Math.max(active2 - 1, 0));
             } else if (event.key === "Enter") {
               event.preventDefault();
-              choose(rows5[active2]);
+              choose(rows3[active2]);
             }
           }
         }),
@@ -38757,7 +38579,7 @@ ${shown}`, { axis: "y", ...QUICK_EDGES });
         "div",
         { ref: listRef, id: "bt-palette-list", className: "bt-palette-list", role: "listbox", "aria-label": t("Results") },
         (0, import_react58.createElement)("span", { ref: glide.thumb, className: "bt-thumb", "aria-hidden": true }),
-        rows5.length === 0 ? (0, import_react58.createElement)(
+        rows3.length === 0 ? (0, import_react58.createElement)(
           "div",
           { className: "bt-palette-empty" },
           (0, import_react58.createElement)("span", { className: "bt-palette-empty-icon", "aria-hidden": true }, (0, import_react58.createElement)(SearchIcon)),
@@ -38769,7 +38591,7 @@ ${shown}`, { axis: "y", ...QUICK_EDGES });
           (0, import_react58.createElement)("div", { className: "bt-palette-section", role: "presentation", "data-flip": `section:${title}` }, title),
           items.map((row) => {
             index += 1;
-            const at2 = index;
+            const at = index;
             return (0, import_react58.createElement)(
               "button",
               {
@@ -38777,10 +38599,10 @@ ${shown}`, { axis: "y", ...QUICK_EDGES });
                 type: "button",
                 role: "option",
                 className: "bt-palette-row",
-                "aria-selected": at2 === active2,
+                "aria-selected": at === active2,
                 "data-flip": row.key,
                 onMouseMove: () => {
-                  if (cursor !== at2) setCursor(at2);
+                  if (cursor !== at) setCursor(at);
                 },
                 onClick: () => choose(row)
               },
@@ -38811,17 +38633,17 @@ function marked(text, terms) {
   const source = String(text ?? "");
   if (terms.length === 0) return source;
   const pattern = new RegExp(`(${terms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "giu");
-  return source.split(pattern).map((part, at2) => at2 % 2 === 1 ? (0, import_react59.createElement)("mark", { key: at2 }, part) : part);
+  return source.split(pattern).map((part, at) => at % 2 === 1 ? (0, import_react59.createElement)("mark", { key: at }, part) : part);
 }
 function snippetOf(text, terms) {
   const source = String(text ?? "");
   if (source.length <= SNIPPET_CHARS) return source;
   const lower = source.toLowerCase();
-  const at2 = terms.reduce((best, term) => {
+  const at = terms.reduce((best, term) => {
     const found = lower.indexOf(term);
     return found >= 0 && (best < 0 || found < best) ? found : best;
   }, -1);
-  const from = Math.max(0, (at2 < 0 ? 0 : at2) - 60);
+  const from = Math.max(0, (at < 0 ? 0 : at) - 60);
   return `${from > 0 ? "…" : ""}${source.slice(from, from + SNIPPET_CHARS)}${from + SNIPPET_CHARS < source.length ? "…" : ""}`;
 }
 var authorOf = (line, roster) => line?.botId === void 0 ? t("You") : roster.byId[line.botId]?.name ?? line?.name ?? t("a Bot");
@@ -38873,7 +38695,7 @@ function GroupSearch({ room: room2, roster, token, actions }) {
   const [moreError, setMoreError] = (0, import_react59.useState)(null);
   const [picked, setPicked] = (0, import_react59.useState)(null);
   const [leaving, setLeaving] = (0, import_react59.useState)(false);
-  const input2 = (0, import_react59.useRef)(null);
+  const input = (0, import_react59.useRef)(null);
   const generation = (0, import_react59.useRef)(0);
   const moreCall = (0, import_react59.useRef)(null);
   const close = () => {
@@ -39001,7 +38823,7 @@ function GroupSearch({ room: room2, roster, token, actions }) {
         { className: "bt-palette-head" },
         (0, import_react59.createElement)("span", { className: "bt-palette-glyph", "aria-hidden": true }, (0, import_react59.createElement)(SearchIcon)),
         (0, import_react59.createElement)("input", {
-          ref: input2,
+          ref: input,
           autoFocus: true,
           value: query,
           "aria-label": t("Search this group"),
@@ -39011,7 +38833,7 @@ function GroupSearch({ room: room2, roster, token, actions }) {
         query !== "" ? (0, import_react59.createElement)("button", { type: "button", className: "bt-palette-clear", "aria-label": t("Clear search"), onClick: () => {
           setQuery("");
           setPicked(null);
-          input2.current?.focus();
+          input.current?.focus();
         } }, (0, import_react59.createElement)(CloseIcon)) : (0, import_react59.createElement)("button", { type: "button", className: "bt-palette-clear", "aria-label": t("Close"), onClick: close }, (0, import_react59.createElement)(CloseIcon))
       ),
       (0, import_react59.createElement)("div", { className: "bt-gs-body", "aria-live": "polite" }, body),
@@ -39064,15 +38886,15 @@ function handOffPaste({ event, card, sessionId, actions }) {
   if ((event.clipboardData?.files?.length ?? 0) > 0) return null;
   const kept = foldPastedText(event.clipboardData?.getData("text/plain") ?? "");
   if (kept === null) return null;
-  const input2 = card.querySelector("input[type=file]");
-  if (input2 === null || input2 === void 0) return null;
+  const input = card.querySelector("input[type=file]");
+  if (input === null || input === void 0) return null;
   const file = new File([kept], pastedName(kept), { type: "text/plain" });
   event.preventDefault();
   event.stopPropagation();
   const transfer = new DataTransfer();
   transfer.items.add(file);
-  input2.files = transfer.files;
-  input2.dispatchEvent(new Event("change", { bubbles: true }));
+  input.files = transfer.files;
+  input.dispatchEvent(new Event("change", { bubbles: true }));
   actions.addPaste(sessionId, kept, file.name);
   return file.name;
 }
@@ -40504,17 +40326,17 @@ function MemberDock({ sessionId, useRoster, useWork, actions }) {
     )
   );
 }
-var stateLine = (className, at2, ...what) => (0, import_react66.createElement)(
+var stateLine = (className, at, ...what) => (0, import_react66.createElement)(
   "span",
   { className },
   (0, import_react66.createElement)("span", { className: "bt-member-what" }, ...what),
-  typeof at2 === "number" ? (0, import_react66.createElement)(Elapsed, { at: at2, className: "bt-member-time" }) : null
+  typeof at === "number" ? (0, import_react66.createElement)(Elapsed, { at, className: "bt-member-time" }) : null
 );
 function ApprovalCard({ approval, bot, actions }) {
   const [busy, setBusy] = (0, import_react66.useState)(false);
-  const answer = (choice2) => {
+  const answer = (choice) => {
     setBusy(true);
-    void Promise.resolve(actions.answerApproval(approval.id, choice2)).catch((error) => actions.reportError(error, "approval")).finally(() => setBusy(false));
+    void Promise.resolve(actions.answerApproval(approval.id, choice)).catch((error) => actions.reportError(error, "approval")).finally(() => setBusy(false));
   };
   return (0, import_react66.createElement)(
     "div",
@@ -40934,7 +40756,7 @@ function About({ text, title = "About", label, placeholder, onSave }) {
   const long = shown.split("\n").length > 5 || shown.length > 240;
   const body = (0, import_react68.useRef)(null);
   useMorph(body, open);
-  const field2 = onSave !== void 0 && (editing || shown === "");
+  const field = onSave !== void 0 && (editing || shown === "");
   const edit = () => {
     if (!window.getSelection?.()?.toString()) setEditing(true);
   };
@@ -40942,7 +40764,7 @@ function About({ text, title = "About", label, placeholder, onSave }) {
     "div",
     null,
     (0, import_react68.createElement)("div", { className: "bt-section-title" }, t(title)),
-    field2 ? (0, import_react68.createElement)(InlineText, { label, value: shown, multiline: true, placeholder, autoFocus: editing, className: "bt-input bt-input-area", onSave: save, onDone: () => setEditing(false) }) : (0, import_react68.createElement)("div", {
+    field ? (0, import_react68.createElement)(InlineText, { label, value: shown, multiline: true, placeholder, autoFocus: editing, className: "bt-input bt-input-area", onSave: save, onDone: () => setEditing(false) }) : (0, import_react68.createElement)("div", {
       ref: body,
       className: "bt-about",
       "data-open": open || void 0,
@@ -40953,7 +40775,7 @@ function About({ text, title = "About", label, placeholder, onSave }) {
         }
       } } : {}
     }, shown),
-    long && !field2 ? (0, import_react68.createElement)("button", { type: "button", className: "bt-more", onClick: () => setOpen((value) => !value) }, open ? t("Show less") : t("Show more")) : null
+    long && !field ? (0, import_react68.createElement)("button", { type: "button", className: "bt-more", onClick: () => setOpen((value) => !value) }, open ? t("Show less") : t("Show more")) : null
   );
 }
 var PILE_MAX = 4;
@@ -41072,7 +40894,7 @@ function GroupOverview({ room: room2, roster, actions, usage, useWork, openSetti
 }
 function AgentSessions({ bot, part, run: run2, useSessions }) {
   const ids = [part, ...(bot.parts ?? []).filter((id) => id !== part).slice().reverse()];
-  const rows5 = useSessions((list) => ids.map((id) => list.byId?.[id]), rowsEqual);
+  const rows3 = useSessions((list) => ids.map((id) => list.byId?.[id]), rowsEqual);
   const total = ids.length;
   return (0, import_react68.createElement)(
     "div",
@@ -41084,7 +40906,7 @@ function AgentSessions({ bot, part, run: run2, useSessions }) {
       (0, import_react68.createElement)("button", { type: "button", className: "bt-agent-sessions-new", onClick: () => run2(call("bot-new-part", { botId: bot.id })) }, (0, import_react68.createElement)(PlusIcon), t("New session"))
     ),
     (0, import_react68.createElement)("div", { className: "bt-agent-sessions" }, ids.map((id, index) => {
-      const row = rows5[index];
+      const row = rows3[index];
       const current = index === 0;
       const when3 = row?.updatedAt ?? row?.createdAt;
       const label = row?.title && row.title.trim() !== "" ? row.title : t("Session {number}", { number: total - index });
@@ -41325,14 +41147,14 @@ function PanelMenu({ items, className, "aria-label": label }) {
   const [open, setOpen] = (0, import_react69.useState)(false);
   const [shown, leaving] = useLinger(open, 120);
   const wrap = (0, import_react69.useRef)(null);
-  const button3 = (0, import_react69.useRef)(null);
+  const button = (0, import_react69.useRef)(null);
   (0, import_react69.useEffect)(() => {
     if (!open) return void 0;
     const onDown = (event) => {
       if (wrap.current && !wrap.current.contains(event.target)) setOpen(false);
     };
     const onKey = (event) => {
-      if (stepMenuFocus(wrap.current, event, button3.current)) return;
+      if (stepMenuFocus(wrap.current, event, button.current)) return;
       if (event.key !== "Escape") return;
       event.stopPropagation();
       setOpen(false);
@@ -41349,7 +41171,7 @@ function PanelMenu({ items, className, "aria-label": label }) {
     "span",
     { className: "bt-pmenu", ref: wrap },
     (0, import_react69.createElement)("button", {
-      ref: button3,
+      ref: button,
       type: "button",
       className,
       "aria-label": label,
@@ -41559,7 +41381,7 @@ function PanelStrip({ bot, subject, view, ids, active: active2, sides, side, can
 function BrowserView({ bot, tabId, leaving, landed, actions, useBrowserPages, hold }) {
   const page = useBrowserPages((pages) => pages[tabId ?? ""]) ?? EMPTY_PAGE;
   const frame = (0, import_react69.useRef)(null);
-  const input2 = (0, import_react69.useRef)(null);
+  const input = (0, import_react69.useRef)(null);
   const [draft, setDraft] = (0, import_react69.useState)(null);
   const [covered, setCovered] = (0, import_react69.useState)(false);
   const imports = actions.browserImport;
@@ -41659,14 +41481,14 @@ function BrowserView({ bot, tabId, leaving, landed, actions, useBrowserPages, ho
   }, [tabId, showGuest, leaving]);
   (0, import_react69.useEffect)(() => {
     setDraft(null);
-    if (landed && !page.url) input2.current?.focus();
+    if (landed && !page.url) input.current?.focus();
   }, [tabId, landed]);
   const go = (event) => {
     event.preventDefault();
     const text = draft ?? "";
     if (text.trim() === "") return;
     setDraft(null);
-    input2.current?.blur();
+    input.current?.blur();
     void actions.browserNavigate(tabId, text).then((opened) => {
       if (opened) actions.browserFocus(tabId);
     });
@@ -41705,7 +41527,7 @@ function BrowserView({ bot, tabId, leaving, landed, actions, useBrowserPages, ho
         { className: "bt-browser-address", onSubmit: go, "data-editing": editing || void 0 },
         (0, import_react69.createElement)("span", { className: "bt-browser-scheme", "aria-hidden": true }, (0, import_react69.createElement)(secure && !editing ? LockIcon2 : GlobeIcon2)),
         (0, import_react69.createElement)("input", {
-          ref: input2,
+          ref: input,
           type: "text",
           spellCheck: false,
           autoComplete: "off",
@@ -42295,686 +42117,8 @@ var BROWSER_CSS = `
 @media (prefers-reduced-motion:reduce){.bt-ptabs,.bt-panel-view,.bt-bcard,.bt-ptab-name{animation:none}}
 `;
 
-// src/shared/task-time.js
-var TASK_STATUSES = ["todo", "doing", "waiting", "review", "done", "cancelled"];
-function validDate(value) {
-  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
-}
-function validZone(zone) {
-  try {
-    new Intl.DateTimeFormat("en", { timeZone: zone }).format();
-    return typeof zone === "string" && zone.length > 0;
-  } catch {
-    return false;
-  }
-}
-function dayInZone(instant, zone) {
-  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(instant));
-  const field2 = (key) => parts.find((part) => part.type === key).value;
-  return `${field2("year")}-${field2("month")}-${field2("day")}`;
-}
-function addDays(day, amount) {
-  const date = /* @__PURE__ */ new Date(`${day}T12:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + amount);
-  return date.toISOString().slice(0, 10);
-}
-function taskOnDay(task, day, zone) {
-  if (!task.start || !task.end) return false;
-  if (task.allDay) return task.start <= day && day < task.end;
-  return dayInZone(task.start, zone) <= day && day <= dayInZone(Date.parse(task.end) - 1, zone);
-}
-function cleanSchedule(task) {
-  if (!validZone(task.timeZone)) throw new Error("Choose a valid IANA time zone.");
-  if (!task.start && !task.end) return { ...task, start: null, end: null };
-  if (!task.start || !task.end) throw new Error("Planned start and end are both required.");
-  if (task.allDay) {
-    if (!validDate(task.start) || !validDate(task.end) || task.end <= task.start) throw new Error("All-day end must be after start (exclusive end date).");
-  } else {
-    const explicit = (value) => typeof value === "string" && /T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value) && Number.isFinite(Date.parse(value)) && validDate(value.slice(0, 10));
-    if (!explicit(task.start) || !explicit(task.end) || Date.parse(task.end) <= Date.parse(task.start)) throw new Error("Use ISO timestamps with an offset; planned end must be after start.");
-    task = { ...task, start: new Date(task.start).toISOString(), end: new Date(task.end).toISOString() };
-  }
-  return task;
-}
-function wallTime(instant, zone) {
-  const p = new Intl.DateTimeFormat("sv-SE", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(instant));
-  const f = (type) => p.find((part) => part.type === type).value;
-  return `${f("year")}-${f("month")}-${f("day")}T${f("hour")}:${f("minute")}`;
-}
-function instantFromWall(value, zone) {
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) || !validDate(value.slice(0, 10)) || !validZone(zone)) throw new Error("Invalid local date, time or time zone.");
-  const nominal = Date.parse(`${value}:00Z`);
-  const matches2 = /* @__PURE__ */ new Set();
-  for (const hours of [-36, -12, 0, 12, 36]) {
-    const probe = nominal + hours * 36e5;
-    const local = Date.parse(`${wallTime(probe, zone)}:00Z`);
-    const candidate = nominal - (local - Math.floor(probe / 6e4) * 6e4);
-    if (wallTime(candidate, zone) === value) matches2.add(new Date(candidate).toISOString());
-  }
-  if (matches2.size !== 1) throw new Error("This local time is skipped or repeated by daylight saving. Choose another time or use an explicit offset through the task API.");
-  return [...matches2][0];
-}
-
-// src/shared/scheduled-tasks.js
-var SCHEDULE_LABELS = { scheduled: "Enabled", overdue: "Awaiting delivery", paused: "Paused", finished: "Finished", unknown: "Unknown schedule state" };
-function scheduleZone(task) {
-  const named = /^DTSTART;TZID=([^:;\r\n]+):/m.exec(task.rrule ?? "")?.[1];
-  const zone = task.timeZone ?? named ?? "UTC";
-  return validZone(zone) ? zone : "UTC";
-}
-function scheduleState(task, now = Date.now()) {
-  if (task.status === "paused") return "paused";
-  if (task.status === "ended" || task.status === "inactive") return "finished";
-  if (task.status !== "active") return "unknown";
-  const time = Date.parse(task.scheduledAt);
-  return Number.isFinite(time) && time > now ? "scheduled" : "overdue";
-}
-function scheduledRows(entries2, now = Date.now()) {
-  return entries2.map((entry) => {
-    const state = scheduleState(entry, now);
-    const instant = state === "scheduled" ? new Date(entry.scheduledAt).toISOString() : null;
-    return {
-      id: `schedule:${entry.id}`,
-      source: "schedule",
-      kind: "scheduled",
-      title: entry.title,
-      status: state,
-      ownerId: entry.botId ?? entry.roomId ?? null,
-      conversationId: entry.botId ?? entry.roomId ?? null,
-      description: "",
-      waiting: "",
-      results: [],
-      due: null,
-      allDay: false,
-      timeZone: scheduleZone(entry),
-      start: instant,
-      end: instant ? new Date(Date.parse(instant) + 1).toISOString() : null,
-      updatedAt: Number.isFinite(Date.parse(entry.updatedAt)) ? Date.parse(entry.updatedAt) : 0,
-      schedule: entry
-    };
-  });
-}
-
-// src/client/schedule-workbench.js
-var import_react70 = require("react");
-var SCHEDULE_COVERAGE = "Scheduled tasks show only their next future delivery, not every recurrence or a booked duration.";
-var at = (instant, zone) => new Intl.DateTimeFormat(language(), { timeZone: zone, year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(instant));
-function nextScheduleText(task, zone) {
-  return task.start ? `${t("Next delivery")}: ${at(task.start, zone)}` : t(SCHEDULE_LABELS[task.status] ?? "Unknown schedule state");
-}
-function deliveryText(entry, zone) {
-  if (entry.executionActive === true) return t("Delivered; queued or running");
-  return Number.isFinite(Date.parse(entry.lastDelivery?.deliveredAt)) ? `${t("Delivered to the conversation")}: ${at(entry.lastDelivery.deliveredAt, zone)}` : t("No saved delivery receipt");
-}
-var button = (label, onClick, props = {}) => (0, import_react70.createElement)("button", { type: "button", onClick, ...props }, t(label));
-function ScheduleDetail({ task, roster, actions, request, manageable, onChanged, onClose, onEditing }) {
-  const entry = task.schedule;
-  const [draft, setDraft] = (0, import_react70.useState)(null);
-  const [confirmation, setConfirmation] = (0, import_react70.useState)(void 0);
-  const [busy, setBusy] = (0, import_react70.useState)(false);
-  const [error, setError] = (0, import_react70.useState)("");
-  const sending = (0, import_react70.useRef)(false);
-  const allowed2 = manageable && !roster.readOnly;
-  (0, import_react70.useEffect)(() => () => onEditing(false), []);
-  const run2 = async (action, expectedUpdatedAt, fields) => {
-    if (!allowed2 || sending.current) return;
-    sending.current = true;
-    setBusy(true);
-    setError("");
-    try {
-      const result = await request("workbench-schedule-edit", { id: entry.id, action, expectedUpdatedAt, ...fields ? { fields } : {} });
-      onChanged(result);
-      setDraft(null);
-      setConfirmation(void 0);
-      onEditing(false);
-      if (action === "delete") onClose();
-    } catch (failure) {
-      setError(hostText(failure.message));
-    } finally {
-      sending.current = false;
-      setBusy(false);
-    }
-  };
-  const edit = () => {
-    setDraft({ title: entry.title, prompt: entry.prompt, rrule: entry.rrule, expectedUpdatedAt: entry.updatedAt ?? null, base: { title: entry.title, prompt: entry.prompt, rrule: entry.rrule } });
-    onEditing(true);
-    setError("");
-  };
-  const save = (event) => {
-    event.preventDefault();
-    const fields = Object.fromEntries(["title", "prompt", "rrule"].filter((key) => draft[key] !== draft.base[key]).map((key) => [key, draft[key]]));
-    if (!Object.keys(fields).length) {
-      setDraft(null);
-      onEditing(false);
-      return;
-    }
-    void run2("update", draft.expectedUpdatedAt, fields);
-  };
-  const owner = [...roster.bots, ...roster.rooms].find((item) => item.id === task.ownerId);
-  return (0, import_react70.createElement)(
-    "div",
-    { className: "bt-wb-detail bt-wb-schedule-detail" },
-    (0, import_react70.createElement)("div", { className: "bt-wb-detail-top" }, (0, import_react70.createElement)("strong", null, t("Scheduled task")), button("Close details", onClose)),
-    (0, import_react70.createElement)("h2", null, task.title),
-    (0, import_react70.createElement)("span", { className: "bt-wb-status", "data-status": task.status }, t(SCHEDULE_LABELS[task.status])),
-    (0, import_react70.createElement)(
-      "dl",
-      null,
-      (0, import_react70.createElement)("dt", null, t("Owner")),
-      (0, import_react70.createElement)("dd", null, owner?.name ?? t("Original conversation")),
-      (0, import_react70.createElement)("dt", null, t("Next delivery")),
-      (0, import_react70.createElement)("dd", null, nextScheduleText(task, task.timeZone)),
-      (0, import_react70.createElement)("dt", null, t("Time zone")),
-      (0, import_react70.createElement)("dd", null, task.timeZone),
-      (0, import_react70.createElement)("dt", null, t("Latest delivery")),
-      (0, import_react70.createElement)("dd", null, deliveryText(entry, task.timeZone))
-    ),
-    (0, import_react70.createElement)("p", { className: "bt-wb-note" }, t("A delivery receipt does not mean the task finished.")),
-    (0, import_react70.createElement)("p", { className: "bt-wb-note" }, t(SCHEDULE_COVERAGE)),
-    draft ? (0, import_react70.createElement)(
-      "form",
-      { onSubmit: save, className: "bt-wb-schedule-form" },
-      ...["title", "prompt", ...entry.kind === "rrule" ? ["rrule"] : []].map((key) => (0, import_react70.createElement)(
-        "label",
-        { className: "bt-wb-field", key },
-        (0, import_react70.createElement)("span", null, t({ title: "Title", prompt: "Scheduled instruction", rrule: "Recurrence rule" }[key])),
-        key === "title" ? (0, import_react70.createElement)("input", { value: draft[key], required: true, maxLength: 120, onChange: (event) => setDraft((old) => ({ ...old, [key]: event.target.value })) }) : (0, import_react70.createElement)("textarea", { value: draft[key], required: true, rows: key === "rrule" ? 3 : 6, onChange: (event) => setDraft((old) => ({ ...old, [key]: event.target.value })) })
-      )),
-      entry.kind === "rrule" ? (0, import_react70.createElement)("p", { className: "bt-wb-note" }, t("Advanced rule: keep one DTSTART and one RRULE line. The Host validates the change.")) : null,
-      (0, import_react70.createElement)("div", { className: "bt-wb-editor-actions" }, (0, import_react70.createElement)("button", { type: "submit", className: "bt-wb-primary", disabled: busy }, t("Save schedule")), button("Cancel", () => {
-        setDraft(null);
-        onEditing(false);
-      }, { disabled: busy }))
-    ) : (0, import_react70.createElement)(
-      "div",
-      null,
-      (0, import_react70.createElement)("h3", null, t("Scheduled instruction")),
-      (0, import_react70.createElement)("p", { className: "bt-wb-description" }, entry.prompt),
-      entry.rrule ? (0, import_react70.createElement)("details", null, (0, import_react70.createElement)("summary", null, t("Recurrence rule")), (0, import_react70.createElement)("pre", { className: "bt-wb-rule" }, entry.rrule)) : null,
-      (0, import_react70.createElement)(
-        "div",
-        { className: "bt-wb-editor-actions" },
-        button("Edit schedule", edit, { disabled: !allowed2 || busy }),
-        entry.status === "active" ? button("Pause schedule", () => {
-          void run2("pause", entry.updatedAt ?? null);
-        }, { disabled: !allowed2 || busy }) : null,
-        entry.status === "paused" ? button("Resume schedule", () => {
-          void run2("resume", entry.updatedAt ?? null);
-        }, { disabled: !allowed2 || busy }) : null,
-        button("Delete schedule", () => setConfirmation(entry.updatedAt ?? null), { disabled: !allowed2 || busy, className: "bt-wb-danger" })
-      )
-    ),
-    // Capture the revision at the destructive decision, including legacy null revisions.
-    confirmation !== void 0 ? (0, import_react70.createElement)("div", { className: "bt-wb-delete", role: "alert" }, (0, import_react70.createElement)("p", null, t("Delete this scheduled task and its delivery history?")), button("Cancel", () => setConfirmation(void 0)), button("Confirm delete", () => {
-      void run2("delete", confirmation);
-    }, { disabled: busy, className: "bt-wb-danger" })) : null,
-    error ? (0, import_react70.createElement)("p", { className: "bt-wb-error", role: "alert" }, error) : null,
-    !allowed2 ? (0, import_react70.createElement)("p", { className: "bt-wb-note" }, t("Schedule controls are unavailable in this view.")) : null,
-    (0, import_react70.createElement)(
-      "div",
-      { className: "bt-wb-editor-actions" },
-      button("Open original schedule manager", () => {
-        if (draft) return;
-        actions.closeTasks();
-        actions.openSettings("schedules", entry.botId ? `bot:${entry.botId}` : entry.roomId ? `room:${entry.roomId}` : null);
-      }, { disabled: Boolean(draft) }),
-      task.conversationId ? button("Open original conversation", () => {
-        if (draft) return;
-        actions.closeTasks();
-        actions.openSession(task.conversationId);
-      }, { disabled: Boolean(draft) }) : null
-    )
-  );
-}
-var SCHEDULE_WORKBENCH_CSS = `
-.bt-wb-scheduled-section{margin:24px 0}.bt-wb-scheduled-section>h2{font-size:15px;margin:0 0 8px}.bt-wb-scheduled-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}.bt-wb-scheduled-grid .bt-wb-card{height:100%}.bt-wb-schedule-badge{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--bt-accent);font-size:12px}.bt-wb-rule{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,monospace;background:var(--bt-hover);padding:12px;border-radius:8px}.bt-wb-schedule-detail summary{cursor:pointer;color:var(--bt-ink-2)}.bt-wb-delivery{font-size:12px;color:var(--bt-ink-2)}.bt-wb-board[data-with-schedules]{min-height:0;margin-bottom:24px}.bt-wb-coverage{padding:10px 12px;border:1px solid var(--bt-line);border-radius:8px;margin:0 0 16px;font-size:12px;color:var(--bt-ink-2)}.bt-wb-day-event[data-scheduled]{border-left:2px solid var(--bt-accent)}
-`;
-
-// src/client/task-workbench.js
-var import_react71 = require("react");
-var LABELS2 = { todo: "To plan", doing: "In progress", waiting: "Waiting", review: "To review", done: "Completed", cancelled: "Cancelled" };
-var zoneHere = () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-var emptyTask = (zone) => ({ title: "", description: "", kind: "personal", ownerId: null, status: "todo", start: null, end: null, allDay: false, timeZone: zone, due: null, waiting: "", conversationId: null, results: [] });
-function scheduleLabel(task, zone) {
-  if (task.source === "schedule") return nextScheduleText(task, zone);
-  if (!task.start) return t("Unscheduled");
-  if (task.allDay) return `${task.start} → ${addDays(task.end, -1)} · ${t("All day")}`;
-  const format = (instant) => new Intl.DateTimeFormat(language(), { timeZone: zone, month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(instant));
-  return `${format(task.start)} → ${format(task.end)}`;
-}
-var button2 = (label, onClick, props = {}) => (0, import_react71.createElement)("button", { type: "button", onClick, ...props }, t(label));
-var field = (label, child) => (0, import_react71.createElement)("label", { className: "bt-wb-field" }, (0, import_react71.createElement)("span", null, t(label)), child);
-var input = (value, onChange, props = {}) => (0, import_react71.createElement)("input", { value: value ?? "", onChange: (event) => onChange(event.target.value), ...props });
-var choice = (value, onChange, entries2, props = {}) => (0, import_react71.createElement)("select", { value: value ?? "", onChange: (event) => onChange(event.target.value), ...props }, entries2.map(([key, label]) => (0, import_react71.createElement)("option", { key, value: key }, label)));
-function TaskEditor({ task, roster, onSave, onDelete, onCancel, busy, error, zone }) {
-  const [draft, setDraft] = (0, import_react71.useState)(() => ({ ...emptyTask(zone), ...task }));
-  const [start, setStart] = (0, import_react71.useState)(() => task?.start ? task.allDay ? task.start : wallTime(task.start, task.timeZone) : "");
-  const [end, setEnd] = (0, import_react71.useState)(() => task?.end ? task.allDay ? addDays(task.end, -1) : wallTime(task.end, task.timeZone) : "");
-  const [localError, setLocalError] = (0, import_react71.useState)("");
-  const [deleting, setDeleting] = (0, import_react71.useState)(false);
-  const [resultLabel, setResultLabel] = (0, import_react71.useState)("");
-  const [resultUrl, setResultUrl] = (0, import_react71.useState)("");
-  const formRef = (0, import_react71.useRef)(null);
-  (0, import_react71.useEffect)(() => {
-    formRef.current?.querySelector("input")?.focus();
-  }, []);
-  const set = (key, value) => setDraft((old) => ({ ...old, [key]: value }));
-  const save = async (event) => {
-    event.preventDefault();
-    setLocalError("");
-    try {
-      const fields = { ...draft };
-      for (const key of ["id", "revision", "createdAt", "updatedAt"]) delete fields[key];
-      const original = task?.start && !task.allDay && !draft.allDay && task.timeZone === draft.timeZone;
-      fields.start = start ? draft.allDay ? start : original && wallTime(task.start, draft.timeZone) === start ? task.start : instantFromWall(start, draft.timeZone) : null;
-      fields.end = end ? draft.allDay ? addDays(end, 1) : original && wallTime(task.end, draft.timeZone) === end ? task.end : instantFromWall(end, draft.timeZone) : null;
-      if (resultLabel || resultUrl) throw new Error(t("Add or clear the result link before saving."));
-      await onSave(fields);
-    } catch (failure) {
-      setLocalError(hostText(failure.message));
-    }
-  };
-  const changeAllDay = (checked) => {
-    set("allDay", checked);
-    setStart((value) => checked ? value.slice(0, 10) : value ? `${value}T09:00` : "");
-    setEnd((value) => checked ? value.slice(0, 10) : value ? `${value}T10:00` : "");
-  };
-  return (0, import_react71.createElement)(
-    "form",
-    { className: "bt-wb-editor", onSubmit: save, ref: formRef },
-    (0, import_react71.createElement)("div", { className: "bt-wb-detail-top" }, (0, import_react71.createElement)("strong", null, t(task?.id ? "Edit task" : "New task")), button2("Cancel", onCancel)),
-    field("Title", input(draft.title, (value) => set("title", value), { required: true, maxLength: 200 })),
-    field("Description", (0, import_react71.createElement)("textarea", { value: draft.description, rows: 4, maxLength: 12e3, onChange: (event) => set("description", event.target.value) })),
-    (0, import_react71.createElement)(
-      "div",
-      { className: "bt-wb-fields" },
-      field("Task type", choice(draft.kind, (value) => {
-        set("kind", value);
-        if (value === "bot") set("ownerId", roster.bots[0]?.id ?? null);
-      }, [["personal", t("Personal")], ["bot", t("Bot work")]])),
-      field("Status", choice(draft.status, (value) => set("status", value), TASK_STATUSES.map((status) => [status, t(LABELS2[status])])))
-    ),
-    draft.kind === "bot" ? field("Owner", choice(draft.ownerId, (value) => set("ownerId", value), [["", t("Choose a Bot")], ...roster.bots.map((bot) => [bot.id, bot.name])])) : null,
-    field("Waiting reason", input(draft.waiting, (value) => set("waiting", value), { maxLength: 1e3 })),
-    (0, import_react71.createElement)("div", { className: "bt-wb-section-head" }, (0, import_react71.createElement)("strong", null, t("Planned time")), button2("Clear time", () => {
-      setStart("");
-      setEnd("");
-    })),
-    field("Time zone", input(draft.timeZone, (value) => set("timeZone", value), { required: true, placeholder: "Asia/Shanghai", list: "bt-wb-zones" })),
-    (0, import_react71.createElement)("datalist", { id: "bt-wb-zones" }, ["Asia/Shanghai", "Asia/Tokyo", "UTC", "America/New_York", "Europe/London"].map((value) => (0, import_react71.createElement)("option", { key: value, value }))),
-    (0, import_react71.createElement)("label", { className: "bt-wb-check" }, (0, import_react71.createElement)("input", { type: "checkbox", checked: draft.allDay, onChange: (event) => changeAllDay(event.target.checked) }), t("All day")),
-    (0, import_react71.createElement)("div", { className: "bt-wb-fields" }, field("Start", input(start, setStart, { type: draft.allDay ? "date" : "datetime-local" })), field(draft.allDay ? "Last day (inclusive)" : "End", input(end, setEnd, { type: draft.allDay ? "date" : "datetime-local" }))),
-    (0, import_react71.createElement)("p", { className: "bt-wb-note" }, t("Planned time reserves an interval. A deadline does not appear as booked time.")),
-    field("Deadline (optional)", input(draft.due, (value) => set("due", value || null), { type: "date" })),
-    field("Original conversation", choice(draft.conversationId, (value) => set("conversationId", value || null), [["", t("No conversation")], ...roster.bots.map((bot) => [bot.id, bot.name]), ...roster.rooms.map((room2) => [room2.id, room2.name])])),
-    (0, import_react71.createElement)("strong", null, t("Results")),
-    draft.results.map((item, index) => (0, import_react71.createElement)("div", { className: "bt-wb-result-edit", key: index }, (0, import_react71.createElement)("span", null, item.label), button2("Remove", () => set("results", draft.results.filter((_, i) => i !== index))))),
-    field("Result label", input(resultLabel, setResultLabel, { maxLength: 200 })),
-    field("Result URL", input(resultUrl, setResultUrl, { type: "url", maxLength: 2e3, placeholder: "https://" })),
-    button2("Add result link", () => {
-      if (!resultLabel.trim() || !/^https?:\/\//i.test(resultUrl)) {
-        setLocalError(t("Enter a label and an HTTP(S) URL."));
-        return;
-      }
-      set("results", [...draft.results, { label: resultLabel.trim(), url: resultUrl }]);
-      setResultLabel("");
-      setResultUrl("");
-      setLocalError("");
-    }, { disabled: draft.results.length >= 20 }),
-    error || localError ? (0, import_react71.createElement)("p", { className: "bt-wb-error", role: "alert" }, localError || error) : null,
-    (0, import_react71.createElement)("div", { className: "bt-wb-editor-actions" }, (0, import_react71.createElement)("button", { type: "submit", className: "bt-wb-primary", disabled: busy }, t(busy ? "Saving…" : "Save task")), task?.id ? button2("Delete task", () => setDeleting(true), { className: "bt-wb-danger", disabled: busy }) : null),
-    deleting ? (0, import_react71.createElement)("div", { className: "bt-wb-delete", role: "alert" }, (0, import_react71.createElement)("p", null, t("Delete this task? This cannot be undone.")), button2("Cancel", () => setDeleting(false)), button2("Confirm delete", onDelete, { disabled: busy, className: "bt-wb-danger" })) : null
-  );
-}
-function TaskDetail({ task, roster, onEdit, onClose, actions }) {
-  const owner = roster.bots.find((bot) => bot.id === task.ownerId);
-  const conversation = [...roster.bots, ...roster.rooms].find((item) => item.id === task.conversationId);
-  return (0, import_react71.createElement)(
-    "div",
-    { className: "bt-wb-detail" },
-    (0, import_react71.createElement)("div", { className: "bt-wb-detail-top" }, (0, import_react71.createElement)("span", { className: "bt-wb-id" }, task.id.slice(-8)), button2("Close details", onClose, { "aria-label": t("Close details") })),
-    (0, import_react71.createElement)("h2", null, task.title),
-    (0, import_react71.createElement)("span", { className: "bt-wb-status", "data-status": task.status }, t(LABELS2[task.status])),
-    (0, import_react71.createElement)("p", { className: "bt-wb-description" }, task.description || t("No description")),
-    (0, import_react71.createElement)(
-      "dl",
-      null,
-      (0, import_react71.createElement)("dt", null, t("Owner")),
-      (0, import_react71.createElement)("dd", null, owner?.name ?? (task.kind === "personal" ? t("Me") : t("Former Bot"))),
-      (0, import_react71.createElement)("dt", null, t("Planned time")),
-      (0, import_react71.createElement)("dd", null, scheduleLabel(task, task.timeZone)),
-      (0, import_react71.createElement)("dt", null, t("Time zone")),
-      (0, import_react71.createElement)("dd", null, task.timeZone),
-      task.due ? (0, import_react71.createElement)("dt", null, t("Deadline (optional)")) : null,
-      task.due ? (0, import_react71.createElement)("dd", null, task.due) : null
-    ),
-    task.waiting ? (0, import_react71.createElement)("div", { className: "bt-wb-wait" }, t("Waiting reason"), (0, import_react71.createElement)("p", null, task.waiting)) : null,
-    (0, import_react71.createElement)("h3", null, t("Linked content")),
-    conversation ? button2("Open original conversation", () => {
-      onClose();
-      actions.closeTasks();
-      actions.openSession(conversation.id);
-    }, { className: "bt-wb-linked" }) : (0, import_react71.createElement)("p", { className: "bt-wb-note" }, t("No conversation")),
-    task.results.map((result, index) => (0, import_react71.createElement)("a", { className: "bt-wb-linked", key: index, href: result.url, target: "_blank", rel: "noopener noreferrer" }, result.label, " ↗")),
-    (0, import_react71.createElement)("p", { className: "bt-wb-note" }, t("Task status is explicit. A Bot reply does not mark it complete.")),
-    (0, import_react71.createElement)("div", { className: "bt-wb-editor-actions" }, button2("Edit task", onEdit, { className: "bt-wb-primary" }))
-  );
-}
-function TaskWorkbench({ roster, actions, request = call, initialZone, initialToday }) {
-  const [zone, setZone] = (0, import_react71.useState)(initialZone ?? zoneHere);
-  const today = initialToday ?? dayInZone(Date.now(), zone);
-  const [data, setData] = (0, import_react71.useState)(null);
-  const [error, setError] = (0, import_react71.useState)("");
-  const [scheduleView, setScheduleView] = (0, import_react71.useState)(null);
-  const [scheduleError, setScheduleError] = (0, import_react71.useState)("");
-  const [scheduleEditing, setScheduleEditing] = (0, import_react71.useState)(false);
-  const [scheduleDraftTask, setScheduleDraftTask] = (0, import_react71.useState)(null);
-  const [busy, setBusy] = (0, import_react71.useState)(false);
-  const [mode, setMode] = (0, import_react71.useState)("board");
-  const [query, setQuery] = (0, import_react71.useState)("");
-  const [kind, setKind] = (0, import_react71.useState)("all");
-  const [owner, setOwner] = (0, import_react71.useState)("all");
-  const [archived, setArchived] = (0, import_react71.useState)(false);
-  const [unscheduled, setUnscheduled] = (0, import_react71.useState)(false);
-  const [month, setMonth] = (0, import_react71.useState)(today.slice(0, 7));
-  const [day, setDay] = (0, import_react71.useState)(today);
-  const [selected, setSelected] = (0, import_react71.useState)(null);
-  const [editing, setEditing] = (0, import_react71.useState)(false);
-  const [createDay, setCreateDay] = (0, import_react71.useState)(null);
-  const [createStatus, setCreateStatus] = (0, import_react71.useState)("todo");
-  const root = (0, import_react71.useRef)(null);
-  const agenda = (0, import_react71.useRef)(null);
-  const selectDay = (date) => {
-    setDay(date);
-    requestAnimationFrame(() => agenda.current?.scrollIntoView({ block: "nearest" }));
-  };
-  const dataRef = (0, import_react71.useRef)(null);
-  const inFlight = (0, import_react71.useRef)(false);
-  const scheduleGeneration = (0, import_react71.useRef)(0);
-  (0, import_react71.useEffect)(() => {
-    let ignore = false;
-    let order = 0;
-    let applied = 0;
-    const refresh = async () => {
-      const n = ++order;
-      try {
-        const result = await request("tasks-list");
-        if (!ignore && n >= applied && (dataRef.current?.revision ?? -1) <= result.revision) {
-          applied = n;
-          dataRef.current = result;
-          setData(result);
-        }
-      } catch (failure) {
-        if (!ignore) setError(failure.message);
-      }
-    };
-    void refresh();
-    const timer = setInterval(refresh, 5e3);
-    return () => {
-      ignore = true;
-      clearInterval(timer);
-    };
-  }, [request]);
-  (0, import_react71.useEffect)(() => {
-    const before = document.activeElement;
-    root.current?.focus();
-    return () => before?.focus?.();
-  }, []);
-  (0, import_react71.useEffect)(() => {
-    let stopped = false;
-    let timer;
-    const refresh = async () => {
-      const generation = scheduleGeneration.current;
-      try {
-        const result = await request("workbench-schedules");
-        if (!stopped && generation === scheduleGeneration.current) {
-          setScheduleView(result);
-          setScheduleError("");
-        }
-      } catch (failure) {
-        if (!stopped && generation === scheduleGeneration.current) setScheduleError(failure.message);
-      } finally {
-        if (!stopped) timer = setTimeout(refresh, 15e3);
-      }
-    };
-    void refresh();
-    return () => {
-      stopped = true;
-      clearTimeout(timer);
-    };
-  }, [request]);
-  const close = () => {
-    if (editing || scheduleEditing) {
-      setError(t("Save or cancel your task edit before closing."));
-      return;
-    }
-    actions.closeTasks();
-  };
-  const choose = (task) => {
-    if (editing || scheduleEditing) {
-      setError(t("Save or cancel your task edit first."));
-      return;
-    }
-    setSelected(task.id);
-    setError("");
-  };
-  const create = (plannedDay, status = "todo") => {
-    if (editing || scheduleEditing) return;
-    setSelected(null);
-    setCreateDay(plannedDay);
-    setCreateStatus(status);
-    setEditing(true);
-    setError("");
-  };
-  const mutate = async (action, fields) => {
-    if (inFlight.current) return;
-    inFlight.current = true;
-    setBusy(true);
-    setError("");
-    const task = data.tasks.find((item) => item.id === selected);
-    try {
-      const result = await request(`tasks-${action}`, { id: selected, expectedRevision: task?.revision, ...fields ? { fields } : {} });
-      const fresh2 = await request("tasks-list");
-      if ((dataRef.current?.revision ?? -1) <= fresh2.revision) {
-        dataRef.current = fresh2;
-        setData(fresh2);
-      }
-      setSelected(result.task?.id ?? null);
-      setEditing(false);
-    } catch (failure) {
-      setError(failure.message);
-      throw failure;
-    } finally {
-      inFlight.current = false;
-      setBusy(false);
-    }
-  };
-  const [editRevision, setEditRevision] = (0, import_react71.useState)(null);
-  const edit = (task) => {
-    setEditRevision(task.revision);
-    setEditing(true);
-    setError("");
-  };
-  const save = (fields) => {
-    const current2 = data.tasks.find((item) => item.id === selected);
-    if (selected && (!current2 || current2.revision !== editRevision)) {
-      setError(t("This task changed elsewhere. Cancel and reopen the editor."));
-      return Promise.reject(new Error(t("This task changed elsewhere. Cancel and reopen the editor.")));
-    }
-    return mutate(current2 ? "update" : "create", fields);
-  };
-  const projected = scheduledRows(scheduleView?.tasks ?? []);
-  const tasks = (kind === "scheduled" ? [] : data?.tasks ?? []).filter((task) => (archived ? ["done", "cancelled"].includes(task.status) : !["done", "cancelled"].includes(task.status)) && (["all", "ordinary"].includes(kind) || task.kind === kind) && (owner === "all" || task.ownerId === owner || owner === "me" && !task.ownerId) && (!unscheduled || !task.start) && (!query || `${task.title} ${task.description} ${task.waiting} ${roster.bots.find((bot) => bot.id === task.ownerId)?.name ?? ""} ${task.results.map((item) => item.label).join(" ")}`.toLowerCase().includes(query.toLowerCase()))).sort((a, b) => b.updatedAt - a.updatedAt);
-  const schedules = (["all", "scheduled"].includes(kind) ? projected : []).filter((task) => (owner === "all" || task.ownerId === owner) && !unscheduled && (!query || `${task.title} ${roster.bots.find((bot) => bot.id === task.ownerId)?.name ?? ""}`.toLowerCase().includes(query.toLowerCase())));
-  const calendarTasks = [...tasks, ...schedules];
-  const current = [...data?.tasks ?? [], ...projected].find((task) => task.id === selected) ?? (scheduleEditing ? scheduleDraftTask : void 0);
-  const showOrdinary = kind !== "scheduled" && (tasks.length > 0 || schedules.length === 0 || kind !== "all");
-  const showScheduled = ["all", "scheduled"].includes(kind);
-  const statuses = archived ? ["done", "cancelled"] : TASK_STATUSES.slice(0, 4);
-  const card = (task) => (0, import_react71.createElement)(
-    "button",
-    { type: "button", key: task.id, className: "bt-wb-card", "data-selected": task.id === selected || void 0, onClick: () => choose(task) },
-    (0, import_react71.createElement)("span", { className: "bt-wb-kind" }, task.source === "schedule" ? (0, import_react71.createElement)("span", { className: "bt-wb-schedule-badge" }, t("Scheduled task"), (0, import_react71.createElement)("span", null, t(SCHEDULE_LABELS[task.status]))) : t(task.kind === "personal" ? "Personal" : "Bot work")),
-    (0, import_react71.createElement)("strong", null, task.title),
-    task.waiting || task.description ? (0, import_react71.createElement)("span", { className: task.waiting ? "bt-wb-wait-text" : "bt-wb-excerpt" }, task.waiting || task.description) : null,
-    (0, import_react71.createElement)("span", { className: "bt-wb-owner" }, [...roster.bots, ...roster.rooms].find((bot) => bot.id === task.ownerId)?.name ?? (task.kind === "personal" ? t("Me") : t("Former Bot"))),
-    (0, import_react71.createElement)("span", { className: "bt-wb-card-time" }, scheduleLabel(task, zone)),
-    task.source === "schedule" ? (0, import_react71.createElement)("span", { className: "bt-wb-delivery" }, deliveryText(task.schedule, zone)) : null,
-    task.results.length ? (0, import_react71.createElement)("span", { className: "bt-wb-result-count" }, t("{count} results", { count: task.results.length })) : null
-  );
-  const shiftMonth = (amount) => {
-    const date = /* @__PURE__ */ new Date(`${month}-15T12:00:00Z`);
-    date.setUTCMonth(date.getUTCMonth() + amount);
-    setMonth(date.toISOString().slice(0, 7));
-  };
-  const first = `${month}-01`;
-  const gridStart = addDays(first, ((/* @__PURE__ */ new Date(`${first}T12:00:00Z`)).getUTCDay() + 6) % 7 * -1);
-  const days = Array.from({ length: 42 }, (_, index) => addDays(gridStart, index));
-  const onKey = (event) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      event.stopPropagation();
-      close();
-    }
-    if (event.key === "Tab") {
-      const nodes = [...root.current.querySelectorAll("button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href]")].filter((node) => node.getClientRects().length);
-      if (!nodes.length) {
-        event.preventDefault();
-        return;
-      }
-      if (event.shiftKey && (document.activeElement === nodes[0] || document.activeElement === root.current)) {
-        event.preventDefault();
-        nodes.at(-1).focus();
-      } else if (!event.shiftKey && document.activeElement === nodes.at(-1)) {
-        event.preventDefault();
-        nodes[0].focus();
-      }
-    }
-  };
-  return (0, import_react71.createElement)(
-    "section",
-    { className: "bt-wb-workbench", role: "dialog", "aria-modal": true, "aria-label": t("Task workbench"), tabIndex: -1, ref: root, onKeyDown: onKey },
-    (0, import_react71.createElement)("header", { className: "bt-wb-header" }, (0, import_react71.createElement)("div", null, (0, import_react71.createElement)("h1", null, t("Task workbench")), (0, import_react71.createElement)("p", null, t("Plan your time and keep Bot work in view."))), button2("Back to chats", close)),
-    (0, import_react71.createElement)(
-      "div",
-      { className: "bt-wb-toolbar" },
-      input(query, setQuery, { type: "search", placeholder: t("Search tasks, owners or results"), "aria-label": t("Search tasks, owners or results") }),
-      choice(owner, setOwner, [["all", t("All owners")], ["me", t("Me")], ...roster.bots.map((bot) => [bot.id, bot.name])], { "aria-label": t("Owner") }),
-      choice(kind, setKind, [["all", t("All tasks")], ["ordinary", t("Ordinary tasks")], ["scheduled", t("Scheduled tasks")], ["personal", t("Personal")], ["bot", t("Bot work")]], { "aria-label": t("Task type") }),
-      (0, import_react71.createElement)("div", { className: "bt-wb-switch" }, button2("Board", () => setMode("board"), { "aria-pressed": mode === "board" }), button2("Calendar", () => setMode("calendar"), { "aria-pressed": mode === "calendar" })),
-      button2("New task", () => create(null), { className: "bt-wb-primary", disabled: editing || scheduleEditing || !data || Boolean(roster.readOnly) })
-    ),
-    (0, import_react71.createElement)(
-      "div",
-      { className: "bt-wb-subbar" },
-      (0, import_react71.createElement)("span", null, t("{count} tasks", { count: tasks.length + schedules.length })),
-      (0, import_react71.createElement)("label", null, (0, import_react71.createElement)("input", { type: "checkbox", checked: archived, onChange: (event) => setArchived(event.target.checked) }), t("Completed / cancelled")),
-      (0, import_react71.createElement)("label", null, (0, import_react71.createElement)("input", { type: "checkbox", checked: unscheduled, onChange: (event) => setUnscheduled(event.target.checked) }), t("Unscheduled only")),
-      (0, import_react71.createElement)("span", { className: "bt-wb-note" }, `${t("Calendar time zone")}: ${zone}`)
-    ),
-    scheduleError ? (0, import_react71.createElement)("div", { className: "bt-wb-error", role: "alert" }, t("Could not refresh scheduled tasks."), " ", scheduleError) : null,
-    error && !editing ? (0, import_react71.createElement)("div", { className: "bt-wb-error", role: "alert" }, error) : null,
-    (0, import_react71.createElement)(
-      "div",
-      { className: "bt-wb-body", "data-details": Boolean(current || editing) || void 0 },
-      (0, import_react71.createElement)("main", { className: "bt-wb-main" }, !data ? (0, import_react71.createElement)("p", null, t("Loading…")) : mode === "board" ? (0, import_react71.createElement)(
-        "div",
-        null,
-        showOrdinary ? (0, import_react71.createElement)("div", { className: "bt-wb-board", "data-with-schedules": showScheduled || void 0 }, statuses.map((status) => (0, import_react71.createElement)("section", { key: status, className: "bt-wb-column" }, (0, import_react71.createElement)("h2", null, (0, import_react71.createElement)("i", { "data-status": status }), t(LABELS2[status]), (0, import_react71.createElement)("span", null, tasks.filter((task) => task.status === status).length)), (0, import_react71.createElement)("div", { className: "bt-wb-column-body" }, tasks.filter((task) => task.status === status).map(card), button2("Add task", () => create(null, status), { disabled: editing || Boolean(roster.readOnly) })))), tasks.length === 0 ? (0, import_react71.createElement)("p", { className: "bt-wb-empty" }, t("No tasks yet. Create your first task.")) : null) : null,
-        showScheduled ? (0, import_react71.createElement)(
-          "section",
-          { className: "bt-wb-scheduled-section" },
-          (0, import_react71.createElement)("h2", null, t("Scheduled tasks")),
-          (0, import_react71.createElement)("p", { className: "bt-wb-note" }, t(SCHEDULE_COVERAGE)),
-          scheduleView === null ? (0, import_react71.createElement)("p", null, t("Loading…")) : !scheduleView.available ? (0, import_react71.createElement)("p", null, t("Scheduled tasks are unavailable in this Host.")) : (0, import_react71.createElement)("div", { className: "bt-wb-scheduled-grid" }, schedules.map(card)),
-          scheduleView?.available && schedules.length === 0 ? (0, import_react71.createElement)("p", { className: "bt-wb-note" }, t("No matching scheduled tasks.")) : null
-        ) : null
-      ) : (0, import_react71.createElement)(
-        "div",
-        { className: "bt-wb-calendar" },
-        showScheduled ? (0, import_react71.createElement)("p", { className: "bt-wb-coverage" }, t(SCHEDULE_COVERAGE)) : null,
-        (0, import_react71.createElement)(
-          "div",
-          { className: "bt-wb-calendar-head" },
-          button2("Previous month", () => shiftMonth(-1)),
-          (0, import_react71.createElement)("strong", null, new Intl.DateTimeFormat(language(), { month: "long", year: "numeric", timeZone: "UTC" }).format(/* @__PURE__ */ new Date(`${month}-15T12:00:00Z`))),
-          button2("Next month", () => shiftMonth(1)),
-          button2("Today", () => {
-            setMonth(today.slice(0, 7));
-            setDay(today);
-          }),
-          choice(zone, (value) => setZone(value), [.../* @__PURE__ */ new Set([zone, zoneHere(), "Asia/Shanghai", "Asia/Tokyo", "UTC", "America/New_York", "Europe/London"])].map((value) => [value, value]), { "aria-label": t("Calendar time zone") })
-        ),
-        (0, import_react71.createElement)("div", { className: "bt-wb-weekdays" }, Array.from({ length: 7 }, (_, index) => (0, import_react71.createElement)("span", { key: index }, new Intl.DateTimeFormat(language(), { weekday: "short", timeZone: "UTC" }).format(/* @__PURE__ */ new Date(`2026-11-${String(9 + index).padStart(2, "0")}T12:00:00Z`))))),
-        (0, import_react71.createElement)("div", { className: "bt-wb-month", role: "group", "aria-label": t("Calendar") }, days.map((date) => {
-          const daily = calendarTasks.filter((task) => taskOnDay(task, date, zone)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start));
-          return (0, import_react71.createElement)(
-            "div",
-            { key: date, className: "bt-wb-day", "data-outside": date.slice(0, 7) !== month || void 0, "data-today": date === today || void 0, "data-selected": date === day || void 0 },
-            button2(date.slice(-2).replace(/^0/, ""), () => selectDay(date), { "aria-label": date, "aria-pressed": date === day }),
-            daily.slice(0, 3).map((task) => (0, import_react71.createElement)("button", { type: "button", className: "bt-wb-day-event", "data-scheduled": task.source === "schedule" || void 0, key: task.id, onClick: () => {
-              setDay(date);
-              choose(task);
-            }, title: `${task.title} · ${scheduleLabel(task, zone)}` }, task.allDay ? "" : `${wallTime(task.start, zone).slice(11)} `, task.title)),
-            daily.length > 3 ? button2(`+${daily.length - 3}`, () => selectDay(date), { "aria-label": `${date} +${daily.length - 3}` }) : null
-          );
-        })),
-        (0, import_react71.createElement)(
-          "section",
-          { className: "bt-wb-agenda", ref: agenda },
-          (0, import_react71.createElement)("div", { className: "bt-wb-section-head" }, (0, import_react71.createElement)("h2", null, day), button2("Schedule a task", () => create(day), { disabled: editing || Boolean(roster.readOnly) })),
-          (0, import_react71.createElement)("p", { className: "bt-wb-note" }, t("Planned intervals only · deadlines are shown in task details.")),
-          calendarTasks.filter((task) => taskOnDay(task, day, zone)).sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start)).map(card),
-          calendarTasks.some((task) => taskOnDay(task, day, zone)) ? null : (0, import_react71.createElement)("p", { className: "bt-wb-note" }, t("Nothing planned for this day."))
-        ),
-        (0, import_react71.createElement)("section", { className: "bt-wb-unscheduled" }, (0, import_react71.createElement)("h2", null, t("Unscheduled")), tasks.filter((task) => !task.start).map(card))
-      )),
-      current || editing ? (0, import_react71.createElement)("aside", { className: "bt-wb-inspector", "aria-label": t("Task details") }, current?.source === "schedule" ? (0, import_react71.createElement)(ScheduleDetail, { key: current.id, task: current, roster, actions, request, manageable: scheduleView?.manageable === true, onChanged: (next) => {
-        scheduleGeneration.current += 1;
-        setScheduleView(next);
-        setScheduleError("");
-        setError("");
-      }, onEditing: (value) => {
-        setScheduleEditing(value);
-        setScheduleDraftTask(value ? current : null);
-      }, onClose: () => {
-        if (scheduleEditing) {
-          setError(t("Save or cancel your task edit first."));
-          return;
-        }
-        setSelected(null);
-      } }) : editing ? (0, import_react71.createElement)(TaskEditor, {
-        key: `${selected ?? "new"}-${createDay ?? ""}`,
-        task: current ?? { ...emptyTask(zone), status: createStatus, ...createDay ? { start: createDay, end: addDays(createDay, 1), allDay: true } : {} },
-        roster,
-        zone,
-        busy,
-        error,
-        onSave: save,
-        onCancel: () => {
-          setEditing(false);
-          setError("");
-        },
-        onDelete: () => {
-          if (current?.revision !== editRevision) {
-            setError(t("This task changed elsewhere. Cancel and reopen the editor."));
-            return;
-          }
-          void mutate("delete").catch(() => {
-          });
-        }
-      }) : (0, import_react71.createElement)(TaskDetail, { task: current, roster, zone, actions, onClose: () => setSelected(null), onEdit: () => edit(current) })) : null
-    )
-  );
-}
-var TASK_CSS2 = SCHEDULE_WORKBENCH_CSS + `
-.bt-wb-workbench{position:fixed;inset:0;z-index:1100;background:var(--bt-main);color:var(--bt-ink);font:13px/1.5 var(--bt-font);display:flex;flex-direction:column;padding:28px;box-sizing:border-box;outline:none;overflow:hidden}
-.bt-wb-workbench *{box-sizing:border-box}.bt-wb-workbench button,.bt-wb-workbench input,.bt-wb-workbench select,.bt-wb-workbench textarea{font:inherit;color:inherit;border:1px solid var(--bt-line);background:var(--bt-card);border-radius:8px;padding:8px 12px;min-width:0}.bt-wb-workbench button{cursor:pointer}.bt-wb-workbench button:hover{background:var(--bt-hover)}.bt-wb-workbench button:disabled{cursor:default;opacity:.5}.bt-wb-workbench :focus-visible{outline:2px solid var(--bt-accent);outline-offset:2px}.bt-wb-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.bt-wb-header h1{font-size:22px;line-height:1.4;margin:0 0 6px;font-weight:600}.bt-wb-header p{color:var(--bt-ink-2);margin:0}.bt-wb-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.bt-wb-toolbar input[type=search]{flex:1;min-width:180px}.bt-wb-toolbar select{max-width:180px}.bt-wb-switch{display:flex;padding:3px;background:var(--bt-hover);border-radius:10px}.bt-wb-switch button{border:0;background:none}.bt-wb-switch button[aria-pressed=true]{color:var(--bt-accent);background:var(--bt-card);box-shadow:0 1px 4px var(--bt-line)}.bt-wb-workbench .bt-wb-primary{background:var(--bt-accent);color:var(--bt-accent-ink);border-color:var(--bt-accent)}.bt-wb-workbench .bt-wb-primary:hover{filter:brightness(.96);background:var(--bt-accent)}.bt-wb-subbar{display:flex;flex-wrap:wrap;gap:16px;align-items:center;color:var(--bt-ink-2);padding:18px 0}.bt-wb-subbar label{display:flex;align-items:center;gap:6px}.bt-wb-note{font-size:12px;color:var(--bt-ink-2);line-height:1.6}.bt-wb-body{display:flex;flex:1;min-height:0;gap:24px;position:relative}.bt-wb-main{flex:1;min-width:0;overflow:auto}.bt-wb-board{display:grid;grid-template-columns:repeat(4,minmax(200px,1fr));gap:16px;min-height:100%;position:relative}.bt-wb-column h2{font-size:13px;display:flex;gap:8px;align-items:center;margin:0 0 14px;font-weight:600}.bt-wb-column h2>span{margin-left:auto;font-size:12px;color:var(--bt-ink-3)}.bt-wb-column h2 i{width:7px;height:7px;border-radius:50%;background:var(--bt-ink-3)}.bt-wb-column h2 i[data-status=doing]{background:var(--bt-accent)}.bt-wb-column h2 i[data-status=waiting]{background:var(--bt-star)}.bt-wb-column h2 i[data-status=review]{background:var(--bt-green)}.bt-wb-column-body{background:var(--bt-hover);border-radius:12px;min-height:320px;padding:10px;display:flex;flex-direction:column;gap:12px}.bt-wb-workbench .bt-wb-card{width:100%;text-align:left;background:var(--bt-card);padding:16px;border-radius:12px;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 6px color-mix(in srgb,var(--bt-ink) 3%,transparent);overflow:hidden}.bt-wb-workbench .bt-wb-card[data-selected]{border-color:var(--bt-accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--bt-accent) 30%,transparent)}.bt-wb-card strong{font-size:15px;font-weight:600;overflow-wrap:anywhere}.bt-wb-kind{color:var(--bt-ink-3);font-size:12px}.bt-wb-excerpt,.bt-wb-wait-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--bt-ink-2);overflow-wrap:anywhere}.bt-wb-wait-text{color:var(--bt-star)}.bt-wb-owner{font-weight:500}.bt-wb-card-time{font-size:12px;color:var(--bt-ink-2);border-top:1px solid var(--bt-line);padding-top:10px}.bt-wb-result-count{font-size:12px;color:var(--bt-accent)}.bt-wb-inspector{flex:0 0 340px;max-width:40%;border:1px solid var(--bt-line);border-radius:16px;background:var(--bt-card);overflow:auto;padding:22px}.bt-wb-detail-top,.bt-wb-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.bt-wb-id{font-size:12px;color:var(--bt-accent)}.bt-wb-detail h2{font-size:22px;overflow-wrap:anywhere;margin:12px 0}.bt-wb-status{display:inline-block;background:var(--bt-tag-bg);color:var(--bt-tag-ink);border-radius:20px;padding:4px 10px;font-size:12px}.bt-wb-status[data-status=review]{color:var(--bt-green)}.bt-wb-description{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--bt-ink-2);line-height:1.8;margin:24px 0}.bt-wb-detail dl{display:grid;grid-template-columns:90px 1fr;gap:16px 12px;padding:24px 0;border-block:1px solid var(--bt-line)}.bt-wb-detail dt{color:var(--bt-ink-3)}.bt-wb-detail dd{margin:0;overflow-wrap:anywhere}.bt-wb-detail h3{font-size:13px;margin:24px 0 12px}.bt-wb-linked{display:block;width:100%;text-align:left;padding:12px;margin-bottom:10px;border:1px solid var(--bt-line);border-radius:8px;color:var(--bt-accent);text-decoration:none;overflow-wrap:anywhere}.bt-wb-field{display:flex;flex-direction:column;gap:6px;margin:14px 0}.bt-wb-field>span{font-size:12px;color:var(--bt-ink-2)}.bt-wb-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bt-wb-field textarea{resize:vertical;min-height:80px}.bt-wb-check{display:flex;align-items:center;gap:8px}.bt-wb-editor-actions{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}.bt-wb-workbench .bt-wb-danger{color:var(--bt-danger)}.bt-wb-error,.bt-wb-delete{padding:10px 12px;border:1px solid var(--bt-danger);border-radius:8px;color:var(--bt-danger);margin:12px 0;white-space:pre-wrap}.bt-wb-result-edit{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}.bt-wb-result-edit span{overflow-wrap:anywhere;min-width:0}.bt-wb-calendar-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}.bt-wb-calendar-head strong{flex:1;text-align:center;font-size:15px}.bt-wb-calendar-head select{max-width:180px}.bt-wb-weekdays,.bt-wb-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}.bt-wb-weekdays span{text-align:center;color:var(--bt-ink-3);padding:8px;font-size:12px}.bt-wb-month{border:1px solid var(--bt-line);border-radius:12px;overflow:hidden}.bt-wb-day{min-height:115px;padding:6px;border-right:1px solid var(--bt-line);border-bottom:1px solid var(--bt-line);overflow:hidden}.bt-wb-day[data-selected]{background:var(--bt-hover)}.bt-wb-day[data-outside]{opacity:.5}.bt-wb-day>button:first-child{padding:3px 7px;border:0;background:none}.bt-wb-day[data-today]>button:first-child{background:var(--bt-accent);color:var(--bt-accent-ink);border-radius:50%}.bt-wb-workbench .bt-wb-day-event{display:block;width:100%;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;background:color-mix(in srgb,var(--bt-accent) 9%,var(--bt-card));color:var(--bt-accent);font-size:11px;padding:3px 5px;margin-top:3px;border-radius:4px}.bt-wb-agenda,.bt-wb-unscheduled{margin-top:24px}.bt-wb-agenda h2,.bt-wb-unscheduled h2{font-size:15px}.bt-wb-agenda>.bt-wb-card,.bt-wb-unscheduled>.bt-wb-card{margin:10px 0}.bt-wb-empty{position:absolute;top:170px;left:20px;right:20px;text-align:center;color:var(--bt-ink-3);pointer-events:none}.bt-wb-entry{margin:6px 8px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border:1px solid var(--bt-line);background:var(--bt-hover);color:var(--bt-ink);border-radius:10px;cursor:pointer;font:13px var(--bt-font)}.bt-wb-entry:hover{color:var(--bt-accent)}
-@media(min-width:1600px){.bt-wb-inspector{flex-basis:400px}.bt-wb-workbench{padding:36px}}@media(max-width:1050px){.bt-wb-inspector{flex-basis:320px;max-width:45%}.bt-wb-board{grid-template-columns:repeat(4,210px)}}@media(max-width:700px){.bt-wb-workbench{padding:16px}.bt-wb-header{margin-bottom:16px}.bt-wb-header h1{font-size:17px}.bt-wb-header p{font-size:12px}.bt-wb-toolbar{gap:8px}.bt-wb-toolbar input[type=search]{flex-basis:100%}.bt-wb-toolbar select{max-width:none;flex:1 1 calc(50% - 4px)}.bt-wb-subbar{gap:8px;font-size:12px}.bt-wb-subbar>.bt-wb-note{width:100%}.bt-wb-body{gap:0}.bt-wb-inspector{position:absolute;inset:0;max-width:none;width:100%;z-index:1;padding:18px}.bt-wb-month .bt-wb-day{min-height:76px;padding:2px}.bt-wb-day-event{font-size:10px!important;padding:2px!important}.bt-wb-calendar-head{gap:4px}.bt-wb-calendar-head button{padding:6px}.bt-wb-weekdays span{padding:5px 0}.bt-wb-header>button{flex-shrink:0}}
-`;
-
 // src/client/opening.js
-var import_react72 = require("react");
+var import_react70 = require("react");
 var OPENING_WAIT_MS = 5e3;
 function openingPastWait(pending, target) {
   if (!pending || pending.target !== target || pending.slow === true) return pending ?? null;
@@ -43024,7 +42168,7 @@ function openingModel({ pending, current, roster }) {
 }
 function OpeningCover({ model, column }) {
   if (model === null) return null;
-  return (0, import_react72.createElement)(
+  return (0, import_react70.createElement)(
     "div",
     {
       className: "bt-opening",
@@ -43032,12 +42176,12 @@ function OpeningCover({ model, column }) {
       role: "status",
       "aria-live": "polite"
     },
-    (0, import_react72.createElement)(
+    (0, import_react70.createElement)(
       "div",
       { className: "bt-opening-card" },
-      (0, import_react72.createElement)("span", { className: "bt-opening-mark" }, model.bot ? (0, import_react72.createElement)(BotMark, { bot: model.bot, size: 44 }) : (0, import_react72.createElement)(PeopleIcon)),
-      model.name ? (0, import_react72.createElement)("span", { className: "bt-opening-name" }, model.name) : null,
-      (0, import_react72.createElement)("span", { className: "bt-opening-note" }, t(model.slow ? "Still opening…" : "Opening…"))
+      (0, import_react70.createElement)("span", { className: "bt-opening-mark" }, model.bot ? (0, import_react70.createElement)(BotMark, { bot: model.bot, size: 44 }) : (0, import_react70.createElement)(PeopleIcon)),
+      model.name ? (0, import_react70.createElement)("span", { className: "bt-opening-name" }, model.name) : null,
+      (0, import_react70.createElement)("span", { className: "bt-opening-note" }, t(model.slow ? "Still opening…" : "Opening…"))
     )
   );
 }
@@ -43051,7 +42195,7 @@ var OPENING_CSS = `
 `;
 
 // src/client/overlays.js
-var import_react73 = require("react");
+var import_react71 = require("react");
 var import_react_dom11 = require("react-dom");
 var DIALOG_EXIT_MS2 = 160;
 var MENU_EXIT_MS3 = 120;
@@ -43062,8 +42206,8 @@ function Overlays({ useRoster, useUi, useSessions, useSessionStatus, useActivity
   const frameSnap = useFrame ? useFrame((value) => value) : { viewport: window.innerWidth, sidebarWidth: FALLBACK_SIDEBAR_WIDTH, collapsedWidth: 0 };
   const pref = useSidebarPref ? useSidebarPref((value) => value) : "open";
   const current = useSessions((list) => Object.values(list.byId).find((session) => (session?.retainedBy?.mainView ?? 0) > 0)?.id ?? null);
-  const previous = (0, import_react73.useRef)(current);
-  (0, import_react73.useEffect)(() => {
+  const previous = (0, import_react71.useRef)(current);
+  (0, import_react71.useEffect)(() => {
     if (previous.current === current) return;
     previous.current = current;
     if (current) actions.followPanel?.(current);
@@ -43077,8 +42221,8 @@ function Overlays({ useRoster, useUi, useSessions, useSessionStatus, useActivity
     panel: open ? { view: open.view, yielded: ui2.panelYield === true } : null
   });
   const shown = open !== null && layout.panel !== "folded" ? open : null;
-  const [kept, setKept] = (0, import_react73.useState)(shown);
-  (0, import_react73.useEffect)(() => {
+  const [kept, setKept] = (0, import_react71.useState)(shown);
+  (0, import_react71.useEffect)(() => {
     if (shown) {
       setKept(shown);
       return void 0;
@@ -43099,21 +42243,20 @@ function Overlays({ useRoster, useUi, useSessions, useSessionStatus, useActivity
   const owner = memory ? memoryOwner(memory) : null;
   const [menu, menuLeaving] = useLinger(ui2.menu, MENU_EXIT_MS3);
   const opening = openingModel({ pending: ui2.pendingOpen ?? null, current, roster });
-  return (0, import_react73.createElement)(
-    import_react73.Fragment,
+  return (0, import_react71.createElement)(
+    import_react71.Fragment,
     null,
-    ui2.tasksOpen ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(TaskWorkbench, { roster, actions }), document.body) : null,
-    opening ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(OpeningCover, { model: opening, column: layout.column }), document.body) : null,
-    pane ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(BotPanel, { pane, leaving: shown === null, room: layout.room, overlay: layout.panel === "overlay", roster, actions, useSessions, useSessionStatus, useActivity, useWork, useBrowserTabs, useBrowserPages, useBrowserHolds }), document.body) : null,
-    ui2.newChat ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(NewChat, { key: `${ui2.newChat}:${ui2.newChatSection ?? ""}`, mode: ui2.newChat, sectionId: ui2.newChatSection ?? null, paneLeft: layout.column, roster, actions }), document.body) : null,
-    ui2.palette ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(CommandPalette, { key: ui2.palette.token, start: ui2.palette.query, token: ui2.palette.token, roster, actions, useSessions }), document.body) : null,
-    ui2.groupSearch && roster.roomsById[ui2.groupSearch.roomId] ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(GroupSearch, { key: ui2.groupSearch.token, room: roster.roomsById[ui2.groupSearch.roomId], roster, token: ui2.groupSearch.token, actions }), document.body) : null,
-    ui2.changes ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(ChangesReview, { key: `${ui2.changes.sessionId}:${ui2.changes.seq}`, changes: ui2.changes, paneLeft: layout.column, actions }), document.body) : null,
-    ui2.exchange ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(ExchangeDialog, { pair: ui2.exchange, paneLeft: layout.column, roster, actions }), document.body) : null,
-    ui2.voice ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(VoiceMode, { key: ui2.voice, sessionId: ui2.voice, paneLeft: layout.column, roster, actions, useSessions, useSessionStatus }), document.body) : null,
-    menu ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(ContextMenu, { key: `${menu.kind ?? ""}:${menu.id}:${menu.x}:${menu.y}`, menu, roster, actions, useWork, leaving: menuLeaving }), document.body) : null,
-    settings ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(SettingsDialog, { page: settings.page, id: settings.id, roster, actions, useUpdate, leaving: settingsLeaving }), document.body) : null,
-    owner ? (0, import_react_dom11.createPortal)((0, import_react73.createElement)(MemoryDialog, { key: owner.id, owner, actions, leaving: memoryLeaving }), document.body) : null
+    opening ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(OpeningCover, { model: opening, column: layout.column }), document.body) : null,
+    pane ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(BotPanel, { pane, leaving: shown === null, room: layout.room, overlay: layout.panel === "overlay", roster, actions, useSessions, useSessionStatus, useActivity, useWork, useBrowserTabs, useBrowserPages, useBrowserHolds }), document.body) : null,
+    ui2.newChat ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(NewChat, { key: `${ui2.newChat}:${ui2.newChatSection ?? ""}`, mode: ui2.newChat, sectionId: ui2.newChatSection ?? null, paneLeft: layout.column, roster, actions }), document.body) : null,
+    ui2.palette ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(CommandPalette, { key: ui2.palette.token, start: ui2.palette.query, token: ui2.palette.token, roster, actions, useSessions }), document.body) : null,
+    ui2.groupSearch && roster.roomsById[ui2.groupSearch.roomId] ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(GroupSearch, { key: ui2.groupSearch.token, room: roster.roomsById[ui2.groupSearch.roomId], roster, token: ui2.groupSearch.token, actions }), document.body) : null,
+    ui2.changes ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(ChangesReview, { key: `${ui2.changes.sessionId}:${ui2.changes.seq}`, changes: ui2.changes, paneLeft: layout.column, actions }), document.body) : null,
+    ui2.exchange ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(ExchangeDialog, { pair: ui2.exchange, paneLeft: layout.column, roster, actions }), document.body) : null,
+    ui2.voice ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(VoiceMode, { key: ui2.voice, sessionId: ui2.voice, paneLeft: layout.column, roster, actions, useSessions, useSessionStatus }), document.body) : null,
+    menu ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(ContextMenu, { key: `${menu.kind ?? ""}:${menu.id}:${menu.x}:${menu.y}`, menu, roster, actions, useWork, leaving: menuLeaving }), document.body) : null,
+    settings ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(SettingsDialog, { page: settings.page, id: settings.id, roster, actions, useUpdate, leaving: settingsLeaving }), document.body) : null,
+    owner ? (0, import_react_dom11.createPortal)((0, import_react71.createElement)(MemoryDialog, { key: owner.id, owner, actions, leaving: memoryLeaving }), document.body) : null
   );
 }
 
@@ -43233,17 +42376,17 @@ ${fence}`;
     return keep(lines.join("\n"));
   };
   const cellText3 = (cell, ctx) => block(children(cell, ctx)).replace(/\n+/g, " <br> ").replace(/\|/g, "\\|");
-  const layoutTable = (table, rows5) => {
+  const layoutTable = (table, rows3) => {
     const role = table.getAttribute("role");
     if (role === "presentation" || role === "none") return true;
     if (table.querySelector("table")) return true;
-    return !rows5.some((row) => row.cells.length > 1);
+    return !rows3.some((row) => row.cells.length > 1);
   };
   const tableMarkdown = (table, ctx) => {
-    const rows5 = [...table.rows].filter((row) => styleOf(row).display !== "none");
+    const rows3 = [...table.rows].filter((row) => styleOf(row).display !== "none");
     const caption = table.caption ? oneLine(children(table.caption, ctx)) : "";
-    if (layoutTable(table, rows5)) {
-      return rows5.map((row) => [...row.cells].map((cell) => `
+    if (layoutTable(table, rows3)) {
+      return rows3.map((row) => [...row.cells].map((cell) => `
 
 ${children(cell, ctx)}
 
@@ -43252,7 +42395,7 @@ ${children(cell, ctx)}
     const grid = [];
     const carry = [];
     let width = 0;
-    for (const row of rows5.slice(0, limits.tableRows + 1)) {
+    for (const row of rows3.slice(0, limits.tableRows + 1)) {
       if (over()) break;
       const line = [];
       let column = 0;
@@ -43287,7 +42430,7 @@ ${caption}
 ` : "";
     const format = (cells) => `| ${Array.from({ length: width }, (_, index) => cells[index] ?? "").join(" | ")} |`;
     const out = [format(grid[0]), `|${" --- |".repeat(width)}`, ...grid.slice(1).map(format)];
-    if (rows5.length > limits.tableRows + 1) out.push(`… (table cut: ${rows5.length - limits.tableRows - 1} more rows)`);
+    if (rows3.length > limits.tableRows + 1) out.push(`… (table cut: ${rows3.length - limits.tableRows - 1} more rows)`);
     return `${caption ? `
 
 Table: ${caption}` : ""}${keep(out.join("\n"))}`;
@@ -43589,8 +42732,8 @@ function createAppViewProxy(bridge, botId, tabId) {
 var METADATA_HOST = /^(169\.254\.\d+\.\d+|\[fd00:ec2::254\]|metadata\.google\.internal)$/i;
 var BLOCKED = "Cloud metadata addresses do not open here.";
 var blockedAddress = (url) => URL.canParse(url) && METADATA_HOST.test(new URL(url).hostname);
-function browserAddress(input2) {
-  const text = String(input2 ?? "").trim();
+function browserAddress(input) {
+  const text = String(input ?? "").trim();
   if (text === "") return null;
   if (/^[a-z][a-z\d+.-]*:\/\//i.test(text)) return /^https?:\/\//i.test(text) && URL.canParse(text) ? new URL(text).href : null;
   if (/^(about|javascript|data|file|blob|chrome|devtools|view-source):/i.test(text)) return null;
@@ -43886,9 +43029,9 @@ function createBotBrowsers({ bridge, createSource: createSource2, storage = glob
     tabs.set((snapshot) => {
       const current = snapshot[botId];
       if (current === void 0 || !current.ids.includes(tabId)) return snapshot;
-      const at2 = current.ids.indexOf(tabId);
+      const at = current.ids.indexOf(tabId);
       const ids = current.ids.filter((id) => id !== tabId);
-      const active2 = current.active === tabId ? ids[Math.min(at2, ids.length - 1)] ?? null : current.active;
+      const active2 = current.active === tabId ? ids[Math.min(at, ids.length - 1)] ?? null : current.active;
       const next = { ...snapshot };
       if (ids.length === 0) delete next[botId];
       else next[botId] = { ids, active: active2 };
@@ -43931,8 +43074,8 @@ function createBotBrowsers({ bridge, createSource: createSource2, storage = glob
     entry.usedAt = Date.now();
     place(entry);
   }
-  async function navigate(tabId, input2) {
-    const url = browserAddress(input2);
+  async function navigate(tabId, input) {
+    const url = browserAddress(input);
     if (url === null || blockedAddress(url)) {
       publish2(tabId, { error: url === null ? "Only http and https addresses open here." : BLOCKED });
       return false;
@@ -44140,10 +43283,10 @@ function lineDiff(before, after) {
   while (tail < a.length - start && tail < b.length - start && a[a.length - 1 - tail] === b[b.length - 1 - tail]) tail++;
   const midA = a.slice(start, a.length - tail);
   const midB = b.slice(start, b.length - tail);
-  const rows5 = b.slice(0, start).map((line, index) => ({ kind: "same", line, number: index + 1 }));
+  const rows3 = b.slice(0, start).map((line, index) => ({ kind: "same", line, number: index + 1 }));
   const added = (j) => ({ kind: "added", line: midB[j], number: start + j + 1 });
   if (midA.length * midB.length > DIFF_CELLS) {
-    rows5.push(...midA.map((line) => ({ kind: "removed", line })), ...midB.map((_, j) => added(j)));
+    rows3.push(...midA.map((line) => ({ kind: "removed", line })), ...midB.map((_, j) => added(j)));
   } else {
     const keep = Array.from({ length: midA.length + 1 }, () => new Array(midB.length + 1).fill(0));
     for (let i2 = midA.length - 1; i2 >= 0; i2--) {
@@ -44155,21 +43298,21 @@ function lineDiff(before, after) {
     let j = 0;
     while (i < midA.length || j < midB.length) {
       if (i < midA.length && j < midB.length && midA[i] === midB[j]) {
-        rows5.push({ kind: "same", line: midB[j], number: start + j + 1 });
+        rows3.push({ kind: "same", line: midB[j], number: start + j + 1 });
         i++;
         j++;
       } else if (i < midA.length && (j === midB.length || keep[i + 1][j] >= keep[i][j + 1])) {
-        rows5.push({ kind: "removed", line: midA[i] });
+        rows3.push({ kind: "removed", line: midA[i] });
         i++;
       } else {
-        rows5.push(added(j));
+        rows3.push(added(j));
         j++;
       }
     }
   }
   const offset = b.length - tail;
-  rows5.push(...b.slice(offset).map((line, index) => ({ kind: "same", line, number: offset + index + 1 })));
-  return rows5;
+  rows3.push(...b.slice(offset).map((line, index) => ({ kind: "same", line, number: offset + index + 1 })));
+  return rows3;
 }
 var answerKeepsCard = (failure) => failure?.code !== "bot/stale";
 var withoutEntry = (state, key) => {
@@ -44191,15 +43334,15 @@ function proposalCards({ proposals = [], settled = [], failures = {} }) {
 }
 
 // src/client/learning-card.js
-var import_react74 = require("react");
+var import_react72 = require("react");
 var failedAnswers = /* @__PURE__ */ new Map();
 function ProposalCard({ proposal, sourceNames = "", initialError = "", onFailure, onResolved, actions }) {
   const outcome = proposal.outcome;
-  const [busy, setBusy] = (0, import_react74.useState)(false);
-  const [error, setError] = (0, import_react74.useState)(initialError);
-  const [open, setOpen] = (0, import_react74.useState)(false);
-  const busyRef = (0, import_react74.useRef)(false);
-  const titleId = (0, import_react74.useId)();
+  const [busy, setBusy] = (0, import_react72.useState)(false);
+  const [error, setError] = (0, import_react72.useState)(initialError);
+  const [open, setOpen] = (0, import_react72.useState)(false);
+  const busyRef = (0, import_react72.useRef)(false);
+  const titleId = (0, import_react72.useId)();
   const answer = (approve) => {
     if (busyRef.current) return;
     busyRef.current = true;
@@ -44215,69 +43358,69 @@ function ProposalCard({ proposal, sourceNames = "", initialError = "", onFailure
   };
   const update = proposal.action === "update";
   const agents = proposal.kind === "agents";
-  const rows5 = (0, import_react74.useMemo)(() => lineDiff(update ? proposal.previous?.content : "", proposal.content), [update, proposal.previous?.content, proposal.content]);
+  const rows3 = (0, import_react72.useMemo)(() => lineDiff(update ? proposal.previous?.content : "", proposal.content), [update, proposal.previous?.content, proposal.content]);
   const change = agents ? [
-    (0, import_react74.createElement)(FileBox, { key: "file", name: "AGENTS.md", path: proposal.folder, state: proposal.exists === false ? "Added" : "Modified", blocks: proposal.edits.map((edit) => [
+    (0, import_react72.createElement)(FileBox, { key: "file", name: "AGENTS.md", path: proposal.folder, state: proposal.exists === false ? "Added" : "Modified", blocks: proposal.edits.map((edit) => [
       ...(edit.op === "add" ? [] : editLines(edit.old)).map((line) => ({ kind: "removed", line })),
       ...(edit.op === "remove" ? [] : editLines(edit.text)).map((line) => ({ kind: "added", line }))
     ]) }),
-    ...proposal.edits.map((edit, index) => edit.why ? (0, import_react74.createElement)("p", { className: "bt-learning-why", key: `why-${index}` }, edit.why) : null)
+    ...proposal.edits.map((edit, index) => edit.why ? (0, import_react72.createElement)("p", { className: "bt-learning-why", key: `why-${index}` }, edit.why) : null)
   ] : [
-    (0, import_react74.createElement)(FileBox, { key: "file", name: "SKILL.md", path: `skills/${proposal.name}`, state: update ? "Updated" : "Added", blocks: [rows5] }),
-    proposal.why ? (0, import_react74.createElement)("p", { className: "bt-learning-why", key: "why" }, proposal.why) : null
+    (0, import_react72.createElement)(FileBox, { key: "file", name: "SKILL.md", path: `skills/${proposal.name}`, state: update ? "Updated" : "Added", blocks: [rows3] }),
+    proposal.why ? (0, import_react72.createElement)("p", { className: "bt-learning-why", key: "why" }, proposal.why) : null
   ];
   const kind = t(agents ? "AGENTS.md update" : update ? "Skill update" : "New skill");
   if (outcome) {
     const what = agents ? proposal.folder : proposal.name;
-    return (0, import_react74.createElement)(
+    return (0, import_react72.createElement)(
       "section",
       { className: "bt-q bt-q-settled bt-learning-card bt-learning-settled", role: "group", "aria-label": `${kind} · ${what}`, "data-outcome": outcome },
-      (0, import_react74.createElement)(
+      (0, import_react72.createElement)(
         "button",
         { type: "button", className: "bt-learning-fold", "aria-expanded": open, onClick: () => setOpen(!open) },
-        (0, import_react74.createElement)("span", { className: "bt-learning-icon", "aria-hidden": true }, (0, import_react74.createElement)(agents ? PencilIcon : MemoryIcon)),
-        (0, import_react74.createElement)("span", { className: "bt-learning-kind" }, kind),
-        (0, import_react74.createElement)("span", { className: "bt-learning-sum" }, `${t(outcome === "approved" ? "Approved" : outcome === "reused" ? "Already approved for the team" : "Declined")} · ${what}`)
+        (0, import_react72.createElement)("span", { className: "bt-learning-icon", "aria-hidden": true }, (0, import_react72.createElement)(agents ? PencilIcon : MemoryIcon)),
+        (0, import_react72.createElement)("span", { className: "bt-learning-kind" }, kind),
+        (0, import_react72.createElement)("span", { className: "bt-learning-sum" }, `${t(outcome === "approved" ? "Approved" : outcome === "reused" ? "Already approved for the team" : "Declined")} · ${what}`)
       ),
       open ? change : null
     );
   }
   const oldDetail = update && typeof proposal.previous?.description === "string" && proposal.previous.description !== proposal.description ? proposal.previous.description : void 0;
-  return (0, import_react74.createElement)(
+  return (0, import_react72.createElement)(
     "section",
     { className: "bt-q bt-learning-card", role: "group", "aria-labelledby": titleId, "aria-busy": busy },
-    agents ? (0, import_react74.createElement)(ProposalHead, { titleId, icon: PencilIcon, title: kind }) : (0, import_react74.createElement)(ProposalHead, { titleId, title: proposal.name, kind, detail: proposal.description, oldDetail }),
-    sourceNames ? (0, import_react74.createElement)("p", { className: "bt-set-hint" }, t("Requested by {names}", { names: sourceNames })) : null,
+    agents ? (0, import_react72.createElement)(ProposalHead, { titleId, icon: PencilIcon, title: kind }) : (0, import_react72.createElement)(ProposalHead, { titleId, title: proposal.name, kind, detail: proposal.description, oldDetail }),
+    sourceNames ? (0, import_react72.createElement)("p", { className: "bt-set-hint" }, t("Requested by {names}", { names: sourceNames })) : null,
     change,
-    error ? (0, import_react74.createElement)("div", { className: "bt-learning-error", role: "alert" }, error) : null,
-    (0, import_react74.createElement)(ProposalFoot, { busy, answer })
+    error ? (0, import_react72.createElement)("div", { className: "bt-learning-error", role: "alert" }, error) : null,
+    (0, import_react72.createElement)(ProposalFoot, { busy, answer })
   );
 }
 function ProposalHead({ titleId, icon: icon2 = MemoryIcon, title, kind, detail, oldDetail }) {
-  return (0, import_react74.createElement)(
+  return (0, import_react72.createElement)(
     "div",
     { className: "bt-q-head" },
-    (0, import_react74.createElement)("span", { className: "bt-learning-icon", "aria-hidden": true }, (0, import_react74.createElement)(icon2)),
-    (0, import_react74.createElement)(
+    (0, import_react72.createElement)("span", { className: "bt-learning-icon", "aria-hidden": true }, (0, import_react72.createElement)(icon2)),
+    (0, import_react72.createElement)(
       "div",
       { className: "bt-q-text" },
-      (0, import_react74.createElement)("p", { className: "bt-q-title", id: titleId }, title),
-      kind ? (0, import_react74.createElement)("div", { className: "bt-q-detail" }, kind) : null,
-      oldDetail ? (0, import_react74.createElement)("p", { className: "bt-learning-description bt-learning-old" }, (0, import_react74.createElement)("del", null, oldDetail)) : null,
-      detail ? (0, import_react74.createElement)("p", { className: "bt-learning-description" }, detail) : null
+      (0, import_react72.createElement)("p", { className: "bt-q-title", id: titleId }, title),
+      kind ? (0, import_react72.createElement)("div", { className: "bt-q-detail" }, kind) : null,
+      oldDetail ? (0, import_react72.createElement)("p", { className: "bt-learning-description bt-learning-old" }, (0, import_react72.createElement)("del", null, oldDetail)) : null,
+      detail ? (0, import_react72.createElement)("p", { className: "bt-learning-description" }, detail) : null
     ),
-    (0, import_react74.createElement)("span", { className: "bt-q-badge bt-learning-status" }, (0, import_react74.createElement)("span", { className: "bt-learning-dot", "aria-hidden": true }), t("Awaiting approval"))
+    (0, import_react72.createElement)("span", { className: "bt-q-badge bt-learning-status" }, (0, import_react72.createElement)("span", { className: "bt-learning-dot", "aria-hidden": true }), t("Awaiting approval"))
   );
 }
 function ProposalFoot({ busy, answer }) {
-  return (0, import_react74.createElement)(
+  return (0, import_react72.createElement)(
     "div",
     { className: "bt-q-foot bt-learning-foot" },
-    (0, import_react74.createElement)("button", { type: "button", className: "bt-learning-btn bt-learning-decline", disabled: busy, onClick: () => answer(false) }, t("Decline")),
-    (0, import_react74.createElement)(
+    (0, import_react72.createElement)("button", { type: "button", className: "bt-learning-btn bt-learning-decline", disabled: busy, onClick: () => answer(false) }, t("Decline")),
+    (0, import_react72.createElement)(
       "button",
       { type: "button", className: "bt-learning-btn bt-learning-approve", disabled: busy, onClick: () => answer(true) },
-      (0, import_react74.createElement)(CheckIcon),
+      (0, import_react72.createElement)(CheckIcon),
       t("Approve")
     )
   );
@@ -44285,43 +43428,43 @@ function ProposalFoot({ busy, answer }) {
 var COLLAPSE_ROWS = 8;
 var SIGNS = { added: "+", removed: "−", same: "" };
 function FileBox({ name, path: path2, state, blocks }) {
-  const [open, setOpen] = (0, import_react74.useState)(false);
+  const [open, setOpen] = (0, import_react72.useState)(false);
   const all = blocks.flat();
   const added = all.filter((row) => row.kind === "added").length;
   const removed = all.filter((row) => row.kind === "removed").length;
   const folds = all.length > COLLAPSE_ROWS;
   const shut = folds && !open;
-  return (0, import_react74.createElement)(
+  return (0, import_react72.createElement)(
     "div",
     { className: "bt-learning-file" },
-    (0, import_react74.createElement)(
+    (0, import_react72.createElement)(
       "div",
       { className: "bt-learning-filehead" },
-      (0, import_react74.createElement)("span", { className: "bt-learning-name" }, name),
-      path2 ? (0, import_react74.createElement)("span", { className: "bt-learning-path" }, path2) : null,
-      (0, import_react74.createElement)("span", { className: "bt-learning-spacer" }),
-      added > 0 ? (0, import_react74.createElement)("span", { className: "bt-learning-plus" }, `+${added}`) : null,
-      removed > 0 ? (0, import_react74.createElement)("span", { className: "bt-learning-minus" }, `−${removed}`) : null,
-      (0, import_react74.createElement)("span", { className: `bt-learning-state bt-learning-state-${state.toLowerCase()}` }, t(state))
+      (0, import_react72.createElement)("span", { className: "bt-learning-name" }, name),
+      path2 ? (0, import_react72.createElement)("span", { className: "bt-learning-path" }, path2) : null,
+      (0, import_react72.createElement)("span", { className: "bt-learning-spacer" }),
+      added > 0 ? (0, import_react72.createElement)("span", { className: "bt-learning-plus" }, `+${added}`) : null,
+      removed > 0 ? (0, import_react72.createElement)("span", { className: "bt-learning-minus" }, `−${removed}`) : null,
+      (0, import_react72.createElement)("span", { className: `bt-learning-state bt-learning-state-${state.toLowerCase()}` }, t(state))
     ),
-    (0, import_react74.createElement)(
+    (0, import_react72.createElement)(
       "div",
       { className: shut ? "bt-learning-code bt-learning-shut" : "bt-learning-code" },
-      blocks.map((rows5, blockIndex) => [
-        blockIndex > 0 ? (0, import_react74.createElement)("div", { className: "bt-learning-gap", key: `gap-${blockIndex}` }) : null,
-        ...rows5.map((row, rowIndex) => (0, import_react74.createElement)(
+      blocks.map((rows3, blockIndex) => [
+        blockIndex > 0 ? (0, import_react72.createElement)("div", { className: "bt-learning-gap", key: `gap-${blockIndex}` }) : null,
+        ...rows3.map((row, rowIndex) => (0, import_react72.createElement)(
           "div",
           { className: `bt-learning-row bt-learning-${row.kind}`, key: `${blockIndex}-${rowIndex}` },
-          (0, import_react74.createElement)("span", { className: "bt-learning-num", "aria-hidden": true }, row.number ?? ""),
-          (0, import_react74.createElement)("span", { className: "bt-learning-sign", "aria-hidden": true }, SIGNS[row.kind]),
-          (0, import_react74.createElement)("span", { className: "bt-learning-text" }, row.line || " ")
+          (0, import_react72.createElement)("span", { className: "bt-learning-num", "aria-hidden": true }, row.number ?? ""),
+          (0, import_react72.createElement)("span", { className: "bt-learning-sign", "aria-hidden": true }, SIGNS[row.kind]),
+          (0, import_react72.createElement)("span", { className: "bt-learning-text" }, row.line || " ")
         ))
       ])
     ),
-    folds ? (0, import_react74.createElement)(
+    folds ? (0, import_react72.createElement)(
       "div",
       { className: shut ? "bt-learning-morebar bt-learning-morebar-shut" : "bt-learning-morebar" },
-      (0, import_react74.createElement)(
+      (0, import_react72.createElement)(
         "button",
         { type: "button", className: "bt-learning-more", "aria-expanded": open, onClick: () => setOpen(!open) },
         t(open ? "Show less" : "Show all {count} lines", { count: all.length })
@@ -44332,10 +43475,10 @@ function FileBox({ name, path: path2, state, blocks }) {
 function LearningProposals({ turn, dock, sessionId, useRoster, actions, reviewInbox = false }) {
   const roster = useRoster((value) => value);
   const facts = useTurnFacts(sessionId, actions);
-  const [failed, setFailed] = (0, import_react74.useState)({});
+  const [failed, setFailed] = (0, import_react72.useState)({});
   const bot = roster.byId?.[sessionId];
   const settledIds = (bot === void 0 ? [] : roster.learningSettled?.[bot.id] ?? []).map((entry) => entry.id);
-  (0, import_react74.useEffect)(() => {
+  (0, import_react72.useEffect)(() => {
     const gone = Object.keys(failed).filter((id) => settledIds.includes(id));
     if (gone.length === 0) return;
     for (const id of gone) failedAnswers.delete(id);
@@ -44362,10 +43505,10 @@ function LearningProposals({ turn, dock, sessionId, useRoster, actions, reviewIn
     failedAnswers.delete(id);
     return withoutEntry(current, id);
   });
-  return (0, import_react74.createElement)("div", { className: dock ? "bt-learning-stack bt-learning-dock" : "bt-learning-stack" }, cards.map((proposal) => (0, import_react74.createElement)(
+  return (0, import_react72.createElement)("div", { className: dock ? "bt-learning-stack bt-learning-dock" : "bt-learning-stack" }, cards.map((proposal) => (0, import_react72.createElement)(
     "div",
     { className: "bt-q-inline", key: proposal.id },
-    (0, import_react74.createElement)(ProposalCard, {
+    (0, import_react72.createElement)(ProposalCard, {
       proposal,
       sourceNames: [proposal.botId, ...(proposal.contributors ?? []).map((source) => source.botId)].map((id) => roster.byId[id]?.name).filter(Boolean).join(", "),
       initialError: failed[proposal.id]?.error ?? failedAnswers.get(proposal.id)?.error,
@@ -44376,10 +43519,10 @@ function LearningProposals({ turn, dock, sessionId, useRoster, actions, reviewIn
   )));
 }
 function LearningTurnTail(props) {
-  return (0, import_react74.createElement)(LearningProposals, { ...props, dock: false });
+  return (0, import_react72.createElement)(LearningProposals, { ...props, dock: false });
 }
 function LearningDock(props) {
-  return (0, import_react74.createElement)(LearningProposals, { ...props, dock: true });
+  return (0, import_react72.createElement)(LearningProposals, { ...props, dock: true });
 }
 var LEARNING_CSS = `
 .bt-learning-stack{display:flex;flex-direction:column;gap:4px}
@@ -44440,7 +43583,7 @@ var LEARNING_CSS = `
 `;
 
 // src/client/review-link.js
-var import_react75 = require("react");
+var import_react73 = require("react");
 function openReview(home, sessionId, actions) {
   if (currentPart(home) !== sessionId) return actions.openSession(home.id);
   const inbox = document.querySelector(".bt-review-inbox");
@@ -44448,52 +43591,52 @@ function openReview(home, sessionId, actions) {
   inbox?.focus({ preventScroll: true });
 }
 function ReviewLink({ home, sessionId, actions }) {
-  return (0, import_react75.createElement)(
+  return (0, import_react73.createElement)(
     "div",
     { className: "bt-review-link", role: "status" },
-    (0, import_react75.createElement)("span", null, t("Waiting for your review")),
-    (0, import_react75.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: () => openReview(home, sessionId, actions) }, t("Review with {name}", { name: home.name }))
+    (0, import_react73.createElement)("span", null, t("Waiting for your review")),
+    (0, import_react73.createElement)("button", { type: "button", className: "bt-soft bt-soft-sm", onClick: () => openReview(home, sessionId, actions) }, t("Review with {name}", { name: home.name }))
   );
 }
 
 // src/client/review-inbox.js
-var import_react76 = require("react");
+var import_react74 = require("react");
 var EMPTY2 = {};
 var noDrawnCards = (select) => select(EMPTY2);
 function ExecutionReview({ approval, actions }) {
-  const [busy, setBusy] = (0, import_react76.useState)(false), [error, setError] = (0, import_react76.useState)("");
-  const flying = (0, import_react76.useRef)(false);
-  const answer = (choice2) => {
+  const [busy, setBusy] = (0, import_react74.useState)(false), [error, setError] = (0, import_react74.useState)("");
+  const flying = (0, import_react74.useRef)(false);
+  const answer = (choice) => {
     if (flying.current) return;
     flying.current = true;
     setBusy(true);
     setError("");
-    void Promise.resolve().then(() => actions.answerApproval(approval.id, choice2)).catch((failure) => setError(failure?.message ?? String(failure))).finally(() => {
+    void Promise.resolve().then(() => actions.answerApproval(approval.id, choice)).catch((failure) => setError(failure?.message ?? String(failure))).finally(() => {
       flying.current = false;
       setBusy(false);
     });
   };
-  return (0, import_react76.createElement)(
+  return (0, import_react74.createElement)(
     "section",
     { className: "bt-q bt-mw-card", role: "group", "aria-label": t("Approval required"), "data-request-id": approval.id },
-    (0, import_react76.createElement)("strong", null, approval.tool || t("Approval required")),
-    approval.detail?.text ? (0, import_react76.createElement)("p", null, approval.detail.text) : null,
-    (0, import_react76.createElement)("p", { style: { whiteSpace: "pre-wrap", overflowWrap: "anywhere" } }, approval.fullReason || approval.reason),
-    approval.detail?.code ? (0, import_react76.createElement)("pre", { className: "bt-mw-code", style: { whiteSpace: "pre-wrap", overflowWrap: "anywhere" } }, approval.detail.code) : null,
-    (0, import_react76.createElement)("p", { className: "bt-set-hint" }, t("This decision applies to this request only.")),
-    approval.reasonTruncated ? (0, import_react76.createElement)("p", { role: "alert" }, t("The request is incomplete. Reject it or review the full operation before allowing it.")) : null,
-    error ? (0, import_react76.createElement)("p", { role: "alert" }, error) : null,
-    (0, import_react76.createElement)(
+    (0, import_react74.createElement)("strong", null, approval.tool || t("Approval required")),
+    approval.detail?.text ? (0, import_react74.createElement)("p", null, approval.detail.text) : null,
+    (0, import_react74.createElement)("p", { style: { whiteSpace: "pre-wrap", overflowWrap: "anywhere" } }, approval.fullReason || approval.reason),
+    approval.detail?.code ? (0, import_react74.createElement)("pre", { className: "bt-mw-code", style: { whiteSpace: "pre-wrap", overflowWrap: "anywhere" } }, approval.detail.code) : null,
+    (0, import_react74.createElement)("p", { className: "bt-set-hint" }, t("This decision applies to this request only.")),
+    approval.reasonTruncated ? (0, import_react74.createElement)("p", { role: "alert" }, t("The request is incomplete. Reject it or review the full operation before allowing it.")) : null,
+    error ? (0, import_react74.createElement)("p", { role: "alert" }, error) : null,
+    (0, import_react74.createElement)(
       "div",
       { className: "bt-mw-actions" },
-      (0, import_react76.createElement)("button", { type: "button", className: "bt-q-btn", disabled: busy || !approval.answerable, onClick: () => answer("reject") }, t("Reject")),
-      (0, import_react76.createElement)("button", { type: "button", className: "bt-q-submit", disabled: busy || !approval.answerable || approval.reasonTruncated, onClick: () => answer("allow") }, t("Allow once"))
+      (0, import_react74.createElement)("button", { type: "button", className: "bt-q-btn", disabled: busy || !approval.answerable, onClick: () => answer("reject") }, t("Reject")),
+      (0, import_react74.createElement)("button", { type: "button", className: "bt-q-submit", disabled: busy || !approval.answerable || approval.reasonTruncated, onClick: () => answer("allow") }, t("Allow once"))
     )
   );
 }
 var routeRequestDock = (Component2) => function SourceRequestDock(props) {
   const home = props.useRoster(reviewHome);
-  return home ? null : (0, import_react76.createElement)(Component2, props);
+  return home ? null : (0, import_react74.createElement)(Component2, props);
 };
 function ReviewInboxDock(props) {
   const { sessionId, useRoster, useWork, useBrowserHolds, useComputer, actions } = props;
@@ -44507,26 +43650,26 @@ function ReviewInboxDock(props) {
   if (!sources.length) return null;
   if (currentPart(home) !== sessionId) {
     if (!sources.some((source) => source.sessionId === sessionId)) return null;
-    return (0, import_react76.createElement)("div", { className: "bt-q-dock bt-review-route" }, (0, import_react76.createElement)(ReviewLink, { home, sessionId, actions }));
+    return (0, import_react74.createElement)("div", { className: "bt-q-dock bt-review-route" }, (0, import_react74.createElement)(ReviewLink, { home, sessionId, actions }));
   }
   const count = sources.reduce((total, source) => total + source.count, 0);
-  return (0, import_react76.createElement)(
+  return (0, import_react74.createElement)(
     "section",
     { className: "bt-review-inbox", tabIndex: -1, "aria-label": t("Pending approvals and confirmations") },
-    (0, import_react76.createElement)(
+    (0, import_react74.createElement)(
       "header",
       { className: "bt-review-head" },
-      (0, import_react76.createElement)("span", null, t("Waiting for your review")),
-      (0, import_react76.createElement)("span", { className: "bt-review-count" }, count)
+      (0, import_react74.createElement)("span", null, t("Waiting for your review")),
+      (0, import_react74.createElement)("span", { className: "bt-review-count" }, count)
     ),
-    (0, import_react76.createElement)("div", { className: "bt-review-list" }, sources.map((source) => {
+    (0, import_react74.createElement)("div", { className: "bt-review-list" }, sources.map((source) => {
       const cardProps = { ...props, sessionId: source.sessionId, useCards: noDrawnCards, reviewInbox: true };
-      return (0, import_react76.createElement)(
+      return (0, import_react74.createElement)(
         "section",
         { key: source.bot.id, "data-source-bot": source.bot.id, className: "bt-review-source" },
-        (0, import_react76.createElement)("div", { className: "bt-review-source-name" }, source.bot.name),
-        source.approvals.map((approval) => (0, import_react76.createElement)(ExecutionReview, { key: approval.id, approval, actions })),
-        ...[[QuestionDock, source.question], [WidgetDock, source.view], [SecretDock, source.secret.length], [ConnectorDock, source.connector.length], [MailDock, source.mail.length], [HandoffDock, source.browser], [ComputerHandoffDock, source.handoff], [AppAccessDock, source.apps.length], [LearningDock, source.learning.length]].filter(([, pending]) => pending).map(([Component2], index) => (0, import_react76.createElement)(Component2, { key: Component2.name || index, ...cardProps }))
+        (0, import_react74.createElement)("div", { className: "bt-review-source-name" }, source.bot.name),
+        source.approvals.map((approval) => (0, import_react74.createElement)(ExecutionReview, { key: approval.id, approval, actions })),
+        ...[[QuestionDock, source.question], [WidgetDock, source.view], [SecretDock, source.secret.length], [ConnectorDock, source.connector.length], [MailDock, source.mail.length], [HandoffDock, source.browser], [ComputerHandoffDock, source.handoff], [AppAccessDock, source.apps.length], [LearningDock, source.learning.length]].filter(([, pending]) => pending).map(([Component2], index) => (0, import_react74.createElement)(Component2, { key: Component2.name || index, ...cardProps }))
       );
     }))
   );
@@ -44584,7 +43727,7 @@ function createSwitchWindow(settle) {
 }
 
 // src/client/queue-dock.js
-var import_react77 = require("react");
+var import_react75 = require("react");
 var OWN_QUEUE_KINDS = /* @__PURE__ */ new Set(["user", "schedule", "user-question-reply"]);
 var EMPTY_QUEUE = [];
 var QUEUE_TEXT_FACTS = { collapseWhitespace: true, trimWhitespace: true };
@@ -44601,17 +43744,17 @@ function queueAttachments(content) {
 var fileSizeText2 = (bytes) => typeof bytes !== "number" || !Number.isFinite(bytes) ? "" : bytes < 1024 ? `${bytes} B` : bytes < 1048576 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
 function QueueFile({ attachment, label }) {
   const size = fileSizeText2(attachment.bytes);
-  return (0, import_react77.createElement)(
+  return (0, import_react75.createElement)(
     "span",
     { className: "bt-queue-file", "aria-label": label, title: attachment.name },
-    (0, import_react77.createElement)("span", { className: "bt-queue-fileicon", "aria-hidden": true }, (0, import_react77.createElement)(PaperclipIcon)),
-    (0, import_react77.createElement)("span", { className: "bt-queue-filename" }, attachment.name),
-    size !== "" ? (0, import_react77.createElement)("span", { className: "bt-queue-filesize" }, size) : null
+    (0, import_react75.createElement)("span", { className: "bt-queue-fileicon", "aria-hidden": true }, (0, import_react75.createElement)(PaperclipIcon)),
+    (0, import_react75.createElement)("span", { className: "bt-queue-filename" }, attachment.name),
+    size !== "" ? (0, import_react75.createElement)("span", { className: "bt-queue-filesize" }, size) : null
   );
 }
 function QueueThumb({ attachment, loadImage, label }) {
-  const [url, setUrl] = (0, import_react77.useState)(null);
-  (0, import_react77.useEffect)(() => {
+  const [url, setUrl] = (0, import_react75.useState)(null);
+  (0, import_react75.useEffect)(() => {
     let alive = true;
     loadImage(attachment).then((resolved) => {
       if (alive) setUrl(resolved);
@@ -44621,23 +43764,23 @@ function QueueThumb({ attachment, loadImage, label }) {
       alive = false;
     };
   }, [attachment, loadImage]);
-  return url === null ? (0, import_react77.createElement)("span", { className: "bt-queue-thumb", "aria-hidden": true }) : (0, import_react77.createElement)("img", { className: "bt-queue-thumb", src: url, alt: label });
+  return url === null ? (0, import_react75.createElement)("span", { className: "bt-queue-thumb", "aria-hidden": true }) : (0, import_react75.createElement)("img", { className: "bt-queue-thumb", src: url, alt: label });
 }
 function Preview({ text, renderFactorySlot }) {
   const rendered = renderFactorySlot?.("conversation.user.text", { text, facts: QUEUE_TEXT_FACTS, interactive: false, ellipsis: true });
-  return (0, import_react77.createElement)("span", { className: "bt-queue-preview" }, rendered ?? text);
+  return (0, import_react75.createElement)("span", { className: "bt-queue-preview" }, rendered ?? text);
 }
 function EditField({ text, onChange, onSave, onCancel }) {
-  const field2 = (0, import_react77.useRef)(null);
-  (0, import_react77.useEffect)(() => {
-    const node = field2.current;
+  const field = (0, import_react75.useRef)(null);
+  (0, import_react75.useEffect)(() => {
+    const node = field.current;
     if (node === null) return;
     node.focus();
     node.style.height = "auto";
     node.style.height = `${node.scrollHeight}px`;
   }, [text]);
-  return (0, import_react77.createElement)("textarea", {
-    ref: field2,
+  return (0, import_react75.createElement)("textarea", {
+    ref: field,
     className: "bt-queue-edit",
     value: text,
     rows: 1,
@@ -44655,28 +43798,28 @@ function EditField({ text, onChange, onSave, onCancel }) {
   });
 }
 function RowButton({ label, title, disabled, onClick, children }) {
-  return (0, import_react77.createElement)("button", { type: "button", className: "bt-queue-action", "aria-label": label, title: title ?? label, disabled, onClick }, children);
+  return (0, import_react75.createElement)("button", { type: "button", className: "bt-queue-action", "aria-label": label, title: title ?? label, disabled, onClick }, children);
 }
 function QueueDock({ useSession, useProjection, updateQueue, loadImage, renderFactorySlot, actions }) {
   const inbox = useProjection?.("inbox");
   const pendingSubmissions = useSession?.((s) => s.pendingSubmissions) ?? EMPTY_QUEUE;
-  const queue = (0, import_react77.useMemo)(() => {
-    const rows5 = (inbox?.["next-turn"] ?? EMPTY_QUEUE).filter((row) => OWN_QUEUE_KINDS.has(row.source?.kind));
+  const queue = (0, import_react75.useMemo)(() => {
+    const rows3 = (inbox?.["next-turn"] ?? EMPTY_QUEUE).filter((row) => OWN_QUEUE_KINDS.has(row.source?.kind));
     const inChat = new Set(pendingSubmissions.filter((item) => item.placement === "transcript").map((item) => item.requestId));
-    return inChat.size === 0 ? rows5 : rows5.filter(({ source }) => source === null || typeof source !== "object" || !("rpcId" in source) || !inChat.has(source.rpcId));
+    return inChat.size === 0 ? rows3 : rows3.filter(({ source }) => source === null || typeof source !== "object" || !("rpcId" in source) || !inChat.has(source.rpcId));
   }, [inbox, pendingSubmissions]);
-  const pendingQueue = (0, import_react77.useMemo)(() => {
+  const pendingQueue = (0, import_react75.useMemo)(() => {
     const admitted = new Set(queue.flatMap(({ source }) => source !== null && typeof source === "object" && "rpcId" in source ? [source.rpcId] : []));
     return pendingSubmissions.filter((submission) => submission.placement === "queued" && !admitted.has(submission.requestId));
   }, [pendingSubmissions, queue]);
   const rowCount = queue.length + pendingQueue.length;
   const running = useSession?.((s) => s.running) === true;
   const queueMutable = useSession?.((s) => s.subagent === null || s.subagent === void 0 || s.subagent.address?.mode === "continuable") ?? true;
-  const [editing, setEditing] = (0, import_react77.useState)(null);
-  const [busy, setBusy] = (0, import_react77.useState)(null);
-  const [collapsed, setCollapsed] = (0, import_react77.useState)(true);
-  const listId = (0, import_react77.useId)();
-  (0, import_react77.useEffect)(() => {
+  const [editing, setEditing] = (0, import_react75.useState)(null);
+  const [busy, setBusy] = (0, import_react75.useState)(null);
+  const [collapsed, setCollapsed] = (0, import_react75.useState)(true);
+  const listId = (0, import_react75.useId)();
+  (0, import_react75.useEffect)(() => {
     if (rowCount === 0 && !collapsed) setCollapsed(true);
     if (editing !== null && (!queueMutable || !queue.some((row) => row.id === editing.id))) setEditing(null);
   }, [collapsed, editing, queue, queueMutable, rowCount]);
@@ -44704,77 +43847,77 @@ function QueueDock({ useSession, useProjection, updateQueue, loadImage, renderFa
     if (editing === null || editing.text.trim() === "") return;
     if (await applyAction(editing.id, { kind: "edit", content: [{ type: "text", text: editing.text }] }, t("Couldn’t edit the queued message — it may have started already."))) setEditing(null);
   };
-  return (0, import_react77.createElement)(
+  return (0, import_react75.createElement)(
     "div",
     { className: "bt-queue-dock", "data-queue-dock": "" },
-    (0, import_react77.createElement)(
+    (0, import_react75.createElement)(
       "div",
       { className: "bt-queue-panel" },
-      rowCount > 1 && (0, import_react77.createElement)(
+      rowCount > 1 && (0, import_react75.createElement)(
         "button",
         { type: "button", className: "bt-queue-head", "aria-controls": listId, "aria-expanded": expanded, disabled: interactionActive, onClick: () => setCollapsed((value) => !value) },
-        (0, import_react77.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react77.createElement)(QueueIcon)),
-        (0, import_react77.createElement)("span", { className: "bt-queue-count" }, t("{n} queued messages", { n: rowCount })),
-        !listVisible && pendingQueue.length > 0 && (0, import_react77.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
-        (0, import_react77.createElement)("span", { className: "bt-queue-chev", "aria-hidden": true }, expanded ? (0, import_react77.createElement)(ChevronDownIcon) : (0, import_react77.createElement)(ChevronUpIcon))
+        (0, import_react75.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react75.createElement)(QueueIcon)),
+        (0, import_react75.createElement)("span", { className: "bt-queue-count" }, t("{n} queued messages", { n: rowCount })),
+        !listVisible && pendingQueue.length > 0 && (0, import_react75.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
+        (0, import_react75.createElement)("span", { className: "bt-queue-chev", "aria-hidden": true }, expanded ? (0, import_react75.createElement)(ChevronDownIcon) : (0, import_react75.createElement)(ChevronUpIcon))
       ),
-      (0, import_react77.createElement)(
+      (0, import_react75.createElement)(
         "ul",
         { id: listId, className: "bt-queue-list", hidden: !listVisible },
         listVisible && queue.map((row) => {
           const attachments = queueAttachments(row.content);
           const text = textOf(row.content);
-          return (0, import_react77.createElement)(
+          return (0, import_react75.createElement)(
             "li",
             { key: row.id, className: "bt-queue-row" },
-            rowCount === 1 && (0, import_react77.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react77.createElement)(QueueIcon)),
-            editing?.id === row.id ? (0, import_react77.createElement)(EditField, { text: editing.text, onChange: (text2) => setEditing({ id: row.id, text: text2 }), onSave: saveEdit, onCancel: () => setEditing(null) }) : (0, import_react77.createElement)(
-              import_react77.Fragment,
+            rowCount === 1 && (0, import_react75.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react75.createElement)(QueueIcon)),
+            editing?.id === row.id ? (0, import_react75.createElement)(EditField, { text: editing.text, onChange: (text2) => setEditing({ id: row.id, text: text2 }), onSave: saveEdit, onCancel: () => setEditing(null) }) : (0, import_react75.createElement)(
+              import_react75.Fragment,
               null,
-              attachments.length > 0 && (0, import_react77.createElement)(
+              attachments.length > 0 && (0, import_react75.createElement)(
                 "span",
                 { className: "bt-queue-attachments" },
-                attachments.map((item, index) => item.type === "image" ? (0, import_react77.createElement)(QueueThumb, { key: `${item.attachment.attachmentId}:${index}`, attachment: item.attachment, loadImage, label: t("Queued image") }) : (0, import_react77.createElement)(QueueFile, { key: `${item.attachment.attachmentId}:${item.attachment.name}:${index}`, attachment: item.attachment, label: t("Queued file {name}", { name: item.attachment.name }) }))
+                attachments.map((item, index) => item.type === "image" ? (0, import_react75.createElement)(QueueThumb, { key: `${item.attachment.attachmentId}:${index}`, attachment: item.attachment, loadImage, label: t("Queued image") }) : (0, import_react75.createElement)(QueueFile, { key: `${item.attachment.attachmentId}:${item.attachment.name}:${index}`, attachment: item.attachment, label: t("Queued file {name}", { name: item.attachment.name }) }))
               ),
-              (0, import_react77.createElement)(Preview, { text: row.content.filter((block) => block.type === "text").map((block) => block.text).join(""), renderFactorySlot })
+              (0, import_react75.createElement)(Preview, { text: row.content.filter((block) => block.type === "text").map((block) => block.text).join(""), renderFactorySlot })
             ),
-            queueMutable && (0, import_react77.createElement)(
+            queueMutable && (0, import_react75.createElement)(
               "div",
               { className: "bt-queue-actions" },
-              editing?.id === row.id ? (0, import_react77.createElement)(
-                import_react77.Fragment,
+              editing?.id === row.id ? (0, import_react75.createElement)(
+                import_react75.Fragment,
                 null,
-                (0, import_react77.createElement)(RowButton, { label: t("Save queued message"), disabled: busy !== null || editing.text.trim() === "", onClick: saveEdit }, (0, import_react77.createElement)(CheckIcon)),
-                (0, import_react77.createElement)(RowButton, { label: t("Cancel editing"), disabled: busy !== null, onClick: () => setEditing(null) }, (0, import_react77.createElement)(CloseIcon))
-              ) : (0, import_react77.createElement)(
-                import_react77.Fragment,
+                (0, import_react75.createElement)(RowButton, { label: t("Save queued message"), disabled: busy !== null || editing.text.trim() === "", onClick: saveEdit }, (0, import_react75.createElement)(CheckIcon)),
+                (0, import_react75.createElement)(RowButton, { label: t("Cancel editing"), disabled: busy !== null, onClick: () => setEditing(null) }, (0, import_react75.createElement)(CloseIcon))
+              ) : (0, import_react75.createElement)(
+                import_react75.Fragment,
                 null,
-                (0, import_react77.createElement)(RowButton, { label: t("Edit queued message"), title: text === null ? t("Contains non-text content, so editing is not supported yet") : void 0, disabled: busy !== null || text === null, onClick: () => {
+                (0, import_react75.createElement)(RowButton, { label: t("Edit queued message"), title: text === null ? t("Contains non-text content, so editing is not supported yet") : void 0, disabled: busy !== null || text === null, onClick: () => {
                   if (text !== null) setEditing({ id: row.id, text });
-                } }, (0, import_react77.createElement)(PencilIcon)),
-                (0, import_react77.createElement)(RowButton, { label: t("Delete queued message"), disabled: busy !== null, onClick: () => applyAction(row.id, { kind: "remove" }, t("Couldn’t delete the queued message — it may have started already.")) }, (0, import_react77.createElement)(TrashIcon)),
-                (0, import_react77.createElement)(RowButton, { label: t("Steer queued message"), title: running ? void 0 : t("Only while a turn is running"), disabled: busy !== null || !running, onClick: () => applyAction(row.id, { kind: "steer" }, t("Couldn’t steer the queued message. Try again.")) }, (0, import_react77.createElement)(ArrowUpIcon))
+                } }, (0, import_react75.createElement)(PencilIcon)),
+                (0, import_react75.createElement)(RowButton, { label: t("Delete queued message"), disabled: busy !== null, onClick: () => applyAction(row.id, { kind: "remove" }, t("Couldn’t delete the queued message — it may have started already.")) }, (0, import_react75.createElement)(TrashIcon)),
+                (0, import_react75.createElement)(RowButton, { label: t("Steer queued message"), title: running ? void 0 : t("Only while a turn is running"), disabled: busy !== null || !running, onClick: () => applyAction(row.id, { kind: "steer" }, t("Couldn’t steer the queued message. Try again.")) }, (0, import_react75.createElement)(ArrowUpIcon))
               )
             )
           );
         }),
-        listVisible && pendingQueue.map((submission) => (0, import_react77.createElement)(
+        listVisible && pendingQueue.map((submission) => (0, import_react75.createElement)(
           "li",
           { key: submission.requestId, className: "bt-queue-row bt-queue-pending" },
-          rowCount === 1 && (0, import_react77.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react77.createElement)(QueueIcon)),
-          submission.attachments.length > 0 && (0, import_react77.createElement)(
+          rowCount === 1 && (0, import_react75.createElement)("span", { className: "bt-queue-lead", "aria-hidden": true }, (0, import_react75.createElement)(QueueIcon)),
+          submission.attachments.length > 0 && (0, import_react75.createElement)(
             "span",
             { className: "bt-queue-attachments" },
-            submission.attachments.map((attachment, index) => attachment.type === "image" ? (0, import_react77.createElement)("img", { key: `${attachment.value.previewUrl}:${index}`, className: "bt-queue-thumb", src: attachment.value.previewUrl, alt: t("Queued image") }) : (0, import_react77.createElement)(QueueFile, { key: `${attachment.value.attachmentId}:${attachment.value.name}:${index}`, attachment: attachment.value, label: t("Queued file {name}", { name: attachment.value.name }) }))
+            submission.attachments.map((attachment, index) => attachment.type === "image" ? (0, import_react75.createElement)("img", { key: `${attachment.value.previewUrl}:${index}`, className: "bt-queue-thumb", src: attachment.value.previewUrl, alt: t("Queued image") }) : (0, import_react75.createElement)(QueueFile, { key: `${attachment.value.attachmentId}:${attachment.value.name}:${index}`, attachment: attachment.value, label: t("Queued file {name}", { name: attachment.value.name }) }))
           ),
-          (0, import_react77.createElement)(Preview, { text: submission.text, renderFactorySlot }),
-          (0, import_react77.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
-          queueMutable && (0, import_react77.createElement)(
+          (0, import_react75.createElement)(Preview, { text: submission.text, renderFactorySlot }),
+          (0, import_react75.createElement)("span", { className: "bt-queue-status", role: "status" }, t("Sending…")),
+          queueMutable && (0, import_react75.createElement)(
             "div",
             { className: "bt-queue-actions" },
-            (0, import_react77.createElement)(RowButton, { label: t("Edit queued message"), title: t("Sending…"), disabled: true }, (0, import_react77.createElement)(PencilIcon)),
-            (0, import_react77.createElement)(RowButton, { label: t("Delete queued message"), title: t("Sending…"), disabled: true }, (0, import_react77.createElement)(TrashIcon)),
-            (0, import_react77.createElement)(RowButton, { label: t("Steer queued message"), title: t("Sending…"), disabled: true }, (0, import_react77.createElement)(ArrowUpIcon))
+            (0, import_react75.createElement)(RowButton, { label: t("Edit queued message"), title: t("Sending…"), disabled: true }, (0, import_react75.createElement)(PencilIcon)),
+            (0, import_react75.createElement)(RowButton, { label: t("Delete queued message"), title: t("Sending…"), disabled: true }, (0, import_react75.createElement)(TrashIcon)),
+            (0, import_react75.createElement)(RowButton, { label: t("Steer queued message"), title: t("Sending…"), disabled: true }, (0, import_react75.createElement)(ArrowUpIcon))
           )
         ))
       )
@@ -45365,8 +44508,6 @@ function apply(ctx) {
     }
   };
   const actions = {
-    openTasks: () => ui2.set((state) => ({ ...state, tasksOpen: true, leftDrawer: false })),
-    closeTasks: () => ui2.set((state) => ({ ...state, tasksOpen: false })),
     ...teamActions({ call, after, partFor, roster, ui: ui2, live, cards, heldCards, turnClock, panelFolded }),
     openChanges: (changes) => ui2.set((state) => ({ ...state, changes })),
     closeChanges: () => ui2.set((state) => ({ ...state, changes: null })),
@@ -45548,7 +44689,7 @@ function apply(ctx) {
       browserCloseTab: (botId, tabId) => browsers.closeTab(botId, tabId),
       browserActivate: (botId, tabId) => browsers.activate(botId, tabId),
       browserShow: (tabId, box) => browsers.show(tabId, box),
-      browserNavigate: (tabId, input2) => browsers.navigate(tabId, input2),
+      browserNavigate: (tabId, input) => browsers.navigate(tabId, input),
       browserCommand: (tabId, name) => browsers.command(tabId, name),
       browserFocus: (tabId) => browsers.focus(tabId),
       browserTakeover: bridge.views ? async (botId) => {
@@ -45643,7 +44784,7 @@ function apply(ctx) {
         const live2 = computer.getSnapshot();
         const name = (id) => nameOf2(id);
         const look = (id) => lookOf(roster.getSnapshot().byId[id]);
-        const rows5 = (live2.leases ?? []).map((entry) => ({
+        const rows3 = (live2.leases ?? []).map((entry) => ({
           botId: entry.botId,
           name: name(entry.botId),
           app: entry.kind === "foreground" ? t("In the foreground") : entry.appName,
@@ -45652,10 +44793,10 @@ function apply(ctx) {
           avatar: look(entry.botId).image
         }));
         for (const [botId, entry] of Object.entries(live2.bots ?? {})) {
-          if (entry.waitingFor === "user-idle") rows5.push({ botId, waiting: true, name: name(botId), app: t("waits for the computer"), label: t("{name} waits for the computer", { name: name(botId) }), color: look(botId).color, avatar: look(botId).image });
+          if (entry.waitingFor === "user-idle") rows3.push({ botId, waiting: true, name: name(botId), app: t("waits for the computer"), label: t("{name} waits for the computer", { name: name(botId) }), color: look(botId).color, avatar: look(botId).image });
         }
         appComputer.computer({
-          rows: rows5,
+          rows: rows3,
           labels: { stop: t("Stop"), stopAll: t("Stop all"), letGo: t("Let it continue") }
         });
       };
@@ -45909,7 +45050,6 @@ function apply(ctx) {
     [MODEL_CSS + FOLDER_CSS + BOT_SETTINGS_CSS + AGENT_CARDS_CSS + GROUP_SETTINGS_CSS + AVATAR_LIBRARY_CSS, "models"],
     [USAGE_CSS, "usage"],
     [SCHEDULE_CSS, "schedules"],
-    [TASK_CSS2, "task-workbench"],
     [FEEDBACK_CSS, "feedback"],
     [ABOUT_CSS, "about"],
     [MEMBER_CSS, "members"],

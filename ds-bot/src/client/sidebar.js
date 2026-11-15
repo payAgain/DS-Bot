@@ -817,7 +817,6 @@ export function TeamSidebar(props) {
         h(PluginsButton, { actions }))
   const content = h('div', { className: wideContent ? 'bt-side' : 'bt-side bt-rail', onKeyDown: typeToSearch },
     top,
-    h('button', { type: 'button', className: 'bt-wb-entry', title: t('Task workbench'), 'aria-label': t('Task workbench'), onClick: () => actions.openTasks?.() }, h(ClockIcon), wideContent ? t('Task workbench') : null),
     wideContent && roster.readOnly ? h('div', { className: 'bt-hint bt-read-only', role: 'status' }, hostText(roster.readOnly)) : null,
     h('div', {
       ref: listRef, className: 'bt-list', role: 'region', 'aria-label': t('Bot list'),

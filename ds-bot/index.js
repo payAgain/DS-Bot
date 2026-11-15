@@ -24,7 +24,6 @@ import * as groups from './src/host/groups.js'
 import * as ledger from './src/host/ledger.js'
 import * as goals from './src/host/goals.js'
 import * as tasks from './src/host/tasks.js'
-import * as workbenchTasks from './src/host/workbench-tasks.js'
 import * as approvals from './src/host/approvals.js'
 import * as resume from './src/host/resume.js'
 import * as memory from './src/host/memory.js'
@@ -65,7 +64,7 @@ export { name, inject } from './src/host/entry.js'
 // install. Listeners run and tools are listed in registration order, so this order holds:
 // usage meters model requests after every listener that rewrites them. privacy checks a
 // call before the hooks of tools do, so a closed call never reaches a card they show.
-const MODULES = [diagnostics, store, ledger, models, providers, permissions, turns, steer, handoffs, requests, delivery, roster, folders, privacy, agents, prompt, timeContext, tools, chatIndex, groups, goals, tasks, workbenchTasks, approvals, resume, memory, parts, changes, images, avatarLibrary, secrets, connectors, composio, capabilities, learning, schedules, browser, browserPlugins, computer, usage, update, dshUpdate, thinking, mobile, mobileAdmission, feed, phone, im, channel, remote, officeSkills, goalSkills, localAgents]
+const MODULES = [diagnostics, store, ledger, models, providers, permissions, turns, steer, handoffs, requests, delivery, roster, folders, privacy, agents, prompt, timeContext, tools, chatIndex, groups, goals, tasks, approvals, resume, memory, parts, changes, images, avatarLibrary, secrets, connectors, composio, capabilities, learning, schedules, browser, browserPlugins, computer, usage, update, dshUpdate, thinking, mobile, mobileAdmission, feed, phone, im, channel, remote, officeSkills, goalSkills, localAgents]
 
 export function apply(ctx, config = {}) {
   createRuntime(ctx, config)

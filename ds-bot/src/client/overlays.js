@@ -12,7 +12,6 @@ import { PANEL_LINGER_MS, BotPanel } from './browser-pane.js'
 import { frameLayout, FALLBACK_SIDEBAR_WIDTH } from './frame-layout.js'
 import { MemoryDialog } from './memory-panel.js'
 import { reducedMotion, useLinger } from './motion.js'
-import { TaskWorkbench } from './task-workbench.js'
 import { OpeningCover, openingModel } from './opening.js'
 
 // How long a closing dialog or menu stays for its exit (see their [data-leaving] CSS).
@@ -68,7 +67,6 @@ export function Overlays({ useRoster, useUi, useSessions, useSessionStatus, useA
   // Bot fills the conversation area instead of the chat that was there before.
   const opening = openingModel({ pending: ui.pendingOpen ?? null, current, roster })
   return h(Fragment, null,
-    ui.tasksOpen ? createPortal(h(TaskWorkbench, { roster, actions }), document.body) : null,
     opening ? createPortal(h(OpeningCover, { model: opening, column: layout.column }), document.body) : null,
     pane ? createPortal(h(BotPanel, { pane, leaving: shown === null, room: layout.room, overlay: layout.panel === 'overlay', roster, actions, useSessions, useSessionStatus, useActivity, useWork, useBrowserTabs, useBrowserPages, useBrowserHolds }), document.body) : null,
     ui.newChat ? createPortal(h(NewChat, { key: `${ui.newChat}:${ui.newChatSection ?? ''}`, mode: ui.newChat, sectionId: ui.newChatSection ?? null, paneLeft: layout.column, roster, actions }), document.body) : null,
