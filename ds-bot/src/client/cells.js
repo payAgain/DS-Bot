@@ -28,6 +28,7 @@ import { BtwCardView } from './btw.js'
 import { partIndexOf, withBtwRows } from './btw-model.js'
 import { ViaTag } from './user-message.js'
 import { layoutOf, thinkingShown } from './themes.js'
+import { consumeReplyClick, useReplyHold } from './long-press-reply.js'
 
 export { clockLabel }
 
@@ -42,6 +43,7 @@ export { clockLabel }
 // whose own head already shows one (the flat speaker line, the group name row) leaves it unset.
 export function Bubbles({ texts, roster, selfId, actions, streaming, sessionId, msgKey, useUi, lead, mentions, fold = FOLD_AT, whole, time, textInteractionSource }) {
   const onClick = (event) => {
+    if (consumeReplyClick(event)) return
     const target = mentionTarget(event)
     if (target === null) return
     event.preventDefault()
@@ -109,10 +111,12 @@ function Bubble({ text, index, roster, selfId, actions, sessionId, msgKey, menti
     setToolsOpen(value => !value)
   }
   const area = foldArea(body, code, codeHead, actions)
+  const replyText = folded ? text : shown
+  const hold = useReplyHold({ sessionId, text: replyText, enabled: !live, actions })
   return h('div', { ref: row, className: 'bt-msg', onClick: tapTools },
     h('div', { className: 'bt-msg-line' },
       lead,
-      h('div', { className: 'bt-bubble', 'data-folded': folded || undefined, 'data-text-interaction-source': textInteractionSource ? '' : undefined },
+      h('div', { className: 'bt-bubble', 'data-folded': folded || undefined, 'data-text-interaction-source': textInteractionSource ? '' : undefined, 'data-reply-hold': !live && sessionId && replyText.trim() ? 'space' : undefined, ...hold },
         control ? h('div', { className: 'bt-fold-body' }, area) : area,
         control),
       live ? null : h(MessageTools, { text: folded ? text : shown, name: roster.byId[selfId]?.name ?? t('Bot'), sessionId, react: key ? emoji => actions.toggleReaction(msgKey, index, emoji) : undefined, actions, open: toolsOpen })),

@@ -3,13 +3,14 @@ import { createPortal } from 'react-dom'
 import { FishLogo } from './dsh-primitives.js'
 import { inkFill } from './inks.js'
 import { isMainOf } from './sources.js'
-import { currentPart, previewOf, relativeShort } from './text.js'
+import { currentPart, relativeShort } from './text.js'
 import { PlusIcon, SearchIcon, SidebarIcon, GaugeIcon, ClockIcon, GearIcon, PinMarkIcon, ConnectorIcon, PlugIcon, SwitchIcon, CloudDownloadIcon, SignInIcon, SignOutIcon, SlidersIcon, ChevronRightIcon, DotsIcon, FolderIcon } from './icons.js'
 import { lookOf, MAIN_LOOK } from './characters.js'
 import { botState, BotMark, BotAvatar, RoomAvatar } from './mark.js'
 import { AgentBadge } from './agent-badge.js'
 import { reducedMotion } from './activity-row.js'
-import { Shimmer, workPhrase } from './cells.js'
+import { Shimmer } from './cells.js'
+import { useConversationStatus } from './live-status.js'
 import { SPRING_GLIDE, SPRING_POP, SPRING_SHAPE, SPRING_TAP, stepMenuFocus, useLinger, useViewport, viewBottom } from './motion.js'
 import { hostText, t } from './i18n.js'
 import { clientErrors } from './diagnostics.js'
@@ -39,54 +40,19 @@ const nameIfCut = (event) => {
   else row.removeAttribute('title')
 }
 
-// Whether an approval waits for the user: for a Bot, in any of its Sessions; for a group,
-// from any of its members there.
-const useApproval = (useWork, match) => (useWork ? useWork(work => (work.approvals ?? []).some(entry => !entry.outcome && (entry.status === undefined || entry.status === 'pending') && match(entry))) : false)
-
-// Work running in group Sessions, as "botId|tool" keys so a row redraws only when it
-// changes: the groups one Bot works in, or the members at work in one group.
-// Picked as text, so a row redraws only when what it shows changes.
-const useGroupWork = (useWork, pick) => {
-  const raw = useWork ? useWork(work => JSON.stringify(pick(work.rooms ?? {}))) : '[]'
-  return useMemo(() => JSON.parse(raw), [raw])
-}
-const doingOf = ({ tool, said, note, target, switching }) => ({ tool, said, note, target, switching })
-const workLine = (lead, doing, more) => h(Shimmer, null, `${lead} · ${workPhrase(doing)}…${more > 0 ? ` +${more}` : ''}`)
-// The Bots and groups a Bot waits for (handoffs.js), by the names they have now.
-const waitingFor = (roster, waits) => {
-  const names = [...(waits?.bots ?? []).map(id => roster.byId[id]?.name), ...(waits?.rooms ?? []).map(id => roster.roomsById[id]?.name)].filter(Boolean)
-  return names.length === 0 ? '' : t('Waiting for {names}', { names: names.join(t(' and ')) })
-}
-
 function BotRow({ bot, roster, actions, useSessionStatus, useSessionRetainInfo, useActivity, useWork, wide, marked, onDragStart }) {
   const id = bot.id
   const part = currentPart(bot)
-  const running = useSessionStatus(map => map.get(part)?.running === true)
   const active = useSessionRetainInfo(part, info => (info?.retainedBy?.mainView ?? 0) > 0)
   const unread = useSessionStatus(map => map.get(part)?.completionUnread === true || map.get(part)?.pendingInteraction !== undefined) || (marked && !active)
   useMarkedUnread(id, active, marked, actions)
   const main = isMainOf(roster, id)
   const tile = roster.mainBotId === id
-  const approval = useApproval(useWork, entry => entry.botId === id)
-  const pending = entry => entry && !entry.outcome && (entry.status === undefined || entry.status === 'pending')
-  const question = pending(roster.questions?.[part]) || pending(roster.views?.[part])
-  const alert = Boolean(question || approval)
-  const doing = useActivity(map => map[id])
-  // Work in a group runs in a Session of its own, so the Bot's chat stays idle meanwhile.
-  const groups = useGroupWork(useWork, rooms => Object.entries(rooms).flatMap(([roomId, entries]) => entries.filter(entry => entry.botId === id).map(entry => ({ id: roomId, ...doingOf(entry) }))))
-  const away = !running && groups.length > 0
-  const ownRaw = useWork ? useWork(work => JSON.stringify(work.bots?.[id] ?? null)) : 'null'
-  const own = useMemo(() => JSON.parse(ownRaw), [ownRaw])
-  const waitsRaw = useWork ? useWork(work => JSON.stringify(work.waiting?.[id] ?? null)) : 'null'
-  const waits = useMemo(() => JSON.parse(waitsRaw), [waitsRaw])
-  const live = running || Boolean(own)
-  const waitsFor = !live && !away ? waitingFor(roster, waits) : ''
-  const userWait = approval ? t('Waiting for your approval') : question ? t('Waiting for your answer') : ''
-  const activeWork = !userWait && (live || away)
-  const state = botState(!userWait && (live || away), waitsFor ? 'waiting' : doing, alert)
-  const statusText = userWait || (live ? `${workPhrase(own ?? doing)}…`
-    : away ? `${roster.roomsById[groups[0].id]?.name ?? t('a group chat')} · ${workPhrase(groups[0])}…${groups.length > 1 ? ` +${groups.length - 1}` : ''}`
-      : waitsFor || t('Idle'))
+  const status = useConversationStatus({ sessionId: id, roster, useWork, useSessionStatus, useActivity })
+  const statusText = status.text
+  const activeWork = status.active
+  const alert = status.alert
+  const state = botState(status.active, status.waiting ? 'waiting' : status.doing, status.alert)
   const statusLine = activeWork ? h(Shimmer, null, statusText) : statusText
   if (bot.hidden && !active && !main) return null
   const onContextMenu = (event) => {
@@ -120,22 +86,19 @@ function BotRow({ bot, roster, actions, useSessionStatus, useSessionRetainInfo, 
     : !wide && !active && (alert || unread) ? h('span', { className: `bt-dot${alert ? ' bt-dot-wait' : ''}`, 'aria-hidden': true }) : null)
 }
 
-function RoomRow({ room, roster, actions, useSessions, useSessionStatus, useSessionRetainInfo, useWork, wide, marked, onDragStart }) {
+function RoomRow({ room, roster, actions, useSessionStatus, useSessionRetainInfo, useWork, wide, marked, onDragStart }) {
   const id = room.id
   // The group's own Session is a chain of parts; the row shows the current one.
   const sessionId = room.sessionId ?? id
-  const fallback = useSessions(list => previewOf(list, sessionId))
-  const preview = room.preview?.replace(/\s+/g, ' ').trim() || fallback
   const active = useSessionRetainInfo(sessionId, info => (info?.retainedBy?.mainView ?? 0) > 0)
   const unread = useSessionStatus(map => map.get(sessionId)?.completionUnread === true) || (marked && !active)
   useMarkedUnread(id, active, marked, actions)
-  const approval = useApproval(useWork, entry => entry.roomId === id)
-  const members = useGroupWork(useWork, rooms => (rooms[id] ?? []).filter(entry => entry.botId !== undefined).map(entry => ({ id: entry.botId, ...doingOf(entry) })))
-  const first = roster.byId[members[0]?.id]
-  const workingLine = first ? workLine(first.name, members[0], members.length - 1) : null
+  const status = useConversationStatus({ sessionId: id, roster, useWork, useSessionStatus })
+  const approval = status.kind === 'approval'
+  const workingLine = status.active ? h(Shimmer, null, status.text) : status.text
   if (room.hidden && !active) return null
   const pinned = room.pinned === true
-  const label = [room.name, pinned ? t('Pinned') : '', members.length > 0 ? t('Working') : '', approval ? t('Waiting for your approval') : ''].filter(Boolean).join(', ')
+  const label = [room.name, pinned ? t('Pinned') : '', status.text].filter(Boolean).join(', ')
   return h('button', {
     type: 'button', className: 'bt-row', 'aria-label': label, 'aria-current': active ? 'page' : undefined,
     'data-room-id': id, title: wide ? undefined : room.name,
@@ -148,7 +111,7 @@ function RoomRow({ room, roster, actions, useSessions, useSessionStatus, useSess
   pinned && !wide ? h(PinMark) : null,
   wide ? h('span', { className: 'bt-row-body' },
     h('span', { className: 'bt-row-name' }, h('span', { className: 'bt-row-title' }, room.name), pinned ? h(PinMark) : null),
-    workingLine ? h('span', { className: 'bt-row-preview' }, workingLine) : preview ? h('span', { className: 'bt-row-preview' }, preview) : null) : null,
+    h('span', { className: 'bt-row-preview', title: status.text }, workingLine)) : null,
   wide && approval && !active ? h('span', { className: 'bt-unread bt-unread-wait', 'aria-hidden': true })
     : wide && unread && !active ? h('span', { className: 'bt-unread', 'aria-hidden': true })
       : !wide && !active && (approval || unread) ? h('span', { className: `bt-dot${approval ? ' bt-dot-wait' : ''}`, 'aria-hidden': true }) : null)

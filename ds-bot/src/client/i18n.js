@@ -12,6 +12,8 @@ import { CUSTOM_UI } from './locales/custom-ui.js'
 export const NAMESPACE = 'ds-bot'
 
 const ZH = {
+  'Needs attention': '需要处理',
+  '{count} Bots working': '{count} 个 Bot 在工作',
   'Waiting for your review': '等待你处理',
   'Review with {name}': '前往 {name} 处理',
   'Pending approvals and confirmations': '待处理的审批与确认',

@@ -9,6 +9,7 @@ import { clockLabel, openingTurn, unseenSince } from './cells.js'
 import { GoalIsland, goalView } from './goal.js'
 import { viewBottom } from './motion.js'
 import { t } from './i18n.js'
+import { useConversationStatus } from './live-status.js'
 
 // -------------------------------------------------------------------------
 // Conversation header
@@ -19,6 +20,7 @@ const GoArrow = () => h('svg', { width: 14, height: 14, viewBox: '-12 -12 24 24'
 // How long the pill says "Memory updated" after the change reaches this window.
 const MEMORY_NOTICE_MS = 3_200
 const noNews = select => select({})
+let statusId = 0
 
 // True while the latest memory change of the Bots in this conversation is news.
 function useMemoryNotice(ids, useMemoryNews) {
@@ -87,6 +89,9 @@ export function HeaderPill({ sessionId, useRoster, useSessions, useSessionStatus
   const goalShown = room !== undefined && !away && goal !== undefined
   const detailsOpen = useUi(state => state.details === sessionId)
   const name = bot?.name ?? room?.name ?? ''
+  const status = useConversationStatus({ sessionId, roster, useWork, useSessionStatus, useActivity })
+  const descriptionId = useRef(null)
+  if (descriptionId.current === null) descriptionId.current = `bt-current-status-${++statusId}`
   const useNews = useMemoryNews ?? noNews
   const memoryIds = bot ? [bot.id] : room ? [room.id, ...room.members] : []
   const notice = useMemoryNotice(memoryIds, useNews)
@@ -122,15 +127,17 @@ export function HeaderPill({ sessionId, useRoster, useSessions, useSessionStatus
     type: 'button', className: 'bt-pill', 'aria-expanded': away ? undefined : detailsOpen, 'data-memory': memoryNotice ? 'updated' : undefined,
     'aria-label': away ? t('Back to chat') : memoryNotice ? t('Memory updated. Open {name}\'s memory', { name: roster.byId[changed]?.name ?? name }) : t('View conversation details'),
     title: away ? name : undefined,
+    'aria-describedby': !away ? descriptionId.current : undefined,
     onClick: () => (away ? selectView('chat') : memoryNotice ? actions.openMemory(changed) : actions.toggleDetails(sessionId)),
   },
     bot ? h(BotAvatar, { bot, size: 24, state: botState(running, doing, roster.questions?.[currentPart(bot)] !== undefined), badge: false })
       : room ? h(RoomAvatar, { room, roster, size: 24 }) : null,
-    goalShown
+    h('span', { className: 'bt-pill-labels' }, goalShown
       ? h('span', { className: 'bt-pill-swap' },
         h('span', { className: 'bt-pill-goal' }, h('span', { className: 'bt-pill-ico', 'aria-hidden': true }, h(GoalIcon)), h('span', { className: 'bt-pill-title' }, view.title)),
         h('span', { className: 'bt-pill-name' }, name))
       : h('span', { className: 'bt-pill-name' }, away ? t('Back to chat') : bot?.name ?? room?.name ?? (title || t('New chat')), !away && bot?.engine ? h(AgentBadge, { engine: bot.engine }) : null),
+      h('span', { id: descriptionId.current, className: 'bt-mobile-chat-status', role: 'status', 'aria-live': 'polite', 'aria-atomic': true, 'data-kind': status.kind, title: away ? undefined : status.text }, away ? '' : status.text)),
     goalShown && view?.number !== undefined ? h('span', { className: 'bt-pill-count' }, `${view.number}/${view.count}`) : null,
     h(MemoryNotice, { shown: memoryNotice }),
     h('span', { className: 'bt-pill-go', 'aria-hidden': true }, h(GoArrow)))

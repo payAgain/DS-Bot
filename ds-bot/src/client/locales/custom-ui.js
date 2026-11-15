@@ -1,5 +1,7 @@
 // Custom controls share the upstream language selector. Keep all substitutions intact.
 const rows = [
+  ['Needs attention', '対応が必要', '확인 필요', 'Necesita atención', 'Action requise', 'Aufmerksamkeit erforderlich'],
+  ['{count} Bots working', '{count} Bot が作業中', 'Bot {count}개 작업 중', '{count} Bots trabajando', '{count} Bots au travail', '{count} Bots arbeiten'],
   ['Waiting for your review', '確認をお待ちしています', '검토를 기다리는 중', 'Pendiente de tu revisión', 'En attente de votre examen', 'Wartet auf deine Prüfung'],
   ['System prompt', 'システムプロンプト', '시스템 프롬프트', 'Prompt del sistema', 'Prompt système', 'Systemprompt'],
   ['Manage this Bot’s persona, voice and working strategy.', 'この Bot の人物像、話し方、作業方針を管理します。', '이 Bot의 페르소나, 말투, 작업 방식을 관리합니다.', 'Gestiona la personalidad, el tono y la estrategia de este Bot.', 'Gérez la personnalité, le ton et la méthode de travail de ce Bot.', 'Verwalte Persönlichkeit, Ausdruck und Arbeitsweise dieses Bots.'],
