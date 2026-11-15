@@ -256,8 +256,10 @@ test('browserDownloadGraceMs from the config reaches the browser session', async
         name: 'browser_probe',
         needsBrowser: true,
         async execute(args, { session }) {
+          // Lazy browser/runtime startup is not part of the click's download grace.
+          const started = Date.now()
           const click = await session.click('e1')
-          return { click, session }
+          return { click, session, elapsed: Date.now() - started }
         },
       }],
     },
@@ -274,10 +276,9 @@ test('browserDownloadGraceMs from the config reaches the browser session', async
     delete globalThis[key]
     rmSync(stub, { recursive: true, force: true })
   })
-  const started = Date.now()
   const tool = runtime.teamTools.find(entry => entry.name === 'browser_probe')
   const result = await tool.execute({}, browserExec())
-  const elapsed = Date.now() - started
+  const elapsed = result.elapsed
   assert.equal(typeof result.click, 'string')
   assert.doesNotMatch(result.click, /Download "report\.csv"/, 'the click did not wait for the late download')
   assert.ok(elapsed < 500, `a click with a 20 ms configured grace returned in ${elapsed} ms`)
