@@ -1,3 +1,4 @@
+import { WEB_PUSH_COPY } from './web-push-copy.js'
 // Interface copy follows the DSH language. Keys are the English text; `zh`, `zh-TW`,
 // `ja`, `ko`, `es`, `fr` and `de` map them. Copy is looked up at render time and every
 // slot outlet re-renders on a language switch, so nothing caches a translated string.
@@ -12,6 +13,7 @@ import { CUSTOM_UI } from './locales/custom-ui.js'
 export const NAMESPACE = 'ds-bot'
 
 const ZH = {
+  ...WEB_PUSH_COPY.zh,
   "This receipt records the request, not its outcome.": "此回执仅记录请求发起，实际结果以后续回报为准。",
   "Report received": "已收到回报",
   "Collaboration requested": "已请求协作",
@@ -1971,11 +1973,11 @@ export const LANGUAGES = [
 export const DICTIONARY = {
   zh: ZH,
   'zh-TW': ZH_TW,
-  ja: { ...CUSTOM_UI.ja, ...JA },
-  ko: { ...CUSTOM_UI.ko, ...KO },
-  es: { ...CUSTOM_UI.es, ...ES },
-  fr: { ...CUSTOM_UI.fr, ...FR },
-  de: { ...CUSTOM_UI.de, ...DE },
+  ja: { ...WEB_PUSH_COPY.ja, ...CUSTOM_UI.ja, ...JA },
+  ko: { ...WEB_PUSH_COPY.ko, ...CUSTOM_UI.ko, ...KO },
+  es: { ...WEB_PUSH_COPY.es, ...CUSTOM_UI.es, ...ES },
+  fr: { ...WEB_PUSH_COPY.fr, ...CUSTOM_UI.fr, ...FR },
+  de: { ...WEB_PUSH_COPY.de, ...CUSTOM_UI.de, ...DE },
 }
 
 const HOST_ERROR_TABLE = {

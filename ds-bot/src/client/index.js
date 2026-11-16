@@ -68,6 +68,7 @@ import { noticeApprovals } from './approval-notices.js'
 import { listedOpener } from './open-listed.js'
 import { MOBILE_STATUS_CSS } from './live-status.js'
 import { RECEIPT_CSS } from './scheduled-receipt.js'
+import { installPushEntry, WEB_PUSH_CSS, webPushEnabled } from './web-push.js'
 import { needsIdleSample, pollDelay } from './polling.js'
 import { installMotionRest } from './motion-rest.js'
 import { agentSessionToReuse, singleFlight } from './agent-new.js'
@@ -975,6 +976,7 @@ export function apply(ctx) {
     loadImage: (attachment) => ctx.uiConversation.imageUrl(sessionId, attachment),
   })
   ctx.effect(() => noticeApprovals({
+    pushEnabled: webPushEnabled,
     work,
     roster,
     shownSession: () => Object.values(ctx.sessions.list.getSnapshot().byId ?? {}).find(session => (session?.retainedBy?.mainView ?? 0) > 0)?.id,
@@ -1176,6 +1178,7 @@ export function apply(ctx) {
     [SIDEBAR_CSS, 'sidebar'],
     [MOBILE_STATUS_CSS, 'mobile-status'],
     [RECEIPT_CSS, 'scheduled-receipt'],
+    [WEB_PUSH_CSS, 'web-push'],
     [SECRET_CSS + CONNECTOR_CSS + CONNECTORS_PAGE_CSS, 'secrets'],
     [LEARNING_CSS, 'learning'],
     [MODEL_CSS + FOLDER_CSS + BOT_SETTINGS_CSS + BOT_MODELS_CSS + AGENT_CARDS_CSS + GROUP_SETTINGS_CSS + AVATAR_LIBRARY_CSS, 'models'],
@@ -1421,4 +1424,5 @@ export function apply(ctx) {
       groups.dispose()
     }
   }, 'ds-bot: surface')
+  ctx.effect(() => installPushEntry({ roster, actions }), 'ds-bot: Web Push entry')
 }

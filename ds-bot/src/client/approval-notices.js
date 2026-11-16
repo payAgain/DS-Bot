@@ -5,7 +5,7 @@ import { reviewHome } from './review-inbox-model.js'
 // A system notification for each approval that starts waiting while this window is in
 // the background or shows another conversation. Only where the platform already allows
 // notifications: DS Bot never asks for the permission.
-export function noticeApprovals({ work, roster, shownSession, openSession, since = Date.now() }) {
+export function noticeApprovals({ work, roster, shownSession, openSession, pushEnabled = () => false, since = Date.now() }) {
   if (typeof window !== 'undefined' && typeof window.dsBotApp?.notify === 'function') return () => {}
   const told = new Set()
   const notify = () => {
@@ -13,6 +13,7 @@ export function noticeApprovals({ work, roster, shownSession, openSession, since
     for (const id of told) {
       if (!approvals.some(entry => entry.id === id)) told.delete(id)
     }
+    if (pushEnabled()) return
     if (typeof Notification !== 'function' || Notification.permission !== 'granted') return
     for (const entry of approvals) {
       if (told.has(entry.id)) continue

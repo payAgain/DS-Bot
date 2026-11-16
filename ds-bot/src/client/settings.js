@@ -29,6 +29,7 @@ import { FolderMenu } from './folder-menu.js'
 import { ModelMenu } from './model-menu.js'
 import { isLocalRoute } from './agent-routes.js'
 import { t } from './i18n.js'
+import { WebPushSettings } from './web-push.js'
 
 const capitalize = word => word[0].toUpperCase() + word.slice(1)
 
@@ -171,6 +172,7 @@ function GeneralPage({ roster, actions, run, dsh }) {
       actions.surfaceMode?.() === 'agent'
         ? h(SetRow, { label: t('Bot mode') }, h('button', { type: 'button', className: 'bt-soft bt-soft-sm', onClick: () => actions.setSurface('bot') }, t('Switch')))
         : h(SetRow, { label: t('Classic Agent mode') }, h('button', { type: 'button', className: 'bt-soft bt-soft-sm', onClick: () => actions.setSurface('agent') }, t('Switch')))) : null,
+    h(SetSection, { key: 'phone-push', title: t('Phone notifications (trial)') }, h(WebPushSettings)),
     h(LocationsSection, { key: 'places', actions, run }),
     more.length > 0 ? h(SetSection, { key: 'more', title: t('More'), className: 'bt-dsh-items' }, more.map(id => dshItem(dsh, id))) : null,
   ]
