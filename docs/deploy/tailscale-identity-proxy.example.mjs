@@ -1,4 +1,5 @@
 import http from 'node:http'
+import { randomBytes } from 'node:crypto'
 import net from 'node:net'
 import { open, readFile } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
@@ -50,11 +51,32 @@ export function homeDestination(raw) {
   if (!['/', '/index.html'].includes(url.pathname) || url.hash) return null
   if (!url.search) return '/'
   const keys = [...url.searchParams.keys()]
-  if (keys.some(key => !['dsbot-pwa', 'dsbot-pwa-setup', 'dsbot-push'].includes(key)) || new Set(keys).size !== keys.length || url.searchParams.get('dsbot-pwa') !== '1') return null
+  if (keys.some(key => !['dsbot-pwa', 'dsbot-pwa-setup', 'dsbot-push', 'dsbot-sso'].includes(key)) || new Set(keys).size !== keys.length) return null
+  const pwa = url.searchParams.get('dsbot-pwa'), resume = url.searchParams.get('dsbot-sso')
   const setup = url.searchParams.get('dsbot-pwa-setup'), target = url.searchParams.get('dsbot-push')
-  if (setup !== null && setup !== '1') return null
+  if (resume !== null && resume !== '1') return null
+  if (pwa === null) return resume === '1' && setup === null && target === null ? '/' : null
+  if (pwa !== '1' || (setup !== null && setup !== '1')) return null
   if (target !== null && !/^[A-Za-z0-9_-]{1,160}$/.test(target)) return null
   return '/?dsbot-pwa=1' + (setup ? '&dsbot-pwa-setup=1' : '') + (target ? '&dsbot-push=' + encodeURIComponent(target) : '')
+}
+
+// A committed same-origin document ends an external navigation's redirect chain before
+// Safari sends the unchanged Strict session cookie. The marker is a retry bound only.
+function sessionPage(response, destination, cookies) {
+  const nonce = randomBytes(18).toString('base64')
+  const resume = destination + (destination.includes('?') ? '&' : '?') + 'dsbot-sso=1'
+  const ready = Boolean(cookies)
+  const retry = (ready ? resume : destination).replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+  const title = ready ? '正在建立安全会话' : '浏览器未能建立登录会话'
+  const message = ready ? '正在以同源页面完成登录，请稍候。' : '浏览器没有发送有效的登录 Cookie，自动恢复已停止。请在 Safari 中直接打开此网址后重试；无需清除所有浏览记录。若仍失败，请报告此提示。'
+  response.writeHead(ready ? 200 : 409, {
+    'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store',
+    'referrer-policy': 'no-referrer', 'x-content-type-options': 'nosniff',
+    'content-security-policy': `default-src 'none'; script-src 'nonce-${nonce}'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`,
+    ...(ready ? { 'set-cookie': cookies } : {}),
+  })
+  response.end(`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><body><h1>${title}</h1><p>${message}</p><p><a href="${retry}">${ready ? '继续打开 DS Bot' : '重新建立会话'}</a></p>${ready ? `<script nonce="${nonce}">window.addEventListener('load',function(){location.replace(${JSON.stringify(resume)})},{once:true})</script>` : ''}</body></html>`)
 }
 
 export function createSsoProxy(config, { loadLogin = () => readLoginUrl(config.launchLog, new URL(config.publicOrigin).origin) } = {}) {
@@ -107,6 +129,9 @@ export function createSsoProxy(config, { loadLogin = () => readLoginUrl(config.l
       result.on('error', () => response.destroy())
       if (firstPage && result.statusCode === 401) {
         result.resume()
+        const destination = homeDestination(request.url)
+        if (destination === null) return deny(response, 400, '登录入口参数无效，请从应用首页打开。')
+        if (url.searchParams.get('dsbot-sso') === '1') return sessionPage(response, destination)
         return exchangeLogin(request, response)
       }
       const headers = { ...result.headers }
@@ -133,9 +158,7 @@ export function createSsoProxy(config, { loadLogin = () => readLoginUrl(config.l
           if (!retried) return exchangeLogin(request, response, true)
           return deny(response, 503, 'DSH 登录入口尚未就绪，请稍后重试。')
         }
-        response.writeHead(303, { location: homeDestination(request.url) ?? '/', 'set-cookie': cookies,
-          'cache-control': 'no-store', 'referrer-policy': 'no-referrer' })
-        response.end()
+        sessionPage(response, homeDestination(request.url) ?? '/', cookies)
       })
       upstream.setTimeout(10000, () => upstream.destroy())
       upstream.on('error', () => { if (!response.headersSent) deny(response, 502, 'DSH 网关暂不可用。') })
