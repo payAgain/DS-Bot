@@ -1,7 +1,8 @@
 // Custom controls share the upstream language selector. Keep all substitutions intact.
 const rows = [
+  ["This receipt records the request, not its outcome.", "この記録は依頼の発行のみを示し、結果を示すものではありません。", "이 기록은 요청만 기록하며 결과를 뜻하지 않습니다.", "Este acuse registra la solicitud, no su resultado.", "Cet accusé enregistre la demande, pas son résultat.", "Diese Rückmeldung dokumentiert die Anfrage, nicht ihr Ergebnis."],
   ["Report received", "報告を受信", "보고 받음", "Informe recibido", "Rapport reçu", "Bericht erhalten"],
-  ["Collaboration requested · result pending", "協力を依頼済み・結果待ち", "협업 요청됨 · 결과 대기", "Colaboración solicitada · resultado pendiente", "Collaboration demandée · résultat en attente", "Zusammenarbeit angefragt · Ergebnis ausstehend"],
+  ["Collaboration requested", "協力を依頼済み", "협업 요청됨", "Colaboración solicitada", "Collaboration demandée", "Zusammenarbeit angefragt"],
   ["Scheduled result not confirmed", "定期タスクの結果は未確認", "예약 작업 결과 미확인", "Resultado programado sin confirmar", "Résultat planifié non confirmé", "Geplantes Ergebnis nicht bestätigt"],
   ["Response failed or stopped", "応答が失敗または停止", "응답 실패 또는 중지", "Respuesta fallida o detenida", "Réponse en échec ou arrêtée", "Antwort fehlgeschlagen oder gestoppt"],
   ["Task receipt", "タスクの受領記録", "작업 수신 기록", "Acuse de tarea", "Accusé de tâche", "Aufgabenrückmeldung"],

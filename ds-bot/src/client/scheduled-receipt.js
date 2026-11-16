@@ -49,7 +49,7 @@ export function scheduledReceipt({ origins, steps = [], turn, closing }) {
 
 const TITLES = {
   replied: 'Report received',
-  awaiting: 'Collaboration requested · result pending',
+  awaiting: 'Collaboration requested',
   unknown: 'Scheduled result not confirmed',
   failed: 'Response failed or stopped',
 }
@@ -64,7 +64,7 @@ export function ScheduledReceipt({ receipt }) {
     receipt.sources.length ? receipt.sources.map((source, index) => h('div', { key: index, className: 'bt-receipt-source' },
       h('div', { className: 'bt-receipt-meta' }, t('Source: {name}', { name: source.name || t('a Bot') }), source.time ? ` · ${clock(source.time)}` : ''),
       source.text && !isSilentReply(source.text) ? h('details', null, h('summary', null, source.text.slice(0, 180)), h('div', { className: 'bt-receipt-body' }, source.text)) : h('div', null, t('No readable conclusion was provided.')),
-    )) : h('div', null, t('Delivery is not completion. The result has not been confirmed.')),
+    )) : h('div', null, t(receipt.kind === 'awaiting' ? 'This receipt records the request, not its outcome.' : 'Delivery is not completion. The result has not been confirmed.')),
   )
 }
 

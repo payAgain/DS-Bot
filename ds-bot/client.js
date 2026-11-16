@@ -12279,8 +12279,9 @@ var DSH_DE = {
 
 // src/client/locales/custom-ui.js
 var rows = [
+  ["This receipt records the request, not its outcome.", "この記録は依頼の発行のみを示し、結果を示すものではありません。", "이 기록은 요청만 기록하며 결과를 뜻하지 않습니다.", "Este acuse registra la solicitud, no su resultado.", "Cet accusé enregistre la demande, pas son résultat.", "Diese Rückmeldung dokumentiert die Anfrage, nicht ihr Ergebnis."],
   ["Report received", "報告を受信", "보고 받음", "Informe recibido", "Rapport reçu", "Bericht erhalten"],
-  ["Collaboration requested · result pending", "協力を依頼済み・結果待ち", "협업 요청됨 · 결과 대기", "Colaboración solicitada · resultado pendiente", "Collaboration demandée · résultat en attente", "Zusammenarbeit angefragt · Ergebnis ausstehend"],
+  ["Collaboration requested", "協力を依頼済み", "협업 요청됨", "Colaboración solicitada", "Collaboration demandée", "Zusammenarbeit angefragt"],
   ["Scheduled result not confirmed", "定期タスクの結果は未確認", "예약 작업 결과 미확인", "Resultado programado sin confirmar", "Résultat planifié non confirmé", "Geplantes Ergebnis nicht bestätigt"],
   ["Response failed or stopped", "応答が失敗または停止", "응답 실패 또는 중지", "Respuesta fallida o detenida", "Réponse en échec ou arrêtée", "Antwort fehlgeschlagen oder gestoppt"],
   ["Task receipt", "タスクの受領記録", "작업 수신 기록", "Acuse de tarea", "Accusé de tâche", "Aufgabenrückmeldung"],
@@ -12416,8 +12417,9 @@ var CUSTOM_UI = Object.fromEntries(["ja", "ko", "es", "fr", "de"].map((language2
 // src/client/i18n.js
 var NAMESPACE = "ds-bot";
 var ZH = {
+  "This receipt records the request, not its outcome.": "此回执仅记录请求发起，实际结果以后续回报为准。",
   "Report received": "已收到回报",
-  "Collaboration requested · result pending": "已请求协作 · 等待结果",
+  "Collaboration requested": "已请求协作",
   "Scheduled result not confirmed": "定时任务结果待确认",
   "Response failed or stopped": "本次回复失败或已停止",
   "Task receipt": "任务回执",
@@ -28329,7 +28331,7 @@ function scheduledReceipt({ origins, steps = [], turn, closing }) {
 }
 var TITLES = {
   replied: "Report received",
-  awaiting: "Collaboration requested · result pending",
+  awaiting: "Collaboration requested",
   unknown: "Scheduled result not confirmed",
   failed: "Response failed or stopped"
 };
@@ -28348,7 +28350,7 @@ function ScheduledReceipt({ receipt }) {
       { key: index, className: "bt-receipt-source" },
       (0, import_react35.createElement)("div", { className: "bt-receipt-meta" }, t("Source: {name}", { name: source.name || t("a Bot") }), source.time ? ` · ${clock4(source.time)}` : ""),
       source.text && !isSilentReply(source.text) ? (0, import_react35.createElement)("details", null, (0, import_react35.createElement)("summary", null, source.text.slice(0, 180)), (0, import_react35.createElement)("div", { className: "bt-receipt-body" }, source.text)) : (0, import_react35.createElement)("div", null, t("No readable conclusion was provided."))
-    )) : (0, import_react35.createElement)("div", null, t("Delivery is not completion. The result has not been confirmed."))
+    )) : (0, import_react35.createElement)("div", null, t(receipt.kind === "awaiting" ? "This receipt records the request, not its outcome." : "Delivery is not completion. The result has not been confirmed."))
   );
 }
 var RECEIPT_CSS = `

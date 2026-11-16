@@ -12,8 +12,9 @@ import { CUSTOM_UI } from './locales/custom-ui.js'
 export const NAMESPACE = 'ds-bot'
 
 const ZH = {
+  "This receipt records the request, not its outcome.": "此回执仅记录请求发起，实际结果以后续回报为准。",
   "Report received": "已收到回报",
-  "Collaboration requested · result pending": "已请求协作 · 等待结果",
+  "Collaboration requested": "已请求协作",
   "Scheduled result not confirmed": "定时任务结果待确认",
   "Response failed or stopped": "本次回复失败或已停止",
   "Task receipt": "任务回执",
