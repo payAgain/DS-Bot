@@ -1,9 +1,10 @@
+import { fixedBottom } from './mobile-layout.js'
 import { createElement as h, Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChatsIcon, ClockIcon, GoalIcon, MicIcon, PaperclipIcon, PeopleIcon, PlusIcon, WaveIcon } from './icons.js'
 import { canSetGoal } from './goal.js'
 import { BotMark } from './mark.js'
-import { stepMenuFocus, useLinger, useViewport, viewBottom } from './motion.js'
+import { stepMenuFocus, useLinger, useViewport } from './motion.js'
 import { t } from './i18n.js'
 import { insertComposerNewline, sendsOnEnter } from './enter-key.js'
 import { enterSteers, steerable } from './enter-steer.js'
@@ -175,7 +176,7 @@ export function ComposerPlus({ sessionId, inputActions, useInput, useRoster, act
   const place = useMemo(() => {
     if (!shown || !button.current) return null
     const rect = button.current.getBoundingClientRect()
-    return { left: rect.left, bottom: viewBottom() - rect.top + 8 }
+    return { left: rect.left, bottom: fixedBottom(rect.top, 8) }
   }, [shown, open, tick])
   const target = roster.byId?.[sessionId]?.id ?? roster.roomsById?.[sessionId]?.id
   if (sessionId === undefined || target === undefined) return null

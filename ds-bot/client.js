@@ -16064,6 +16064,7 @@ function migrateStorage(storage = globalThis.localStorage) {
 }
 
 // src/client/frame-layout.js
+var PHONE_WIDTH = 700;
 var MIN_CHAT = 420;
 var RAIL_WIDTH = 88;
 var PANEL_MIN = { details: 320, browser: 360, side: 320 };
@@ -16080,6 +16081,7 @@ var nextCollapsedWidth = ({ measured, collapsed, animating = false, last }) => {
   return last;
 };
 function frameLayout({ viewport, sidebarWidth, pref, drawer = false, panel = null }) {
+  if (viewport <= PHONE_WIDTH) return { left: drawer ? "drawer" : "hidden", panel: panel === null ? "none" : panel.yielded ? "overlay" : "folded", column: 0, room: viewport };
   const fits = pref === "open" && viewport >= sidebarWidth + MIN_CHAT;
   let left = pref === "hidden" ? "hidden" : fits ? "open" : drawer && pref === "open" ? "drawer" : "rail";
   let occupied = left === "open" ? sidebarWidth : left === "hidden" ? 0 : RAIL_WIDTH;
@@ -17936,6 +17938,109 @@ function RoomAvatar({ room: room2, roster, size = 36 }) {
     })
   );
 }
+
+// src/client/mobile-layout.js
+function phoneViewport(env) {
+  if (env.innerWidth > 700) return null;
+  const vv = env.visualViewport;
+  if (vv && Math.abs((vv.scale ?? 1) - 1) > 0.05) return void 0;
+  const top = Math.max(0, vv?.offsetTop ?? 0);
+  const height = Math.max(1, Math.min(vv?.height ?? env.innerHeight, env.innerHeight - top));
+  return { top, height };
+}
+var fixedBottom = (top, gap = 0, env = window) => Math.max(0, env.innerHeight - top + gap);
+function installPhoneViewport(env = window, doc = document) {
+  const body = doc.body, style = body.style;
+  const meta = doc.querySelector?.('meta[name="viewport"]');
+  const originalMeta = meta?.content;
+  const fittedMeta = originalMeta && !/viewport-fit\s*=/.test(originalMeta) ? `${originalMeta}, viewport-fit=cover` : void 0;
+  let frame = 0;
+  const clear = () => {
+    delete body.dataset.btMobileViewport;
+    style.removeProperty("--bt-phone-height");
+    style.removeProperty("--bt-phone-top");
+    if (meta && fittedMeta && meta.content === fittedMeta) meta.content = originalMeta;
+  };
+  const measure = () => {
+    frame = 0;
+    const view = phoneViewport(env);
+    if (view === void 0) return;
+    if (view === null) {
+      clear();
+      return;
+    }
+    body.dataset.btMobileViewport = "";
+    if (meta && fittedMeta && meta.content === originalMeta) meta.content = fittedMeta;
+    style.setProperty("--bt-phone-height", `${Math.round(view.height)}px`);
+    style.setProperty("--bt-phone-top", `${Math.round(view.top)}px`);
+  };
+  const schedule = () => {
+    if (!frame) frame = env.requestAnimationFrame(measure);
+  };
+  const vv = env.visualViewport;
+  for (const target of [env, vv].filter(Boolean)) {
+    target.addEventListener("resize", schedule);
+    target.addEventListener("scroll", schedule);
+  }
+  measure();
+  return () => {
+    env.cancelAnimationFrame(frame);
+    for (const target of [env, vv].filter(Boolean)) {
+      target.removeEventListener("resize", schedule);
+      target.removeEventListener("scroll", schedule);
+    }
+    clear();
+  };
+}
+var PHONE_LAYOUT_CSS = `
+@media(max-width:700px){
+body[data-bt-mobile-viewport] [class*="_frame"]:has(.bt-head){height:var(--bt-phone-height,100dvh)!important;max-height:var(--bt-phone-height,100dvh);min-height:0!important;margin-top:var(--bt-phone-top,0px)!important}
+.bt-mobile-drawer-backdrop{position:fixed;inset:0;z-index:24;border:0;background:color-mix(in srgb,var(--bt-ink) 24%,transparent);touch-action:manipulation}
+.bt-leftcol[data-left=drawer]{max-width:calc(100vw - 48px);top:var(--bt-phone-top,0px);bottom:auto;height:var(--bt-phone-height,100dvh);padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.bt-leftcol-grip{display:none}
+html:not([data-windows-titlebar]) .bt-title-toggle{top:calc(var(--bt-phone-top,0px) + 12px + env(safe-area-inset-top,0px));left:max(10px,env(safe-area-inset-left,0px))}
+header[class*="_header"]:has(.bt-head)>[class*="_headerLeading"]{display:none!important}
+header[class*="_header"]:has(.bt-head){padding-top:calc(8px + env(safe-area-inset-top,0px))!important}
+.bt-head{padding-inline:60px;box-sizing:border-box}
+.bt-pill{max-width:100%;min-width:0}
+.bt-pill-go{width:16px;margin-left:0;opacity:1;filter:none;transform:none}
+.bt-settings-layer,.bt-mem-layer,.bt-palette-layer{top:var(--bt-phone-top,0px);bottom:auto;height:var(--bt-phone-height,100dvh);box-sizing:border-box}
+.bt-settings{--bt-set-w:100%;--bt-set-h:100%;width:100%;height:100%;max-height:100%;border-radius:0;border:0;flex-direction:column}
+.bt-settings-nav{padding-top:calc(8px + env(safe-area-inset-top,0px));min-height:60px}
+.bt-settings-main{flex:1;min-height:0;width:100%;height:auto}
+.bt-settings-head{flex-shrink:0}
+.bt-settings-scroll{min-height:0;overscroll-behavior:contain;scroll-padding-block:16px}
+.bt-settings-close{top:calc(8px + env(safe-area-inset-top,0px));right:8px;z-index:3}
+.bt-mem,.bt-palette{max-width:calc(100% - 16px);max-height:calc(100% - 16px);min-height:0}
+.bt-panel{top:var(--bt-phone-top,0px);bottom:auto;height:var(--bt-phone-height,100dvh);max-width:100vw}
+.bt-panel-grip{display:none}
+.bt-menu,.bt-model-menu{max-width:calc(100vw - 16px);max-height:calc(var(--bt-phone-height,100dvh) - 16px);overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box}
+[data-composer-card]{border-radius:18px!important;row-gap:4px!important}
+[class*="_root"]:has(>[data-composer-card]){padding:0 max(12px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))!important}
+[data-composer-card]>[data-input-scroll]{order:0!important;flex:1 0 100%!important;box-sizing:border-box;padding:2px 8px 4px!important;max-height:min(160px,30dvh);overflow-y:auto}
+[data-composer-card] [class*="_tools"]{order:1!important}
+[data-composer-card] [class*="_trailing"]{order:2!important;margin-left:auto!important}
+[data-composer-card] [data-composer-input]{font-size:16px!important;line-height:24px!important}
+[data-composer-placeholder]::before{font-size:16px!important}
+.bt-plus,.bt-mic,.bt-voice,[data-composer-card] button[class*="_primary"]{width:44px!important;height:44px!important;flex-shrink:0}
+.bt-round,.bt-icon-btn,.bt-title-toggle,.bt-settings-close,.bt-account{min-width:44px;min-height:44px}
+.bt-settings-item,.bt-menu button,.bt-menu [role=menuitem],.bt-model-pick,.bt-model-row{min-height:44px}
+.bt-settings :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),textarea,select),.bt-q :is(input,textarea),.dv-view :is(input,textarea),.bt-model-search input{font-size:16px}
+.bt-q-foot{flex-wrap:wrap}
+.bt-review-inbox{max-height:calc(var(--bt-phone-height,100dvh) * .38);display:flex;flex-direction:column}
+.bt-review-head{flex-shrink:0}
+.bt-review-list{min-height:0;max-height:calc(var(--bt-phone-height,100dvh) * .30)}
+.dv-view button,.dv-q button,.bt-review-inbox .bt-q-btn,.bt-review-inbox .bt-q-submit,[data-slot="conversation.input.attachments"] button{min-height:44px;min-width:44px}
+.bt-q,.dv-view,.dv-q{min-width:0;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
+.bt-q :is(input,textarea),.dv-view :is(input,textarea){min-width:0;max-width:100%;box-sizing:border-box}
+.bt-settings :is(.bt-set-control,.bt-seg){min-width:0;max-width:100%;flex-wrap:wrap}
+.bt-settings .bt-soft{white-space:normal;overflow-wrap:anywhere;min-height:44px}
+.bt-settings .bt-swatch{width:36px;height:36px}
+[data-chat-flow] :is(img,video){max-width:100%;height:auto}
+[data-chat-flow] :is([data-file-path],[data-attachment-id]){min-width:0;max-width:100%;overflow-wrap:anywhere}
+.bt-web-push-actions>.bt-soft{flex:1 1 140px;min-height:44px}
+}
+`;
 
 // src/client/dsh-primitives.js
 var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
@@ -23657,10 +23762,10 @@ function useAnchoredMenu() {
   (0, import_react20.useLayoutEffect)(() => {
     if (anchor === null || !button.current) return;
     const rect = button.current.getBoundingClientRect();
-    const width = Math.max(240, rect.width);
+    const width = Math.min(window.innerWidth - 16, Math.max(240, rect.width));
     const left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
     const below = viewBottom() - rect.bottom;
-    setPlace(below >= 260 || below >= rect.top ? { left, width, top: rect.bottom + 4, maxHeight: below - 16, "--bt-origin": "top right" } : { left, width, bottom: viewBottom() - rect.top + 4, maxHeight: rect.top - 16, "--bt-origin": "bottom right" });
+    setPlace(below >= 260 || below >= rect.top ? { left, width, top: rect.bottom + 4, maxHeight: below - 16, "--bt-origin": "top right" } : { left, width, bottom: fixedBottom(rect.top, 4), maxHeight: Math.max(44, rect.top - (window.visualViewport?.offsetTop ?? 0) - 16), "--bt-origin": "bottom right" });
   }, [anchor, tick]);
   return { isOpen: place !== null, shownPlace, leaving, button, menu, open, close };
 }
@@ -28547,7 +28652,7 @@ function MessageTools({ text, name, sessionId, react, actions, open: tapped }) {
     if (!panel) return null;
     const rect = panel.node.getBoundingClientRect();
     const below = rect.bottom + 220 < viewBottom();
-    return panel.kind === "react" ? { left: Math.min(Math.max(rect.left + rect.width / 2, STRIP_HALF), window.innerWidth - STRIP_HALF), top: rect.top - 6, "--bt-origin": "bottom center" } : { left: Math.min(rect.left, window.innerWidth - 208), ...below ? { top: rect.bottom + 4 } : { bottom: viewBottom() - rect.top + 4, "--bt-origin": "bottom left" } };
+    return panel.kind === "react" ? { left: Math.min(Math.max(rect.left + rect.width / 2, STRIP_HALF), window.innerWidth - STRIP_HALF), top: rect.top - 6, "--bt-origin": "bottom center" } : { left: Math.min(rect.left, window.innerWidth - 208), ...below ? { top: rect.bottom + 4 } : { bottom: fixedBottom(rect.top, 4), "--bt-origin": "bottom left" } };
   }, [panel, tick]);
   const copy2 = () => {
     void navigator.clipboard?.writeText(text).then(() => {
@@ -30669,7 +30774,7 @@ function TeamSidebar(props) {
   };
   const openWidth = drag?.width ?? frameSnap.sidebarWidth;
   const ourWidth = shown === "rail" ? RAIL_WIDTH : openWidth;
-  const pushed = mode === "open" ? openWidth : mode === "hidden" ? 0 : RAIL_WIDTH;
+  const pushed = frameSnap.viewport <= 700 ? 0 : mode === "open" ? openWidth : mode === "hidden" ? 0 : RAIL_WIDTH;
   (0, import_react39.useLayoutEffect)(() => {
     if (typeof document === "undefined") return;
     chatRoom.setLeft(Math.max(0, pushed - (frameSnap.collapsedWidth ?? 0)));
@@ -30936,6 +31041,10 @@ function TeamSidebar(props) {
   return (0, import_react39.createElement)(
     import_react39.Fragment,
     null,
+    mode === "drawer" && frameSnap.viewport <= 700 && typeof document !== "undefined" ? (0, import_react_dom5.createPortal)((0, import_react39.createElement)("button", { type: "button", className: "bt-mobile-drawer-backdrop", "aria-label": t("Collapse sidebar"), onPointerDown: (event) => {
+      event.preventDefault();
+      actions.setLeftDrawer?.(false);
+    }, onClick: () => actions.setLeftDrawer?.(false) }), document.body) : null,
     (0, import_react39.createElement)(TitleToggle, { hidden: mode === "hidden", onToggle }),
     shown === "hidden" ? null : (0, import_react39.createElement)(LeftColumn, { mode: shown, width: ourWidth, onGrip: startDrag, leaving }, content)
   );
@@ -31147,7 +31256,7 @@ function AccountLauncher({ seat = true, settingsOpen, actions }) {
   const tick = useViewport();
   const anchor = () => {
     const rect = button.current?.getBoundingClientRect();
-    if (rect) setBox({ left: rect.left, bottom: viewBottom() - rect.top + 5 });
+    if (rect) setBox({ left: rect.left, bottom: fixedBottom(rect.top, 5) });
   };
   (0, import_react39.useLayoutEffect)(() => {
     if (open) anchor();
@@ -39280,7 +39389,7 @@ function useTranscriptView() {
         divider,
         center: Math.round(box.left + box.width / 2),
         top: Math.round(headerBottom + 8),
-        bottom: Math.round(viewBottom() - box.bottom + composer + 8)
+        bottom: Math.round(fixedBottom(box.bottom, composer + 8))
       };
       setView((prev) => prev && Object.keys(next).every((key) => prev[key] === next[key]) ? prev : next);
     };
@@ -39580,7 +39689,7 @@ function ComposerPlus({ sessionId, inputActions, useInput, useRoster, actions })
   const place = (0, import_react60.useMemo)(() => {
     if (!shown || !button.current) return null;
     const rect = button.current.getBoundingClientRect();
-    return { left: rect.left, bottom: viewBottom() - rect.top + 8 };
+    return { left: rect.left, bottom: fixedBottom(rect.top, 8) };
   }, [shown, open, tick]);
   const target = roster.byId?.[sessionId]?.id ?? roster.roomsById?.[sessionId]?.id;
   if (sessionId === void 0 || target === void 0) return null;
@@ -41983,7 +42092,7 @@ function ContextMenu({ menu, roster, actions, useWork, leaving = false }) {
   (0, import_react70.useLayoutEffect)(() => {
     const box = ref.current?.getBoundingClientRect();
     if (!box) return;
-    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max(8, Math.min(menu.y, viewBottom() - box.height - 8)) });
+    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max((window.visualViewport?.offsetTop ?? 0) + 8, Math.min(menu.y, viewBottom() - box.height - 8)) });
   }, [menu.x, menu.y, tick]);
   if (menu.kind === "agent" || menu.kind === "agent-session") return (0, import_react70.createElement)(AgentMenu, { menu, roster, actions, leaving });
   if (menu.kind === "section" || menu.kind === "section-add") return (0, import_react70.createElement)(SectionMenu, { menu, roster, actions, leaving });
@@ -42057,7 +42166,7 @@ function SectionMenu({ menu, roster, actions, leaving }) {
   (0, import_react70.useLayoutEffect)(() => {
     const box = ref.current?.getBoundingClientRect();
     if (!box) return;
-    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max(8, Math.min(menu.y, viewBottom() - box.height - 8)) });
+    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max((window.visualViewport?.offsetTop ?? 0) + 8, Math.min(menu.y, viewBottom() - box.height - 8)) });
   }, [menu.x, menu.y, tick]);
   const sections = roster.sections ?? [];
   const index = sections.findIndex((sec2) => sec2.id === menu.id);
@@ -42211,7 +42320,7 @@ function AgentMenu({ menu, roster, actions, leaving }) {
   (0, import_react70.useLayoutEffect)(() => {
     const box = ref.current?.getBoundingClientRect();
     if (!box) return;
-    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max(8, Math.min(menu.y, viewBottom() - box.height - 8)) });
+    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max((window.visualViewport?.offsetTop ?? 0) + 8, Math.min(menu.y, viewBottom() - box.height - 8)) });
   }, [menu.x, menu.y, tick]);
   const agent = roster.agentsById[menu.kind === "agent" ? menu.id : menu.agentId];
   if (agent === void 0) return null;
@@ -47067,6 +47176,10 @@ function apply(ctx) {
       sidebarPref.set(next);
     },
     toggleLeftHidden: () => {
+      if (frame.getSnapshot().viewport <= PHONE_WIDTH) {
+        ui2.set((state) => ({ ...state, leftDrawer: !state.leftDrawer, panelYield: false }));
+        return;
+      }
       ui2.set((state) => state.leftDrawer || state.panelYield ? { ...state, leftDrawer: false, panelYield: false } : state);
       actions.setSidebarPref(toggledPref(sidebarPref.getSnapshot(), sidebarSaved.shown));
     },
@@ -47740,6 +47853,8 @@ function apply(ctx) {
     };
   }, "ds-bot: surface");
   ctx.effect(() => installPushEntry({ roster, actions }), "ds-bot: Web Push entry");
+  ctx.effect(() => installCompiledStyles(PHONE_LAYOUT_CSS, "phone-layout"), "ds-bot: phone layout");
+  ctx.effect(() => installPhoneViewport(), "ds-bot: phone viewport");
 }
 return Object.defineProperty({ ...module.exports }, Symbol.toStringTag, { value: 'Module' })
   },

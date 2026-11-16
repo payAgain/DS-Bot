@@ -45,7 +45,7 @@ export function ContextMenu({ menu, roster, actions, useWork, leaving = false })
   useLayoutEffect(() => {
     const box = ref.current?.getBoundingClientRect()
     if (!box) return
-    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max(8, Math.min(menu.y, viewBottom() - box.height - 8)) })
+    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max((window.visualViewport?.offsetTop ?? 0) + 8, Math.min(menu.y, viewBottom() - box.height - 8)) })
   }, [menu.x, menu.y, tick])
   if (menu.kind === 'agent' || menu.kind === 'agent-session') return h(AgentMenu, { menu, roster, actions, leaving })
   if (menu.kind === 'section' || menu.kind === 'section-add') return h(SectionMenu, { menu, roster, actions, leaving })
@@ -104,7 +104,7 @@ function SectionMenu({ menu, roster, actions, leaving }) {
   useLayoutEffect(() => {
     const box = ref.current?.getBoundingClientRect()
     if (!box) return
-    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max(8, Math.min(menu.y, viewBottom() - box.height - 8)) })
+    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max((window.visualViewport?.offsetTop ?? 0) + 8, Math.min(menu.y, viewBottom() - box.height - 8)) })
   }, [menu.x, menu.y, tick])
   const sections = roster.sections ?? []
   const index = sections.findIndex(sec => sec.id === menu.id)
@@ -196,7 +196,7 @@ function AgentMenu({ menu, roster, actions, leaving }) {
   useLayoutEffect(() => {
     const box = ref.current?.getBoundingClientRect()
     if (!box) return
-    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max(8, Math.min(menu.y, viewBottom() - box.height - 8)) })
+    setPlace({ left: Math.max(8, Math.min(menu.x, window.innerWidth - box.width - 8)), top: Math.max((window.visualViewport?.offsetTop ?? 0) + 8, Math.min(menu.y, viewBottom() - box.height - 8)) })
   }, [menu.x, menu.y, tick])
   const agent = roster.agentsById[menu.kind === 'agent' ? menu.id : menu.agentId]
   if (agent === undefined) return null

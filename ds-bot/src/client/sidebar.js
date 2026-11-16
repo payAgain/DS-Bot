@@ -1,3 +1,4 @@
+import { fixedBottom } from './mobile-layout.js'
 import { createElement as h, Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { FishLogo } from './dsh-primitives.js'
@@ -11,7 +12,7 @@ import { AgentBadge } from './agent-badge.js'
 import { reducedMotion } from './activity-row.js'
 import { Shimmer } from './cells.js'
 import { useConversationStatus } from './live-status.js'
-import { SPRING_GLIDE, SPRING_POP, SPRING_SHAPE, SPRING_TAP, stepMenuFocus, useLinger, useViewport, viewBottom } from './motion.js'
+import { SPRING_GLIDE, SPRING_POP, SPRING_SHAPE, SPRING_TAP, stepMenuFocus, useLinger, useViewport } from './motion.js'
 import { hostText, t } from './i18n.js'
 import { clientErrors } from './diagnostics.js'
 import { showsDshRow } from './dsh-offer.js'
@@ -544,7 +545,7 @@ export function TeamSidebar(props) {
   // as the rail and the chat stays put when it opens or closes.
   const openWidth = drag?.width ?? frameSnap.sidebarWidth
   const ourWidth = shown === 'rail' ? RAIL_WIDTH : openWidth
-  const pushed = mode === 'open' ? openWidth : mode === 'hidden' ? 0 : RAIL_WIDTH
+  const pushed = frameSnap.viewport <= 700 ? 0 : mode === 'open' ? openWidth : mode === 'hidden' ? 0 : RAIL_WIDTH
   useLayoutEffect(() => {
     if (typeof document === 'undefined') return
     chatRoom.setLeft(Math.max(0, pushed - (frameSnap.collapsedWidth ?? 0)))
@@ -810,6 +811,7 @@ export function TeamSidebar(props) {
       }))),
     foot)
   return h(Fragment, null,
+    mode === 'drawer' && frameSnap.viewport <= 700 && typeof document !== 'undefined' ? createPortal(h('button', { type: 'button', className: 'bt-mobile-drawer-backdrop', 'aria-label': t('Collapse sidebar'), onPointerDown: event => { event.preventDefault(); actions.setLeftDrawer?.(false) }, onClick: () => actions.setLeftDrawer?.(false) }), document.body) : null,
     h(TitleToggle, { hidden: mode === 'hidden', onToggle }),
     shown === 'hidden' ? null : h(LeftColumn, { mode: shown, width: ourWidth, onGrip: startDrag, leaving }, content))
 }
@@ -1001,7 +1003,7 @@ export function AccountLauncher({ seat = true, settingsOpen, actions }) {
   const tick = useViewport()
   const anchor = () => {
     const rect = button.current?.getBoundingClientRect()
-    if (rect) setBox({ left: rect.left, bottom: viewBottom() - rect.top + 5 })
+    if (rect) setBox({ left: rect.left, bottom: fixedBottom(rect.top, 5) })
   }
   useLayoutEffect(() => { if (open) anchor() }, [open, tick])
   const toggle = () => { if (!open) anchor(); setOpen(value => !value) }

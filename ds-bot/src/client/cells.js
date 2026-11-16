@@ -1,3 +1,4 @@
+import { fixedBottom } from './mobile-layout.js'
 import { createElement as h, Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { MarkdownText, writeClipboard } from './dsh-primitives.js'
@@ -167,7 +168,7 @@ function MessageTools({ text, name, sessionId, react, actions, open: tapped }) {
       // The strip hangs off its center anchor: clamp the center so the strip
       // itself stays inside the viewport.
       ? { left: Math.min(Math.max(rect.left + rect.width / 2, STRIP_HALF), window.innerWidth - STRIP_HALF), top: rect.top - 6, '--bt-origin': 'bottom center' }
-      : { left: Math.min(rect.left, window.innerWidth - 208), ...(below ? { top: rect.bottom + 4 } : { bottom: viewBottom() - rect.top + 4, '--bt-origin': 'bottom left' }) }
+      : { left: Math.min(rect.left, window.innerWidth - 208), ...(below ? { top: rect.bottom + 4 } : { bottom: fixedBottom(rect.top, 4), '--bt-origin': 'bottom left' }) }
   }, [panel, tick])
   const copy = () => {
     void navigator.clipboard?.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1000) })

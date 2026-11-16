@@ -10,7 +10,7 @@ import { SHELL_CSS, CONVERSATION_CSS, botOwnCss, installStyles, installCompiledS
 import { lookOf } from './mark.js'
 import { TeamSidebar, YouAvatar, AccountLauncher, FooterAccount, BrandMark, BrandName, BotReturn, SIDEBAR_CSS, RETURN_CSS, holdShellShortcuts } from './sidebar.js'
 import { installSettingsShell, SETTINGS_SHELL_CSS } from './settings-shell.js'
-import { frameLayout, readSidebar, writeSidebar, toggledPref, DSH_NARROW } from './frame-layout.js'
+import { frameLayout, readSidebar, writeSidebar, toggledPref, DSH_NARROW, PHONE_WIDTH } from './frame-layout.js'
 import { installFrameWatch } from './frame-watch.js'
 import { HeaderPill } from './header.js'
 import { ComposerPlus, ComposerVoice, menuIcons } from './composer.js'
@@ -67,6 +67,7 @@ import { OPENING_CSS, bindOpeningWait } from './opening.js'
 import { noticeApprovals } from './approval-notices.js'
 import { listedOpener } from './open-listed.js'
 import { MOBILE_STATUS_CSS } from './live-status.js'
+import { PHONE_LAYOUT_CSS, installPhoneViewport } from './mobile-layout.js'
 import { RECEIPT_CSS } from './scheduled-receipt.js'
 import { installPushEntry, WEB_PUSH_CSS, webPushEnabled } from './web-push.js'
 import { needsIdleSample, pollDelay } from './polling.js'
@@ -693,6 +694,10 @@ export function apply(ctx) {
       sidebarPref.set(next)
     },
     toggleLeftHidden: () => {
+      if (frame.getSnapshot().viewport <= PHONE_WIDTH) {
+        ui.set(state => ({ ...state, leftDrawer: !state.leftDrawer, panelYield: false }))
+        return
+      }
       ui.set(state => (state.leftDrawer || state.panelYield ? { ...state, leftDrawer: false, panelYield: false } : state))
       actions.setSidebarPref(toggledPref(sidebarPref.getSnapshot(), sidebarSaved.shown))
     },
@@ -1425,4 +1430,6 @@ export function apply(ctx) {
     }
   }, 'ds-bot: surface')
   ctx.effect(() => installPushEntry({ roster, actions }), 'ds-bot: Web Push entry')
+  ctx.effect(() => installCompiledStyles(PHONE_LAYOUT_CSS, 'phone-layout'), 'ds-bot: phone layout')
+  ctx.effect(() => installPhoneViewport(), 'ds-bot: phone viewport')
 }

@@ -1,3 +1,4 @@
+import { fixedBottom } from './mobile-layout.js'
 import { createElement as h, Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { currentPart, latestMemoryChange } from './text.js'
@@ -7,7 +8,6 @@ import { AgentBadge } from './agent-badge.js'
 import { ActivityIndicator } from './activity-row.js'
 import { clockLabel, openingTurn, unseenSince } from './cells.js'
 import { GoalIsland, goalView } from './goal.js'
-import { viewBottom } from './motion.js'
 import { t } from './i18n.js'
 import { useConversationStatus } from './live-status.js'
 
@@ -187,7 +187,7 @@ function useTranscriptView() {
         divider,
         center: Math.round(box.left + box.width / 2),
         top: Math.round(headerBottom + 8),
-        bottom: Math.round(viewBottom() - box.bottom + composer + 8),
+        bottom: Math.round(fixedBottom(box.bottom, composer + 8)),
       }
       setView(prev => (prev && Object.keys(next).every(key => prev[key] === next[key]) ? prev : next))
     }

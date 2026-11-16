@@ -6,6 +6,7 @@
 // frame-watch.js.
 import { STORAGE } from './storage.js'
 
+export const PHONE_WIDTH = 700
 export const MIN_CHAT = 420
 export const RAIL_WIDTH = 88
 export const PANEL_MIN = { details: 320, browser: 360, side: 320 }
@@ -50,6 +51,8 @@ export const nextCollapsedWidth = ({ measured, collapsed, animating = false, las
  *   viewport minus `column`.
  */
 export function frameLayout({ viewport, sidebarWidth, pref, drawer = false, panel = null }) {
+  // Phone navigation floats without rewriting the saved desktop preference.
+  if (viewport <= PHONE_WIDTH) return { left: drawer ? 'drawer' : 'hidden', panel: panel === null ? 'none' : panel.yielded ? 'overlay' : 'folded', column: 0, room: viewport }
   const fits = pref === 'open' && viewport >= sidebarWidth + MIN_CHAT
   let left = pref === 'hidden' ? 'hidden' : fits ? 'open' : drawer && pref === 'open' ? 'drawer' : 'rail'
   let occupied = left === 'open' ? sidebarWidth : left === 'hidden' ? 0 : RAIL_WIDTH

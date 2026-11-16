@@ -1,3 +1,4 @@
+import { fixedBottom } from './mobile-layout.js'
 import { createElement as h, Fragment, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { currentPart } from './text.js'
@@ -360,12 +361,12 @@ export function useAnchoredMenu() {
   useLayoutEffect(() => {
     if (anchor === null || !button.current) return
     const rect = button.current.getBoundingClientRect()
-    const width = Math.max(240, rect.width)
+    const width = Math.min(window.innerWidth - 16, Math.max(240, rect.width))
     const left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8))
     const below = viewBottom() - rect.bottom
     setPlace(below >= 260 || below >= rect.top
       ? { left, width, top: rect.bottom + 4, maxHeight: below - 16, '--bt-origin': 'top right' }
-      : { left, width, bottom: viewBottom() - rect.top + 4, maxHeight: rect.top - 16, '--bt-origin': 'bottom right' })
+      : { left, width, bottom: fixedBottom(rect.top, 4), maxHeight: Math.max(44, rect.top - (window.visualViewport?.offsetTop ?? 0) - 16), '--bt-origin': 'bottom right' })
   }, [anchor, tick])
   return { isOpen: place !== null, shownPlace, leaving, button, menu, open, close }
 }

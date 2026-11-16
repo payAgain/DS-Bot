@@ -104,19 +104,24 @@ for (const width of [390, 1023, 1024, 1280]) {
   for (const wide of [false, true]) {
     test(`sidebar navigation at ${width}px with ${wide ? 'expanded content' : 'our own column'} just navigates`, () => {
       viewport.innerWidth = width
-      const initial = navigationSidebar(wide)
+      const initial = navigationSidebar(wide, { leftDrawer: width <= 700 })
       assert.equal(initial.rows.length, 3)
       for (const [index, row] of initial.rows.entries()) {
         const names = row.type.name === 'AgentRow' ? ['openAgent', 'openAgentSession', 'newAgentSession'] : ['openSession']
         for (const name of names) {
-          const { rows, calls } = navigationSidebar(wide)
+          const { rows, calls } = navigationSidebar(wide, { leftDrawer: width <= 700 })
           assert.equal(rows[index].props.actions[name]('selected'), 'selected')
-          assert.deepEqual(calls, [[name, 'selected']])
+          assert.deepEqual(calls, width <= 700 ? [[name, 'selected'], ['setLeftDrawer', false]] : [[name, 'selected']])
         }
       }
     })
   }
 }
+
+test('a closed phone drawer renders no navigation rows over the chat', () => {
+  viewport.innerWidth = 390
+  assert.equal(navigationSidebar(false).rows.length, 0)
+})
 
 test('a row picked from the floating drawer closes it', () => {
   viewport.innerWidth = 390
@@ -126,7 +131,7 @@ test('a row picked from the floating drawer closes it', () => {
 })
 
 test('a row picked outside the drawer leaves it alone', () => {
-  viewport.innerWidth = 390
+  viewport.innerWidth = 1024
   const side = navigationSidebar(false)
   side.rows[0].props.actions.openSession('picked')
   assert.deepEqual(side.calls, [['openSession', 'picked']])

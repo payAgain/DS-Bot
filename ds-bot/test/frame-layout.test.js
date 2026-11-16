@@ -44,11 +44,12 @@ test('without a panel the column stays open while the chat fits, then folds to t
   // 280 + 420 = 700 <= 800, > 690.
   assert.equal(at(800, 280).left, 'open')
   assert.equal(at(800, 280).room, 800 - 280)
-  assert.equal(at(690, 280).left, 'rail')
-  assert.equal(at(690, 280).room, 690 - RAIL_WIDTH)
+  assert.equal(at(720, 320).left, 'rail')
+  assert.equal(at(690, 280).left, 'hidden')
+  assert.equal(at(690, 280).room, 690)
   assert.equal(at(690, 280, { drawer: true }).left, 'drawer')
   // A drawer floats over the rail's place: the chat keeps the room it had beside the rail.
-  assert.equal(at(690, 280, { drawer: true }).room, 690 - RAIL_WIDTH)
+  assert.equal(at(690, 280, { drawer: true }).room, 690)
 })
 
 test('a rail preference keeps the rail beside a shown panel', () => {
@@ -66,7 +67,7 @@ test('a sidebar widened in Agent mode still folds the panel first', () => {
 test('a folded panel in a drawer window keeps the drawer until the panel yields it', () => {
   const layout = at(690, 280, { drawer: true, panel: details() })
   assert.deepEqual({ left: layout.left, panel: layout.panel }, { left: 'drawer', panel: 'folded' })
-  assert.equal(at(690, 280, { drawer: true, panel: details(true) }).left, 'rail')
+  assert.deepEqual(at(690, 280, { drawer: true, panel: details(true) }), { left: 'drawer', panel: 'overlay', column: 0, room: 690 })
 })
 
 test('an unknown panel view folds by the details minimum', () => {
@@ -198,8 +199,9 @@ test('openers keep a yield already given', () => {
 // form the column has; the shell's own sidebar plays no part.
 test('the left column reports the edge the full-height panes start at', () => {
   assert.equal(at(809, 280).column, 280)
-  assert.equal(at(600, 280, { pref: 'rail' }).column, RAIL_WIDTH)
-  assert.equal(at(600, 280, { drawer: true }).column, RAIL_WIDTH)
+  assert.equal(at(720, 280, { pref: 'rail' }).column, RAIL_WIDTH)
+  assert.equal(at(600, 280, { pref: 'rail' }).column, 0)
+  assert.equal(at(600, 280, { drawer: true }).column, 0)
   assert.equal(at(1400, 280, { pref: 'hidden' }).column, 0)
   assert.equal(at(1400, 340).room, 1400 - at(1400, 340).column)
 })
