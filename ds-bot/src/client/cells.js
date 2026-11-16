@@ -27,6 +27,7 @@ import { partIndexOf, withBtwRows } from './btw-model.js'
 import { ViaTag } from './user-message.js'
 import { layoutOf, thinkingShown } from './themes.js'
 import { consumeReplyClick, useReplyHold } from './long-press-reply.js'
+import { isSilentReply, receiptOrigins, scheduledReceipt, ScheduledReceipt } from './scheduled-receipt.js'
 
 export { clockLabel }
 
@@ -263,17 +264,19 @@ function useFileMentions({ node, openFile, fileMentions, useTurnData }) {
   }, [fileMentions, openFile, seq, tail, turn])
 }
 
-export function AssistantCell({ node, groupPart, sessionId, openFile, fileMentions, useTurnData, useRoster, useUi, useTurnSteps, useTurnContext, actions }) {
+export function AssistantCell({ node, groupPart, sessionId, openFile, fileMentions, useTurnData, useRoster, useUi, useTurnSteps, useTurnContext, useTurnTrigger, actions }) {
   const roster = useRoster(value => value)
   const data = node.data
   const steps = useTurnSteps(String(data.turn))
   const contexts = useTurnContext(String(data.turn))
+  const triggers = useTurnTrigger?.(String(data.turn)) ?? []
+  const receiptTurn = receiptOrigins([...triggers, ...contexts]).length > 0
   const mentions = useFileMentions({ node, openFile, fileMentions, useTurnData })
   const hidden = Boolean(roster.roomsById[sessionId]) || isHiddenTurn(roster, sessionId, data.turn)
   const texts = groupPart === 'reasoning' ? [] : data.blocks
     .filter(block => block.kind === 'text')
     .map(block => stripToolCallTags(block.text))
-    .filter(text => text.trim() !== '')
+    .filter(text => text.trim() !== '' && (data.status === 'running' || !receiptTurn || !isSilentReply(text)))
   const running = data.status === 'running'
   const textInteractionSource = data.status === 'settled' && data.finalNode?.messageId !== undefined
   const members = steps.length ? steps : [data]
@@ -836,7 +839,7 @@ export const unseenSince = (visit, time) => typeof visit?.seen === 'number' && t
 // An entry in DSH's own turn tail, after what other plugins put there (the cards of
 // the files a turn delivered). The tail sits right before the next turn's first row,
 // so the separator for a pause between turns renders here.
-export function TurnTailCell({ turn: location, sessionId, useTurnClock, useUi, actions }) {
+export function TurnTailCell({ turn: location, sessionId, useTurnClock, useUi, useRoster, useTurnSteps, useTurnContext, useTurnTrigger, actions }) {
   const turn = location.turn
   // DSH builds the tail from the turn's end, so it is there.
   const time = location.end.time
@@ -853,8 +856,15 @@ export function TurnTailCell({ turn: location, sessionId, useTurnClock, useUi, a
     const start = nextTurnStart(state[sessionId] ?? {}, turn)
     return start !== undefined && start > visit.seen && start <= visit.entered
   })
-  if (!label && !fresh) return null
+  const roster = useRoster?.(value => value)
+  const steps = useTurnSteps?.(String(turn)) ?? []
+  const contexts = useTurnContext?.(String(turn)) ?? []
+  const triggers = useTurnTrigger?.(String(turn)) ?? []
+  const hidden = roster?.roomsById?.[sessionId] || (roster?.exchangeTurns?.[sessionId] ?? []).includes(turn)
+  const receipt = hidden ? null : scheduledReceipt({ origins: [...triggers, ...contexts], steps, turn: location, closing: location.data?.get?.('turn-tail')?.closing })
+  if (!label && !fresh && !receipt) return null
   return h(Fragment, null,
+    receipt ? h(ScheduledReceipt, { receipt }) : null,
     label ? h('div', { className: 'bt-time-sep', role: 'separator' }, label) : null,
     fresh ? h(NewDivider) : null)
 }

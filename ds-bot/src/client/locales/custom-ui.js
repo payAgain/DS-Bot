@@ -1,5 +1,14 @@
 // Custom controls share the upstream language selector. Keep all substitutions intact.
 const rows = [
+  ["Report received", "報告を受信", "보고 받음", "Informe recibido", "Rapport reçu", "Bericht erhalten"],
+  ["Collaboration requested · result pending", "協力を依頼済み・結果待ち", "협업 요청됨 · 결과 대기", "Colaboración solicitada · resultado pendiente", "Collaboration demandée · résultat en attente", "Zusammenarbeit angefragt · Ergebnis ausstehend"],
+  ["Scheduled result not confirmed", "定期タスクの結果は未確認", "예약 작업 결과 미확인", "Resultado programado sin confirmar", "Résultat planifié non confirmé", "Geplantes Ergebnis nicht bestätigt"],
+  ["Response failed or stopped", "応答が失敗または停止", "응답 실패 또는 중지", "Respuesta fallida o detenida", "Réponse en échec ou arrêtée", "Antwort fehlgeschlagen oder gestoppt"],
+  ["Task receipt", "タスクの受領記録", "작업 수신 기록", "Acuse de tarea", "Accusé de tâche", "Aufgabenrückmeldung"],
+  ["Scheduled occurrence: {time}", "予定時刻：{time}", "예약 시각: {time}", "Ejecución programada: {time}", "Exécution planifiée : {time}", "Geplanter Termin: {time}"],
+  ["Source: {name}", "送信元：{name}", "출처: {name}", "Origen: {name}", "Source : {name}", "Quelle: {name}"],
+  ["No readable conclusion was provided.", "読み取れる結論は提供されませんでした。", "읽을 수 있는 결론이 제공되지 않았습니다.", "No se proporcionó una conclusión legible.", "Aucune conclusion lisible n’a été fournie.", "Es wurde kein lesbares Ergebnis mitgeteilt."],
+  ["Delivery is not completion. The result has not been confirmed.", "配信は完了を意味しません。結果はまだ確認されていません。", "전달은 완료를 뜻하지 않습니다. 결과가 아직 확인되지 않았습니다.", "La entrega no significa finalización. El resultado no se ha confirmado.", "La livraison ne signifie pas la fin du travail. Le résultat n’est pas confirmé.", "Zustellung bedeutet nicht Erledigung. Das Ergebnis wurde noch nicht bestätigt."],
   ['Product default', '製品の既定値', '제품 기본값', 'Valor predeterminado del producto', 'Valeur par défaut du produit', 'Produktstandard'],
   ['Default + additional instructions', '既定値＋追加の指示', '기본값 + 추가 지침', 'Predeterminado + instrucciones adicionales', 'Défaut + instructions supplémentaires', 'Standard + zusätzliche Anweisungen'],
   ['Team approvals and confirmations', 'チームの承認と確認', '팀 승인 및 확인', 'Aprobaciones y confirmaciones del equipo', 'Approbations et confirmations de l’équipe', 'Team-Genehmigungen und Bestätigungen'],

@@ -12,6 +12,15 @@ import { CUSTOM_UI } from './locales/custom-ui.js'
 export const NAMESPACE = 'ds-bot'
 
 const ZH = {
+  "Report received": "已收到回报",
+  "Collaboration requested · result pending": "已请求协作 · 等待结果",
+  "Scheduled result not confirmed": "定时任务结果待确认",
+  "Response failed or stopped": "本次回复失败或已停止",
+  "Task receipt": "任务回执",
+  "Scheduled occurrence: {time}": "计划执行时间：{time}",
+  "Source: {name}": "来源：{name}",
+  "No readable conclusion was provided.": "本次没有提供可读结论。",
+  "Delivery is not completion. The result has not been confirmed.": "已投递不代表已完成，本次结果尚未确认。",
   'Needs attention': '需要处理',
   '{count} Bots working': '{count} 个 Bot 在工作',
   'Waiting for your review': '等待你处理',

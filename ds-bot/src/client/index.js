@@ -67,6 +67,7 @@ import { OPENING_CSS, bindOpeningWait } from './opening.js'
 import { noticeApprovals } from './approval-notices.js'
 import { listedOpener } from './open-listed.js'
 import { MOBILE_STATUS_CSS } from './live-status.js'
+import { RECEIPT_CSS } from './scheduled-receipt.js'
 import { needsIdleSample, pollDelay } from './polling.js'
 import { installMotionRest } from './motion-rest.js'
 import { agentSessionToReuse, singleFlight } from './agent-new.js'
@@ -989,6 +990,11 @@ export function apply(ctx) {
         if (snapshot === undefined) throw new Error('ds-bot: Chat target is unavailable')
         return snapshot.nodes.turnDataSource(Number(turn), 'assistant-step')
       },
+      turnTrigger: (turn) => {
+        const snapshot = chat.getSnapshot()
+        if (snapshot === undefined) throw new Error('ds-bot: Chat target is unavailable')
+        return snapshot.nodes.turnDataSource(Number(turn), 'turn-trigger')
+      },
       turnContext: (turn) => {
         const snapshot = chat.getSnapshot()
         if (snapshot === undefined) throw new Error('ds-bot: Chat target is unavailable')
@@ -1169,6 +1175,7 @@ export function apply(ctx) {
     [SHELL_CSS, 'shell'],
     [SIDEBAR_CSS, 'sidebar'],
     [MOBILE_STATUS_CSS, 'mobile-status'],
+    [RECEIPT_CSS, 'scheduled-receipt'],
     [SECRET_CSS + CONNECTOR_CSS + CONNECTORS_PAGE_CSS, 'secrets'],
     [LEARNING_CSS, 'learning'],
     [MODEL_CSS + FOLDER_CSS + BOT_SETTINGS_CSS + BOT_MODELS_CSS + AGENT_CARDS_CSS + GROUP_SETTINGS_CSS + AVATAR_LIBRARY_CSS, 'models'],
@@ -1247,7 +1254,7 @@ export function apply(ctx) {
     () => shadow('conversation.chat.node', { key: 'turn-error', priority: BOT_PRIORITY, locale: 'chat', inject: face }, FailureCell),
     // DSH's own turn tail stays, so what other plugins add there shows, such as the
     // cards of the files a turn delivered; its copy and branch row is hidden.
-    () => shadow('conversation.chat.turnTail', { id: 'bot-turn-separators', order: 1000, inject: face }, TurnTailCell),
+    () => shadow('conversation.chat.turnTail', { id: 'bot-turn-separators', order: 1000, inject: assistantFace }, TurnTailCell),
     // A side question is not a transcript row. After its snapshot turn closes it
     // sits on that turn's tail, ahead of the time separator.
     () => shadow('conversation.chat.turnTail', { id: 'bot-btw', order: 800, priority: BOT_PRIORITY, inject: face }, BtwTurnTail),
