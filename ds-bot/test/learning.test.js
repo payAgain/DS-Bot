@@ -714,7 +714,7 @@ test('a failed create attachment can be retried without resaving or losing the p
   assert.ok(runtime.teamState().bots.b2.capabilities.includes('release-checks'))
 })
 
-test('a recreated approved skill is learned when its saved proposal is retried', async t => {
+test('a deleted and recreated skill cannot inherit a saved proposal approval', async t => {
   const runtime = await startRuntime({ replies: [createReply] })
   t.after(() => runtime.stop())
   await finishTurn(runtime.ctx)
@@ -746,10 +746,10 @@ test('a recreated approved skill is learned when its saved proposal is retried',
   })
 
   const retry = await runtime.call('learning-answer', { id: proposal.id, approve: true })
-  assert.equal(retry.value.applied, true)
-  assert.equal(runtime.learningState().proposals[proposal.id], undefined)
-  assert.deepEqual(runtime.learningState().learned.b2, ['release-checks'])
-  assert.ok(runtime.teamState().bots.b2.capabilities.includes('release-checks'))
+  assert.equal(retry.error.code, 'bot/stale')
+  assert.ok(runtime.learningState().proposals[proposal.id])
+  assert.deepEqual(runtime.learningState().learned.b2, [])
+  assert.equal(runtime.teamState().bots.b2.capabilities.includes('release-checks'), false)
 })
 
 test('a failed create retry refuses a skill edited after it was saved', async t => {
@@ -1081,6 +1081,145 @@ test('host startup refresh shares legacy approved skills without approving pendi
   assert.equal(runtime.teamState().capabilities.items['release-checks'].content, skill.content)
   assert.equal(runtime.learningState().proposals.new.content, 'Unapproved extra rules.')
 })
+function sharedUpdateFixture() {
+  const seed = structuredClone(TEAM)
+  const item = { kind: 'skill', name: 'release-checks', description: 'Old scope.', content: 'Old rules.', createdBy: 'b2', createdAt: 1, updatedAt: 1 }
+  seed.capabilities.items[item.name] = item
+  for (const bot of Object.values(seed.bots)) bot.capabilities = [item.name]
+  const proposal = { id: 'shared-update', kind: 'skill', action: 'update', botId: 'b2', at: 10,
+    name: item.name, description: 'New scope.', content: 'New rules.', capabilityCreatedAt: 1,
+    previous: { description: item.description, content: item.content },
+    base: 'unused-in-generated-fixture' }
+  return { seed, proposal }
+}
+
+async function sharedUpdateRuntime(t) {
+  const { seed } = sharedUpdateFixture()
+  const runtime = await startRuntime({ seed, replies: [JSON.stringify({ action: 'update', name: 'release-checks', description: 'New scope.', content: 'New rules.', why: 'A verified correction.' })],
+    learningSeed: { learned: { b2: ['release-checks'] } }, config: { agentsMd: false, learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  await finishTurn(runtime.ctx); await runtime.rt.learningRun()
+  return { runtime, proposal: Object.values(runtime.learningState().proposals)[0] }
+}
+
+test('authenticated user approval updates a shared skill without impersonating the source Bot', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  assert.equal(proposal.capabilityCreatedAt, 1)
+  const answer = await runtime.call('learning-answer', { id: proposal.id, approve: true, botId: 'untrusted', ui: false })
+  assert.equal(answer.ok, true)
+  const item = runtime.teamState().capabilities.items[proposal.name]
+  assert.equal(item.content, proposal.content)
+  assert.equal(item.createdBy, 'b2')
+  assert.equal(item.createdAt, 1)
+  const receipt = runtime.learningState().settled[proposal.id]
+  assert.equal(receipt.botId, 'b2')
+  assert.equal(receipt.answeredVia, 'authenticated-user')
+  assert.equal(receipt.outcome, 'approved')
+  for (const mode of ['default', 'append', 'replace']) {
+    runtime.rt.state.bots.b2.promptMode = mode
+    assert.ok(runtime.rt.learningTeamSkills().includes(proposal.name))
+    assert.ok(runtime.teamState().bots.m1.capabilities.includes(proposal.name))
+  }
+})
+
+test('a non-UI shared approval cannot forge Main or UI authority in the payload; the user can recover', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  await assert.rejects(runtime.rt.learningEndpoint('learning-answer', { id: proposal.id, approve: true, user: true, ui: true, botId: 'm1' }), /authenticated user review in Chief/)
+  assert.equal(runtime.teamState().capabilities.items[proposal.name].content, 'Old rules.')
+  assert.ok(runtime.learningState().proposals[proposal.id])
+  const done = await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(done.value.applied, true)
+})
+
+test('ordinary source Bot save and delete stay protected after user approval', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  await assert.rejects(runtime.rt.capabilitySave({ name: proposal.name, kind: 'skill', description: proposal.description, content: 'Unapproved rules.' }, { botId: 'b2' }), /only a Main Bot/)
+  await assert.rejects(runtime.rt.capabilityDelete(proposal.name, { botId: 'b2' }), /only a Main Bot/)
+  assert.equal(runtime.teamState().capabilities.items[proposal.name].content, proposal.content)
+})
+
+test('an exact update already saved by Main remains pending until user decision and is a no-op', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  await runtime.rt.capabilitySave({ name: proposal.name, kind: 'skill', description: proposal.description, content: proposal.content }, { botId: 'm1' })
+  const before = runtime.teamState().capabilities.items[proposal.name]
+  assert.ok(runtime.learningState().proposals[proposal.id])
+  const answers = await Promise.all([1, 2, 3].map(() => runtime.call('learning-answer', { id: proposal.id, approve: true })))
+  assert.ok(answers.every(a => a.ok && a.value.applied))
+  assert.deepEqual(runtime.teamState().capabilities.items[proposal.name], before)
+  assert.equal(runtime.learningState().settled[proposal.id].outcome, 'approved')
+})
+
+test('rejecting an already saved exact version does not restore the previous rules', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  await runtime.call('capability-save', { name: proposal.name, kind: 'skill', description: proposal.description, content: proposal.content })
+  const answers = await Promise.all([false, true].map(approve => runtime.call('learning-answer', { id: proposal.id, approve })))
+  assert.equal(answers[0].value.applied, false)
+  assert.equal(answers[1].error.code, 'bot/stale')
+  assert.equal(runtime.teamState().capabilities.items[proposal.name].content, proposal.content)
+  assert.equal(runtime.learningState().settled[proposal.id].outcome, 'declined')
+})
+
+test('a skill changed while waiting cannot be overwritten by approving the old card', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  await runtime.call('capability-save', { name: proposal.name, kind: 'skill', description: proposal.description, content: 'A different update.' })
+  const answer = await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(answer.error.code, 'bot/stale')
+  assert.equal(runtime.teamState().capabilities.items[proposal.name].content, 'A different update.')
+  assert.ok(runtime.learningState().proposals[proposal.id])
+})
+
+test('an identical replacement object cannot inherit an update proposal decision', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  await runtime.call('capability-delete', { name: proposal.name })
+  await runtime.call('capability-save', { name: proposal.name, kind: 'skill', description: proposal.description, content: proposal.content })
+  const answer = await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(answer.error.code, 'bot/stale')
+  assert.ok(runtime.learningState().proposals[proposal.id].retiredAt)
+  assert.equal(runtime.learningState().settled[proposal.id], undefined)
+})
+
+test('approval compares the current definition again after asynchronous capability load', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  const load = runtime.rt.load
+  let calls = 0
+  runtime.rt.load = async (...args) => {
+    const value = await load(...args)
+    if (++calls === 2) runtime.rt.state.capabilities.items[proposal.name].content = 'Concurrent update.'
+    return value
+  }
+  const answer = await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(answer.error.code, 'bot/stale')
+  assert.equal(runtime.rt.state.capabilities.items[proposal.name].content, 'Concurrent update.')
+  assert.equal(runtime.learningState().settled[proposal.id], undefined)
+})
+
+test('a partial update attachment failure can recover without rewriting the approved version', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  runtime.rt.state.bots.m1.capabilities = []
+  const endpoint = runtime.rt.capabilityEndpoint
+  let fail = true
+  runtime.rt.capabilityEndpoint = async (...args) => {
+    if (args[0] === 'bot-capability' && fail) { fail = false; throw new Error('attachment interrupted') }
+    return endpoint(...args)
+  }
+  const first = await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(first.ok, false)
+  const saved = runtime.teamState().capabilities.items[proposal.name]
+  assert.equal(saved.content, proposal.content)
+  const second = await runtime.call('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(second.value.applied, true)
+  assert.deepEqual(runtime.teamState().capabilities.items[proposal.name], saved)
+})
+
+test('a non-UI private update still uses its creator permission without elevation', async t => {
+  const { runtime, proposal } = await sharedUpdateRuntime(t)
+  runtime.rt.state.bots.m1.capabilities = []
+  const result = await runtime.rt.learningEndpoint('learning-answer', { id: proposal.id, approve: true })
+  assert.equal(result.applied, true)
+  assert.equal(runtime.learningState().settled[proposal.id].answeredVia, undefined)
+})
+
 test('a learning review retries TRANSPORT and TIMEOUT failures on the same route and discards partial text', async t => {
   const runtime = await startRuntime({
     replies: [

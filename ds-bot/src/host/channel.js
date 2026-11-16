@@ -655,7 +655,9 @@ export function install(rt) {
           return ok(await rt.memoryEndpoint(endpoint, body))
         case 'learning-answer':
           await rt.load()
-          return ok(await rt.learningEndpoint(endpoint, body))
+          // This handler is reached through authenticated user bridges, never Bot tools.
+          // Do not take an actor or a UI privilege flag from the request payload.
+          return ok(await rt.learningEndpoint(endpoint, body, { user: true }))
         // The mobile API (mobile.js).
         case 'hello':
         case 'notices':

@@ -138,6 +138,15 @@ export function install(rt) {
   const capabilitySave = async (body, options = {}) => {
     await rt.load()
     writeCheck()
+    // Learning approvals compare again after load, immediately before mutation.
+    // An absent expected item means the approved create still requires absence.
+    if (Object.hasOwn(options, 'expected')) {
+      const current = own(ensureLibrary(), body?.name)
+      const expected = options.expected
+      if (expected === null ? current !== undefined : !current || ['kind', 'createdAt', 'description', 'content'].some(key => current[key] !== expected[key])) {
+        throw Object.assign(new Error(`${body?.name} changed since this was proposed`), { code: 'bot/stale' })
+      }
+    }
     const item = itemInput(body ?? {}, options)
     await rt.save()
     return item

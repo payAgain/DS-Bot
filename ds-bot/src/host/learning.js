@@ -404,10 +404,10 @@ export function install(rt) {
   const learnedOf = bot => (data().learned[bot.id] ?? []).filter(name => skillsOf()[name] !== undefined && (bot.capabilities ?? []).includes(name))
   const waitingFor = botId => Object.values(data().proposals).filter(entry => entry.botId === botId || entry.contributors?.some(source => source.botId === botId))
   const teamSkills = () => approvedSkills(skillsOf(), data().settled)
-  const shareSkill = async (name, expected) => {
+  const shareSkill = async (name, expected, createdAt) => {
     const check = () => {
       const current = skillsOf()[name]
-      if (!current || (expected && skillVersion(current) !== expected)) throw new Error(`${name} changed before it could be shared`)
+      if (!current || (createdAt !== undefined && current.createdAt !== createdAt) || (expected && skillVersion(current) !== expected)) throw new Error(`${name} changed before it could be shared`)
     }
     for (const bot of Object.values(state.bots)) {
       check()
@@ -417,7 +417,7 @@ export function install(rt) {
   }
   const reuseSkill = async (proposal, match) => {
     const store = data()
-    await shareSkill(match.item.name, skillVersion(match.item))
+    await shareSkill(match.item.name, skillVersion(match.item), match.item.createdAt)
     store.learned[proposal.botId] = [...new Set([...(store.learned[proposal.botId] ?? []), match.item.name])]
     delete store.proposals[proposal.id]
     store.settled[proposal.id] = { ...proposal, sessionId: rt.chatOf(proposal.botId), outcome: 'reused', settledAt: Date.now(),
@@ -492,6 +492,7 @@ export function install(rt) {
       ...(previous ? {
         previous: { description: previous.description, content: previous.content },
         base: hashOf(`${previous.description}\n${previous.content}`),
+        capabilityCreatedAt: previous.createdAt,
       } : {}),
     }
   }
@@ -715,12 +716,12 @@ export function install(rt) {
 
   // The user's answer to a card.
   let answering = Promise.resolve()
-  function answer(body) {
-    const task = answering.then(() => answerOne(body))
+  function answer(body, context) {
+    const task = answering.then(() => answerOne(body, context))
     answering = task.catch(() => {})
     return task
   }
-  async function answerOne({ id, approve }) {
+  async function answerOne({ id, approve }, context) {
     const store = data()
     const proposal = Object.hasOwn(store.proposals, id) ? store.proposals[id] : undefined
     if (proposal === undefined) {
@@ -734,6 +735,7 @@ export function install(rt) {
       delete store.proposals[id]
       const { saved: _saved, ...kept } = proposal
       store.settled[id] = { ...kept, sessionId: rt.chatOf(proposal.botId), outcome, settledAt: Date.now(),
+        ...(context?.user === true ? { answeredVia: 'authenticated-user' } : {}),
         ...(proposal.kind === 'skill' && outcome === 'approved' ? { approvedVersion: skillVersion(proposal), capabilityCreatedAt: skillsOf()[proposal.name]?.createdAt } : {}) }
     }
     if (approve !== true) {
@@ -755,9 +757,10 @@ export function install(rt) {
     // A failed approval keeps the card, so the user can still decline it.
     if (proposal.kind === 'agents') await applyAgents(proposal)
     else {
-      const match = approvedMatch(proposal, skillsOf(), store.settled)
+      if (proposal.retiredAt !== undefined) throw Object.assign(new Error(`${proposal.name} changed since this was proposed`), { code: 'bot/stale' })
+      const match = proposal.action === 'update' ? undefined : approvedMatch(proposal, skillsOf(), store.settled)
       if (match) { await reuseSkill(proposal, match); return { applied: true, reused: match.item.name } }
-      await applySkill(proposal)
+      await applySkill(proposal, context?.user === true)
       if (skillVersion(skillsOf()[proposal.name]) !== skillVersion(proposal)) throw new Error(`${proposal.name} changed while it was approved`)
     }
     settle('approved')
@@ -811,46 +814,72 @@ export function install(rt) {
     }
   }
 
-  async function applySkill(proposal) {
+  async function applySkill(proposal, userApproved = false) {
     const bot = rt.botOf(proposal.botId)
     if (bot === undefined) throw new Error('The Bot that learned this skill is gone')
     const current = skillsOf()[proposal.name]
     const store = data()
+    const stale = () => Object.assign(new Error(`${proposal.name} changed since this was proposed`), { code: 'bot/stale' })
+    if (proposal.retiredAt !== undefined) throw stale()
+    const sameIdentity = () => current && (proposal.capabilityCreatedAt !== undefined
+      ? current.createdAt === proposal.capabilityCreatedAt
+      : current.createdAt <= proposal.at)
+    const save = async (expected) => {
+      try {
+        return await rt.capabilitySave({ name: proposal.name, kind: 'skill', description: proposal.description, content: proposal.content }, {
+          botId: bot.id, ui: userApproved && proposal.action === 'update', expected: expected ? { ...expected } : null,
+        })
+      } catch (error) {
+        if (!userApproved && /only a Main Bot|Only .*Main Bot/.test(error?.message ?? '')) {
+          throw Object.assign(new Error('Approve shared skill changes through the authenticated user review in Chief. Bot tool permissions have not changed.'), { code: 'bot/refused' })
+        }
+        throw error
+      }
+    }
     if (proposal.action === 'create') {
       if (proposal.saved) {
-        if (current === undefined || current.description !== proposal.description || current.content !== proposal.content) {
+        if (!sameIdentity() || current.description !== proposal.description || current.content !== proposal.content) {
           throw new Error(`${proposal.name} changed since this was proposed`)
         }
         store.learned[bot.id] = [...new Set([...(store.learned[bot.id] ?? []), current.name])]
         await persist()
       } else {
         if (current !== undefined) throw new Error(`A skill named ${proposal.name} exists now`)
-        const item = await rt.capabilitySave({ name: proposal.name, kind: 'skill', description: proposal.description, content: proposal.content }, { botId: bot.id, ui: false })
+        const item = await save(null)
+        proposal.capabilityCreatedAt = item.createdAt
         proposal.saved = true
         store.learned[bot.id] = [...new Set([...(store.learned[bot.id] ?? []), item.name])]
         await persist()
       }
     } else if (proposal.action === 'update') {
-      if (current === undefined || hashOf(`${current.description}\n${current.content}`) !== proposal.base) throw new Error(`${proposal.name} changed since this was proposed`)
-      const item = await rt.capabilitySave({ name: proposal.name, kind: 'skill', description: proposal.description, content: proposal.content }, { botId: bot.id, ui: false })
+      if (!sameIdentity()) throw stale()
+      proposal.capabilityCreatedAt ??= current.createdAt
+      const unchanged = current.description === proposal.description && current.content === proposal.content
+      if (!unchanged && hashOf(`${current.description}\n${current.content}`) !== proposal.base) throw stale()
+      // An exact version saved by Main is a no-op only after this card's user decision.
+      // A direct non-UI call still goes through the ordinary source Bot permissions.
+      const item = unchanged && userApproved ? current : await save(current)
       store.learned[bot.id] = [...new Set([...(store.learned[bot.id] ?? []), item.name])]
       await persist()
     }
-    await shareSkill(proposal.name, skillVersion(proposal))
+    await shareSkill(proposal.name, skillVersion(proposal), proposal.capabilityCreatedAt)
     for (const source of proposal.contributors ?? []) {
       if (rt.botOf(source.botId)) store.learned[source.botId] = [...new Set([...(store.learned[source.botId] ?? []), proposal.name])]
     }
     await persist()
   }
 
-  async function learningEndpoint(endpoint, body) {
-    if (endpoint === 'learning-answer') return answer({ id: String(body.id ?? ''), approve: body.approve === true })
+  async function learningEndpoint(endpoint, body, context) {
+    if (endpoint === 'learning-answer') return answer({ id: String(body.id ?? ''), approve: body.approve === true }, context)
     throw new Error(`Unknown endpoint ${endpoint}`)
   }
 
   async function removeLearned(name) {
     const learned = data().learned
     const deleted = String(name ?? '')
+    for (const entry of Object.values(data().proposals)) {
+      if (entry.kind === 'skill' && entry.name === deleted) entry.retiredAt = Date.now()
+    }
     for (const entry of Object.values(data().settled)) {
       if (entry.kind === 'skill' && entry.name === deleted && entry.outcome === 'approved') entry.retiredAt = Date.now()
     }
@@ -896,7 +925,7 @@ export function install(rt) {
       if (!alive || rt.readOnly() !== undefined) return
       for (const { item } of teamSkills()) {
         if (!alive) break
-        await shareSkill(item.name, skillVersion(item))
+        await shareSkill(item.name, skillVersion(item), item.createdAt)
       }
     }).catch(error => rt.warn('ds-bot: approved team skill refresh failed: %s', error?.message ?? error))
     return () => { alive = false }
