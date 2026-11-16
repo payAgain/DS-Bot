@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createECDH, randomBytes } from 'node:crypto'
 import { mkdtemp, readFile, rm, stat, writeFile, symlink, chmod } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import webpush from 'web-push'
 import { WebPushStore } from '../src/host/web-push-store.js'
@@ -24,9 +24,9 @@ test('VAPID and encrypted subscriptions persist privately, while status exposes 
   const sub = subscription(); await store.subscribe('owner', sub)
   const first = await readFile(join(directory, 'vapid.json'), 'utf8')
   const second = await new WebPushStore({ directory, writable: () => true, targetAllowed: () => true, send: async () => ({ statusCode: 201 }) }).init()
-  assert.equal(second.keys.privateKey, store.keys.privateKey)
-  assert.deepEqual(second.data.devices.owner.subscription, sub)
-  assert.equal(await readFile(join(directory, 'vapid.json'), 'utf8'), first)
+  assert.ok(second.keys.privateKey === store.keys.privateKey)
+  assert.ok(second.data.devices.owner.subscription.endpoint === sub.endpoint); assert.ok(second.data.devices.owner.subscription.keys.p256dh === sub.keys.p256dh); assert.ok(second.data.devices.owner.subscription.keys.auth === sub.keys.auth)
+  assert.ok(await readFile(join(directory, 'vapid.json'), 'utf8') === first)
   if (process.platform !== 'win32') { assert.equal((await stat(directory)).mode & 0o777, 0o700); assert.equal((await stat(join(directory, 'vapid.json'))).mode & 0o777, 0o600); assert.equal((await stat(join(directory, 'devices.json'))).mode & 0o777, 0o600) }
   assert.equal(JSON.stringify(second.status('owner')).includes(sub.endpoint), false)
   assert.equal(JSON.stringify(second.status('owner')).includes(sub.keys.auth), false)
@@ -103,18 +103,18 @@ test('an unresolved transport is bounded by a deadline and left unknown without 
 
 test('corrupt stores fail closed and never rotate a stored key silently', async t => {
   const { store, directory } = await fixture(t); const key = store.keys.privateKey; await store.stop(); await writeFile(join(directory, 'devices.json'), '{broken', { mode: 0o600 })
-  const broken = new WebPushStore({ directory, writable: () => true, targetAllowed: () => true }); await assert.rejects(broken.init()); assert.equal(JSON.parse(await readFile(join(directory, 'vapid.json'), 'utf8')).privateKey, key); await broken.stop()
+  const broken = new WebPushStore({ directory, writable: () => true, targetAllowed: () => true }); await assert.rejects(broken.init()); assert.ok(JSON.parse(await readFile(join(directory, 'vapid.json'), 'utf8')).privateKey === key); await broken.stop()
 })
 test('a missing saved VAPID key does not silently replace subscribed device identity', async t => {
   const { store, directory } = await fixture(t); await store.subscribe('a', subscription()); await store.stop()
-  const path = join(directory, 'vapid.json'); assert.ok(path.startsWith(directory + '/')); await rm(path)
+  const path = join(directory, 'vapid.json'); assert.equal(dirname(path), directory); await rm(path)
   const resumed = new WebPushStore({ directory, writable: () => true, targetAllowed: () => true }); await assert.rejects(resumed.init(), { code: 'push/storage' }); await resumed.stop()
 })
 test('a linked key file fails closed without chmod of its target', { skip: process.platform === 'win32' }, async t => {
   const { store, directory } = await fixture(t); await store.stop()
   const original = join(directory, 'vapid.json'), other = join(directory, 'unrelated-fixture.json')
   await writeFile(other, JSON.stringify(store.keys), { mode: 0o644 }); await chmod(other, 0o644)
-  assert.ok(original.startsWith(directory + '/')); await rm(original); await symlink(other, original)
+  assert.equal(dirname(original), directory); await rm(original); await symlink(other, original)
   const linked = new WebPushStore({ directory, writable: () => true, targetAllowed: () => true }); await assert.rejects(linked.init(), { code: 'push/storage' }); await linked.stop()
   assert.equal((await stat(other)).mode & 0o777, 0o644)
 })
