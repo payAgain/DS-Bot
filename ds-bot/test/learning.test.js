@@ -1081,6 +1081,22 @@ test('host startup refresh shares legacy approved skills without approving pendi
   assert.equal(runtime.teamState().capabilities.items['release-checks'].content, skill.content)
   assert.equal(runtime.learningState().proposals.new.content, 'Unapproved extra rules.')
 })
+test('approving a new object cannot settle a retired same-content proposal as a duplicate', async t => {
+  const { seed, proposal } = sharedUpdateFixture()
+  Object.assign(seed.capabilities.items[proposal.name], { description: proposal.description, content: proposal.content })
+  const retired = { ...proposal, id: 'retired-object-card', retiredAt: 9 }
+  const replaced = { ...proposal, id: 'replaced-object-card', capabilityCreatedAt: 999 }
+  const runtime = await startRuntime({ seed, learningSeed: { proposals: { [proposal.id]: proposal, [retired.id]: retired, [replaced.id]: replaced } }, config: { learningTimes: { tickMs: 100_000 } } })
+  t.after(() => runtime.stop())
+  assert.equal((await runtime.call('learning-answer', { id: proposal.id, approve: true })).value.applied, true)
+  assert.ok(runtime.learningState().proposals[retired.id])
+  assert.ok(runtime.learningState().proposals[replaced.id])
+  assert.equal(runtime.learningState().settled[replaced.id], undefined)
+  assert.equal((await runtime.call('learning-answer', { id: replaced.id, approve: true })).error.code, 'bot/stale')
+  assert.equal(runtime.learningState().settled[retired.id], undefined)
+  assert.equal((await runtime.call('learning-answer', { id: retired.id, approve: true })).error.code, 'bot/stale')
+})
+
 function sharedUpdateFixture() {
   const seed = structuredClone(TEAM)
   const item = { kind: 'skill', name: 'release-checks', description: 'Old scope.', content: 'Old rules.', createdBy: 'b2', createdAt: 1, updatedAt: 1 }

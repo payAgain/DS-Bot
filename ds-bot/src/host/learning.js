@@ -766,8 +766,11 @@ export function install(rt) {
     settle('approved')
     if (proposal.kind === 'skill') {
       for (const duplicate of Object.values(store.proposals)) {
-        if (duplicate.kind !== 'skill' || skillVersion(duplicate) !== skillVersion(proposal)) continue
-        await reuseSkill(duplicate, { item: skillsOf()[proposal.name], approval: store.settled[id] })
+        if (duplicate.kind !== 'skill' || duplicate.retiredAt !== undefined || skillVersion(duplicate) !== skillVersion(proposal)) continue
+        const current = skillsOf()[proposal.name]
+        if (duplicate.name === proposal.name && (duplicate.action === 'update' || duplicate.saved)
+          && (duplicate.capabilityCreatedAt !== undefined ? current.createdAt !== duplicate.capabilityCreatedAt : current.createdAt > duplicate.at)) continue
+        await reuseSkill(duplicate, { item: current, approval: store.settled[id] })
       }
     }
     await persist()
