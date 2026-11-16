@@ -1,3 +1,4 @@
+import { PhoneSettingsHome, PhoneSettingsHeader, usePhoneSettings } from './mobile-settings.js'
 import { Component, createElement as h, useCallback, useEffect, useRef, useState } from 'react'
 import { ACCENT_INKS, INKS } from './inks.js'
 import { isMainOf } from './sources.js'
@@ -38,7 +39,7 @@ const capitalize = word => word[0].toUpperCase() + word.slice(1)
 // DS Bot's pages come first; below a rule, the pages DSH and other plugins register
 // (`settings.section`), then Feedback and About. DSH's General rows join General, and
 // its Models page opens from DS Bot's Models page as the advanced settings.
-const SETTINGS_PAGES = [['general', 'General'], ['models', 'Models'], ['local-agents', 'Local agents'], ['bots', 'Bots'], ['bot-models', 'Bot models'], ['groups', 'Group chats'], ['connectors', 'Connectors'], ['im', 'IM'], ['phone', 'Phone'], ['capabilities', 'Capabilities'], ['browser', 'Browser'], ['computer', 'Computer use'], ['schedules', 'Scheduled tasks'], ['usage', 'Usage'], ['secrets', 'Secrets'], ['feedback', 'Feedback'], ['about', 'About DS Bot']]
+const SETTINGS_PAGES = [['notifications', 'Phone notifications (trial)'], ['general', 'General'], ['models', 'Models'], ['local-agents', 'Local agents'], ['bots', 'Bots'], ['bot-models', 'Bot models'], ['groups', 'Group chats'], ['connectors', 'Connectors'], ['im', 'IM'], ['phone', 'Phone'], ['capabilities', 'Capabilities'], ['browser', 'Browser'], ['computer', 'Computer use'], ['schedules', 'Scheduled tasks'], ['usage', 'Usage'], ['secrets', 'Secrets'], ['feedback', 'Feedback'], ['about', 'About DS Bot']]
 const LAST_PAGES = new Set(['feedback', 'about'])
 // DSH sections DS Bot's own pages already hold.
 const MERGED_SECTIONS = new Set(['general', 'models'])
@@ -48,7 +49,7 @@ const DSH_ICONS = { account: IconUserOutlineMedium, 'agent-presets': IconAgentPr
 export const dshPages = dsh => (dsh?.sections ?? []).filter(row => row.id !== '' && !MERGED_SECTIONS.has(row.id))
 const hasSection = (dsh, id) => (dsh?.sections ?? []).some(row => row.id === id)
 const dshItem = (dsh, id) => h('div', { key: id, className: 'bt-dsh-item', 'data-item': id }, dsh.renderSlot('settings.general.item', {}, { only: id }))
-const PAGE_ICONS = { ...SETTINGS_ICONS, models: SlidersIcon, 'bot-models': IconPersonalizationOutlineMedium, 'local-agents': TerminalIcon, connectors: ConnectorIcon, im: ChatsIcon, phone: PhoneIcon, capabilities: PlugIcon, browser: GlobeIcon, computer: MonitorIcon, schedules: ClockIcon, secrets: KeyIcon, feedback: FeedbackIcon, about: InfoIcon }
+const PAGE_ICONS = { ...SETTINGS_ICONS, notifications: ChatsIcon, models: SlidersIcon, 'bot-models': IconPersonalizationOutlineMedium, 'local-agents': TerminalIcon, connectors: ConnectorIcon, im: ChatsIcon, phone: PhoneIcon, capabilities: PlugIcon, browser: GlobeIcon, computer: MonitorIcon, schedules: ClockIcon, secrets: KeyIcon, feedback: FeedbackIcon, about: InfoIcon }
 
 // What each MEMORY.md holds by default, in characters of entry text.
 const MEMORY_SIZES = [
@@ -115,7 +116,7 @@ function WidthSlider({ label, value, save }) {
     h('output', null, `${width}%`))
 }
 
-function GeneralPage({ roster, actions, run, dsh }) {
+function GeneralPage({ roster, actions, run, dsh, phone = false }) {
   const items = (dsh?.items ?? []).map(row => row.id).filter(id => id !== '')
   const look = LOOK_ITEMS.filter(id => items.includes(id))
   const more = items.filter(id => !LOOK_ITEMS.includes(id))
@@ -172,7 +173,7 @@ function GeneralPage({ roster, actions, run, dsh }) {
       actions.surfaceMode?.() === 'agent'
         ? h(SetRow, { label: t('Bot mode') }, h('button', { type: 'button', className: 'bt-soft bt-soft-sm', onClick: () => actions.setSurface('bot') }, t('Switch')))
         : h(SetRow, { label: t('Classic Agent mode') }, h('button', { type: 'button', className: 'bt-soft bt-soft-sm', onClick: () => actions.setSurface('agent') }, t('Switch')))) : null,
-    h(SetSection, { key: 'phone-push', title: t('Phone notifications (trial)') }, h(WebPushSettings)),
+    !phone ? h(SetSection, { key: 'phone-push', title: t('Phone notifications (trial)') }, h(WebPushSettings)) : null,
     h(LocationsSection, { key: 'places', actions, run }),
     more.length > 0 ? h(SetSection, { key: 'more', title: t('More'), className: 'bt-dsh-items' }, more.map(id => dshItem(dsh, id))) : null,
   ]
@@ -304,8 +305,10 @@ class PageBoundary extends Component {
 // While `leaving`, the dialog plays its exit and takes no input.
 export function SettingsDialog({ page, id, roster, actions, useUpdate, leaving = false, dsh }) {
   const [error, setError] = useState('')
+  const phone = usePhoneSettings(), home = phone && page === 'index'
+  const homeScroll = useRef(0)
   const close = useCallback(() => actions.closeSettings(), [])
-  useEscape(close)
+  useEscape(() => { if (phone && !home) goBack(); else close() })
   const run = promise => Promise.resolve(promise)
     .then(() => { setError(''); return true })
     .catch(failure => { setError(failure?.message ?? String(failure)); return false })
@@ -322,6 +325,8 @@ export function SettingsDialog({ page, id, roster, actions, useUpdate, leaving =
   const usageFocus = shown === 'usage' && id ? id : null
   const label = section ? section.label : advanced ? t('Advanced settings') : t(pages.find(([key]) => key === shown)[1])
   const back = bot ? t('Back to Bots') : room ? t('Back to group chats') : usageFocus ? t('All usage') : advanced ? t('Back to models') : null
+  const goBack = () => actions.openSettings(bot || room || usageFocus || advanced ? shown : 'index')
+  const homeExtra = extra.filter(row => row.id !== 'account').map(row => ({ id: `dsh:${row.id}`, label: row.label, open: () => actions.openSettings('dsh', row.id) }))
   const nav = useGlide(section ? `dsh:${section.id}` : shown, { axis: 'y' })
   // A page enters from the right when it is one level in, from the left when it comes
   // back out, and from below beside it. Usage keeps its own entrance and its data
@@ -339,7 +344,7 @@ export function SettingsDialog({ page, id, roster, actions, useUpdate, leaving =
   if (shown === 'usage' && !usageOpened) setUsageOpened(true)
   const errorLine = error ? h('div', { className: 'bt-error', role: 'alert', style: { padding: 0 } }, error) : null
   const pageButton = (key, text) => h('button', {
-    key, type: 'button', className: 'bt-settings-item', 'aria-current': shown === key ? 'page' : undefined, onClick: () => actions.openSettings(key),
+    key, type: 'button', className: 'bt-settings-item', 'data-phone-only': key === 'notifications' || undefined, 'aria-current': shown === key ? 'page' : undefined, onClick: () => actions.openSettings(key),
   }, h(PAGE_ICONS[key]), t(text), key === 'phone' ? h('span', { className: 'bt-tag', style: { marginLeft: 'auto' } }, t('Beta')) : null)
   return h('div', { className: 'bt-settings-layer', 'data-leaving': leaving || undefined },
     h('div', { className: 'bt-scrim', onMouseDown: close }),
@@ -356,7 +361,8 @@ export function SettingsDialog({ page, id, roster, actions, useUpdate, leaving =
         })), row.label)),
         h('span', { className: 'bt-settings-rule', 'aria-hidden': true }),
         pages.filter(([key]) => LAST_PAGES.has(key)).map(([key, text]) => pageButton(key, text))),
-      h('div', { className: 'bt-settings-main' },
+      h(PhoneSettingsHeader, { home, title: bot?.name ?? room?.name ?? label, back: goBack }),
+      home ? h(PhoneSettingsHome, { pages, extra: homeExtra, icons: PAGE_ICONS, actions, scroll: homeScroll, accountOpen: extra.some(row => row.id === 'account') ? () => actions.openSettings('dsh', 'account') : undefined }) : h('div', { className: 'bt-settings-main' },
         h('div', { className: 'bt-settings-head' },
           back ? h('button', { type: 'button', className: 'bt-icon-btn', 'aria-label': back, title: back, onClick: () => actions.openSettings(shown) }, h(ChevronLeftIcon)) : null,
           h('h2', { key: bot?.id ?? room?.id ?? section?.id ?? (advanced ? 'advanced' : shown) }, bot?.name ?? room?.name ?? label),
@@ -364,8 +370,9 @@ export function SettingsDialog({ page, id, roster, actions, useUpdate, leaving =
         shown === 'usage' ? null : h('div', { key: pageKey, className: 'bt-settings-scroll bt-settings-page', 'data-move': last.current.move },
           errorLine,
           h(PageBoundary, null,
-          shown === 'computer' ? h(ComputerPage, { roster, actions, run, Section: SetSection, Row: SetRow, Switch }) : null,
-          shown === 'general' ? h(GeneralPage, { roster, actions, run, dsh }) : null,
+          shown === 'notifications' ? h('section', { className: 'bt-set-section' }, h('div', { className: 'bt-set-card' }, h(WebPushSettings))) : null,
+           shown === 'computer' ? h(ComputerPage, { roster, actions, run, Section: SetSection, Row: SetRow, Switch }) : null,
+          shown === 'general' ? h(GeneralPage, { roster, actions, run, dsh, phone }) : null,
           shown === 'models' && !advanced ? h(ProvidersPage, { actions, run, roster, Section: SetSection, advanced: hasSection(dsh, 'models') ? () => actions.openSettings('models', 'advanced') : null }) : null,
           advanced ? h('div', { className: 'bt-dsh-section' }, dsh.renderSlot('settings.section', { close }, { only: 'models' })) : null,
           section ? h('div', { className: 'bt-dsh-section' }, dsh.renderSlot('settings.section', { close }, { only: section.id })) : null,

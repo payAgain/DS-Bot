@@ -17,6 +17,7 @@ const bundle = async (contents) => (await build({
 const react = {
   Component: class {}, createElement: (type, props, ...children) => ({ type, props: { ...props, children } }), Fragment: Symbol('Fragment'),
   useEffect() {}, useLayoutEffect() {}, useCallback: fn => fn, useRef: current => ({ current }), useMemo: make => make(), useId: () => 'id',
+  useSyncExternalStore: (_subscribe, snapshot) => snapshot(),
   useState: initial => [typeof initial === 'function' ? initial() : initial, () => {}],
   createContext: value => ({ Provider: 'Provider', value }), useContext: context => context.value,
 }

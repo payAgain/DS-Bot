@@ -1003,7 +1003,12 @@ export function AccountLauncher({ seat = true, settingsOpen, actions }) {
   const tick = useViewport()
   const anchor = () => {
     const rect = button.current?.getBoundingClientRect()
-    if (rect) setBox({ left: rect.left, bottom: fixedBottom(rect.top, 5) })
+    if (rect) {
+      const left = Math.max(8, Math.min(rect.left, window.innerWidth - 232))
+      const top = window.visualViewport?.offsetTop ?? 0
+      const bottom = (window.visualViewport?.height ?? window.innerHeight) + top
+      setBox(rect.top - top < 240 ? { left, top: rect.bottom + 5, maxHeight: Math.max(44, bottom - rect.bottom - 13) } : { left, bottom: fixedBottom(rect.top, 5) })
+    }
   }
   useLayoutEffect(() => { if (open) anchor() }, [open, tick])
   const toggle = () => { if (!open) anchor(); setOpen(value => !value) }
@@ -1021,7 +1026,7 @@ export function AccountLauncher({ seat = true, settingsOpen, actions }) {
       openModels ? [t('Models and API keys'), SlidersIcon, () => openModels()] : null,
       [t('Connectors'), ConnectorIcon, () => actions.openConnectors()],
       [t('Automation tasks'), ClockIcon, () => actions.selectPanel('schedules')],
-      [t('Settings'), GearIcon, () => actions.openSettings('general')],
+      [t('Settings'), GearIcon, () => actions.openSettings(window.innerWidth <= 700 ? 'index' : 'general')],
     ].filter(Boolean),
     typeof actions.setSurface === 'function' ? [[t('Classic Agent mode'), SwitchIcon, () => actions.setSurface('agent')]] : null,
   ].filter(Boolean)
@@ -1030,7 +1035,7 @@ export function AccountLauncher({ seat = true, settingsOpen, actions }) {
   return h(Fragment, null,
     h('button', { ref: button, type: 'button', className: 'bt-account', 'aria-label': t('Account'), 'aria-haspopup': 'menu', 'aria-expanded': open, onClick: toggle },
       h('span', { className: 'bt-you', 'aria-hidden': true }, h(GearIcon))),
-    open && box ? createPortal(h('div', { ref: menuRef, className: 'bt-menu bt-menu-up bt-account-menu', role: 'menu', 'aria-label': t('Account'), style: box },
+    open && box ? createPortal(h('div', { ref: menuRef, className: `bt-menu bt-account-menu${box.bottom !== undefined ? ' bt-menu-up' : ''}`, role: 'menu', 'aria-label': t('Account'), style: box },
       confirm !== null ? h('div', { className: 'bt-confirm', role: 'alertdialog', 'aria-label': accountT('signOut') },
         h('p', { className: 'bt-confirm-text' }, accountT(confirm === 'running' ? 'signOutRunningDescription' : confirm === 'unknown' ? 'signOutUnknownDescription' : 'signOutDescription')),
         signOutError !== '' ? h('p', { className: 'bt-confirm-error', role: 'alert' }, signOutError) : null,

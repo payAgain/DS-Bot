@@ -95,7 +95,7 @@ export function installPushEntry({ roster, actions, document: doc = globalThis.d
     const target = url.searchParams.get('dsbot-push')
     if (validId(target) && (snapshot.byId?.[target] || snapshot.roomsById?.[target])) actions.openSession(target)
     else if (target) actions.reportError?.(new Error(t('The notification conversation is unavailable.')), 'web-push-navigation')
-    if (url.searchParams.get('dsbot-pwa-setup') === '1') actions.openSettings('general')
+    if (url.searchParams.get('dsbot-pwa-setup') === '1') actions.openSettings((doc.defaultView?.innerWidth ?? globalThis.innerWidth) <= 700 ? 'notifications' : 'general')
     if (url.searchParams.has('dsbot-push') || url.searchParams.has('dsbot-pwa-setup')) {
       url.searchParams.delete('dsbot-push'); url.searchParams.delete('dsbot-pwa-setup'); hist.replaceState(hist.state, '', url.pathname + url.search + url.hash)
     }

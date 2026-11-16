@@ -40,6 +40,7 @@ const makeReact = (overrides = {}) => {
     useLayoutEffect() {},
     useMemo: make => make(),
     useRef: current => ({ current }),
+    useSyncExternalStore: (_subscribe, snapshot) => snapshot(),
     useState: init => [typeof init === 'function' ? init() : init, () => {}],
     startTransition: fn => fn(),
     createElement: (type, p, ...children) => ({ type, props: p ? { ...p, children } : { children } }),

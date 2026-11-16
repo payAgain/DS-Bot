@@ -87,6 +87,18 @@ test('a reset device cookie can still unsubscribe its own browser-local subscrip
   c.render(); await c.flush(); const view = c.render(); const button = find(view, 'Unsubscribe this device')
   assert.equal(button.props.disabled, false); await button.props.onClick(); await c.flush(); assert.equal(removed, 1); assert.equal(c.permissionCalls(), 0)
 })
+test('PWA setup opens the phone notification subpage without requesting permission or sending a test', () => {
+  for (const [width, expected] of [[390, 'notifications'], [1280, 'general']]) {
+    const c = client(), opened = []
+    c.env.document.defaultView = { innerWidth: width }
+    c.env.location.href = 'https://gateway.test/?dsbot-pwa-setup=1'
+    c.api.installPushEntry({ roster: { getSnapshot: () => ({ ready: true, byId: {}, roomsById: {} }) }, actions: { openSettings: page => opened.push(page) }, document: c.env.document, location: c.env.location, history: c.env.history })
+    assert.deepEqual(opened, [expected])
+    assert.equal(c.permissionCalls(), 0)
+    assert.equal(c.requests.some(request => request.method === 'POST'), false)
+  }
+})
+
 test('deep links resolve only an actually visible roster target and consume no external URL', async () => {
   const c = client(), opened = [], toasts = []; c.env.location.href = 'https://gateway.test/?dsbot-pwa=0&dsbot-push=bot-fixture'
   c.api.installPushEntry({ roster: { getSnapshot: () => ({ ready: true, byId: { 'bot-fixture': {} }, roomsById: {} }) }, actions: { openSession: id => opened.push(id), reportError: error => toasts.push(error.message) }, document: c.env.document, location: c.env.location, history: c.env.history }); assert.deepEqual(opened, ['bot-fixture'])

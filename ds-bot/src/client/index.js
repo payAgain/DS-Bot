@@ -1,3 +1,4 @@
+import { PHONE_SETTINGS_CSS } from './mobile-settings.js'
 import { call } from './api.js'
 import { isHex, inkText, paintCss } from './inks.js'
 import { DEFAULT_MASK, SHAPES, markupCache, maskOf } from './characters.js'
@@ -1432,4 +1433,5 @@ export function apply(ctx) {
   ctx.effect(() => installPushEntry({ roster, actions }), 'ds-bot: Web Push entry')
   ctx.effect(() => installCompiledStyles(PHONE_LAYOUT_CSS, 'phone-layout'), 'ds-bot: phone layout')
   ctx.effect(() => installPhoneViewport(), 'ds-bot: phone viewport')
+  ctx.effect(() => installCompiledStyles(PHONE_SETTINGS_CSS, 'phone-settings'), 'ds-bot: phone settings navigation')
 }
