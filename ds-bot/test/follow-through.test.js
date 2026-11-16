@@ -416,7 +416,7 @@ test('a turn that ended on the token limit gives what it said, marked as not com
   await settleState(t, home, () => stateOf(home).works?.[exchangeId] === undefined)
   assert.equal(second.agentOf('b').calls.length, 0)
   // The diagnostics name the route, so a wrong contextWindow can be found from them.
-  const entries = await readDiagnostics(home)
+  const entries = await readDiagnostics(home, rows => rows.some(entry => entry.code === 'MAX_TOKENS'))
   const cutOff = entries.filter(entry => entry.code === 'MAX_TOKENS')
   assert.equal(cutOff.length, 1)
   assert.match(cutOff[0].text, /answer is not complete \(gateway\/step-5\)/)

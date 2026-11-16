@@ -821,6 +821,11 @@ export const DE = {
   'Show all · {count} characters': 'Alles anzeigen · {count} Zeichen',
   'Showing the first {count} characters': 'Zeigt die ersten {count} Zeichen',
   'Only the start of this message is kept here': 'Hier ist nur der Anfang dieser Nachricht gespeichert',
+  'Start of reply': 'Anfang der Antwort',
+  'Back to the start of this reply': 'Zurück zum Anfang dieser Antwort',
+  Contents: 'Inhalt',
+  'Sections in this reply': 'Abschnitte dieser Antwort',
+  'Sections in this reply: {section}': 'Abschnitte dieser Antwort: {section}',
 
   // Time and usage
   'Today {time}': 'Heute {time}',
@@ -838,6 +843,13 @@ export const DE = {
   '{used} of {total} tokens of context in use': '{used} von {total} Kontext-Tokens belegt',
 
   // Transcript
+  Annotate: 'Kommentieren',
+  'Annotate quote': 'Zitat kommentieren',
+  Annotation: 'Anmerkung',
+  'Add an annotation…': 'Anmerkung hinzufügen…',
+  'Add quote and annotation to the composer · Enter': 'Zitat und Anmerkung zum Eingabefeld hinzufügen · Eingabe',
+  'Send quote and annotation · Ctrl+Enter': 'Zitat und Anmerkung senden · Strg+Eingabe',
+  'Quote text': 'Text zitieren',
   Footnotes: 'Fußnoten',
   'Remove reaction {emoji}': 'Reaktion {emoji} entfernen',
   'Add reaction': 'Reaktion hinzufügen',
